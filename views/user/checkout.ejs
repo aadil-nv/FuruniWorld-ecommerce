@@ -1,0 +1,999 @@
+<%- include('../partials/mainheader.ejs')%>
+
+    <style>
+        .data-cell {
+            padding-left: 50px;
+            padding-top: 20;
+        }
+
+        .data-radio {
+            padding-top: 10px;
+            padding-right: 80px;
+        }
+
+        .table-data {
+            padding-right: 200px;
+            overflow: hidden;
+            font-size: 11px;
+        }
+
+        .save-btn {
+            background-color: rgb(219, 99, 0);
+            border: none;
+            width: 150px;
+            height: 40px;
+        }
+
+        .error-message {
+            color: red;
+        }
+
+        #save {
+            background-color: orangered;
+            border: none;
+            height: 53px;
+        }
+
+        #couponCodeInput {
+            width: 255px;
+            height: 41px;
+            border: 1px solid rgb(190, 204, 216);
+        }
+
+        #applyCoupon {
+            width: 100px;
+            height: 40px;
+            font-size: 11px;
+            background-color: black;
+            color: white;
+        }
+
+        #removeCoupon {
+            width: 100px;
+            height: 40px;
+            font-size: 11px;
+            background-color: rgb(223, 28, 28);
+            border: none;
+            color: white;
+        }
+
+        @media (max-width:320px) {
+
+            .your-order-area {
+                max-width: 300px;
+            }
+
+            .container {
+                width: 300px;
+            }
+        }
+    </style>
+
+    <div class="checkout-main-area  pb-100 pt-100">
+        <div class="container" style="padding-top: 40px;  ;">
+            <div class="customer-zone mb-20" id="returningcustomer">
+                <p class="cart-page-title">
+                    Returning customer?
+                    <a class="checkout-click1" href="#">Click here to login</a>
+                </p>
+                <div class="checkout-login-info">
+                    <p>
+                        If you have shopped with us before, please enter your details in the
+                        boxes below. If you are a new customer, please proceed to the Billing
+                        & Shipping section.
+                    </p>
+                    <form action="#">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6">
+                                <div class="sin-checkout-login">
+                                    <label>Username or email address <span>*</span></label>
+                                    <input type="text" name="user-name" />
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="sin-checkout-login">
+                                    <label>Passwords <span>*</span></label>
+                                    <input type="password" name="user-password" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="button-remember-wrap">
+                            <button class="button" type="submit">Login</button>
+                            <div class="checkout-login-toggle-btn">
+                                <input type="checkbox" />
+                                <label>Remember me</label>
+                            </div>
+                        </div>
+                        <div class="lost-password">
+                            <a href="#">Lost your password?</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- <div class="customer-zone mb-20" id="coupondiv">
+                <p class="cart-page-title">
+                    Have a coupon?
+                    <a class="checkout-click3" href="#">Click here to enter your code</a>
+                </p>
+                <div class="checkout-login-info3">
+                    <input type="text" id="couponCodeInput" placeholder="Coupon code" />
+                    <input id="ApplyCoupon" value="Apply Coupon" onclick="applyCoupon()" />
+                    <p id="couponMessage" style="color: red;"></p>
+                    <p id="couponMessages" style="color: rgb(16, 151, 34);"></p>
+                </div>
+            </div> -->
+
+            <div class="checkout-wrap pt-50">
+                <div class="row">
+                    <div class="col-12 col-md-6 col-lg-6 col-xl-6">
+                        <div class="billing-info-wrap">
+                            <h3>Billing Details</h3>
+
+                            <div class="checkout-account" style="
+                                       background-color: #eeeff2;
+                                       width: 100%;
+                                       height: 50px;
+                                       padding-top: 15px;
+                                       padding-left: 10px;">
+                                <input class="checkout-toggle" type="checkbox" />
+                                <span>Ship to a different address?</span>
+                            </div>
+                            <form action="/checkoutpageone" method="post" onsubmit="return validateForm()">
+                                <div class="different-address open-toggle mt-30">
+                                    <div class="row">
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="billing-info mb-20">
+                                                <label>User Name</label>
+                                                <input type="text" placeholder="(Name)*" name="username"
+                                                    id="username2" />
+                                                <div class="error-message" id="usernameError"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="billing-info mb-20">
+                                                <label>Mobile Number</label>
+                                                <input type="number" placeholder="(10 Digits )*" name="usermobile"
+                                                    id="usermobile2" />
+                                                <div class="error-message" id="usermobileError"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <div class="billing-info mb-20">
+                                                <label>Address</label>
+                                                <input type="text" placeholder="(House No. Building Name)*"
+                                                    name="address" id="address2" />
+                                                <div class="error-message" id="addressError"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-12">
+                                            <div class="billing-info mb-20">
+                                                <label>Street Address</label>
+
+                                                <input placeholder="(Road name,Area, colony)*" type="text"
+                                                    name="streetaddress" id="streetaddress2" />
+                                                <div class="error-message" id="streetaddressError"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <div class="billing-info mb-20">
+                                                <label>Pincode</label>
+                                                <input type="number" placeholder="(Required)*" name="pincode"
+                                                    id="pincode2" />
+                                                <div class="error-message" id="pincodeError"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="billing-info mb-20">
+                                                <label>City</label>
+                                                <input type="text" placeholder="(your city)*" name="city" id="city2" />
+                                                <div class="error-message" id="cityError"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="billing-info mb-20">
+                                                <label>State</label>
+                                                <input type="text" placeholder="(State)*" name="state" id="state2" />
+                                                <div class="error-message" id="stateError"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="billing-info mb-20">
+                                                <label>Landmark</label>
+                                                <input type="text" placeholder="(Famous place your Area)*"
+                                                    name="landmark" id="landmark2" />
+                                                <div class="error-message" id="landmarkError"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="single-input-item btn-hover">
+                                        <button type="submit" class="save-btn sqr-btn">
+                                            Add New Address
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <% if(addressData.length> 0){ %> <% addressData.forEach((data,index)=>{%>
+
+                                    <table style="
+                width: 70%;
+                height: 260px;
+
+                background-color: rgb(255, 255, 255);
+                box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1),
+                  0px 6px 6px rgba(0, 0, 0, 0.1);
+              ">
+                                        <tr>
+                                            <th class="data-radio">
+                                                <input type="radio" name="addressId" value="<%=data._id%>"
+                                                    <%if(index==0){%> checked <%}%> >
+                                            </th>
+                                        </tr>
+
+                                        <tr>
+                                            <th class="data-cell">Name :</th>
+                                            <td class="table-data">
+                                                <%= data.name %>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="data-cell">Mobile No:</th>
+                                            <td class="table-data">
+                                                <%= data.mobile %>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="data-cell">Address:</th>
+                                            <td class="table-data">
+                                                <%= data.address %>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="data-cell">StreetAddress:</th>
+                                            <td class="table-data">
+                                                <%= data.streetaddress %>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="data-cell">City:</th>
+                                            <td class="table-data">
+                                                <%= data.city %>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="data-cell">State:</th>
+                                            <td class="table-data">
+                                                <%= data.state %>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="data-cell">Pincode:</th>
+                                            <td class="table-data">
+                                                <%= data.pincode %>
+                                            </td>
+                                        </tr>
+                                        <br />
+                                        <tr>
+                                            <th class="data-cell">Landmark:</th>
+                                            <td class="table-data">
+                                                <%= data.landmark %>
+                                            </td>
+                                        </tr>
+                                        <td class="data-cell" style="padding-top: 25px">
+                                            <a class="check-btn sqr-btn" data-bs-toggle="modal" id="sendId"
+                                                onclick="sendAddressId('<%= data._id %>')"
+                                                data-bs-target="#exampleModal"><i class="fa fa-edit"></i>Edit
+                                                Address</a>
+                                        </td>
+                                    </table>
+                                    <%})%>
+                                        <%}%>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-6 col-xl-6">
+                        <div class="your-order-area ">
+                            <h3>Your order</h3>
+                            <div class="your-order-wrap gray-bg-4">
+                                <div class="your-order-info-wrap">
+                                    <div class="your-order-info">
+                                        <ul>
+                                            <li>Product <span>Total</span></li>
+                                        </ul>
+                                    </div>
+                                    <% if(cartDetiles.length> 0){ %>
+                                        <% cartDetiles[0].products.forEach((data)=>{ %>
+                                            <div class="your-order-middle">
+                                                <ul>
+                                                    <li>
+                                                        <%= data.productId.productname %>&nbsp;x&nbsp;(<%= data.quantity
+                                                                %>)
+                                                                <span>
+                                                                    <%= data.totalPrice %>
+                                                                </span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <% })%>
+                                                <%}%>
+                                                    <div class="your-order-info order-subtotal">
+                                                        <ul>
+                                                            <li>Total <span>
+                                                                    <%= total.toFixed(0)%>
+                                                                </span></li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <div class="your-order-info order-total">
+                                                        <ul>
+                                                            <li>Discount <span id="totalvalue2" style="color: green;">00
+
+                                                                </span></li>
+                                                        </ul>
+                                                        <ul>
+                                                            <li>Total Payble <span id="totalvalue1">
+                                                                    <%= total.toFixed(0) %>
+                                                                </span></li>
+                                                        </ul><br>
+                                                        <input type="hidden" id="totalvalue"
+                                                            value=" <%= total.toFixed(0)%>" />
+                                                    </div>
+                                </div>
+                                <div class="payment-method">
+
+                                    <div class="pay-top sin-payment">
+                                        <input id="payment-method-2" class="input-radio" type="radio" value="Wallet"
+                                            name="payment_method" />
+                                        <label for="payment-method-2">Wallet</label>
+                                    </div>
+                                    <div class="pay-top sin-payment">
+                                        <input id="payment-method-3" class="input-radio" type="radio"
+                                            value="Cash On Delivery" name="payment_method" />
+                                        <label for="payment-method-3">Cash On Delivery </label>
+                                    </div>
+                                    <div class="pay-top sin-payment sin-payment-3">
+                                        <input id="payment-method-4" class="input-radio" type="radio" value="RazorPay"
+                                            name="payment_method" />
+                                        <label for="payment-method-4">RazorPay</label>
+                                    </div>
+                                    <div class="customer-zone mb-20" id="coupondiv">
+                                        <p class="cart-page-title">
+                                            Have a coupon?
+                                            <a class="checkout-click3" href="#">Click here to enter your code</a>
+                                        </p>
+                                        <!-- todo---------------------------------------------------- Apply coupon- ------------------------------------------------------>
+                                        <div class="checkout-login-info3">
+
+
+                                            <input type="text" id="couponCodeInput" placeholder="Coupon code" />
+                                            <button id="applyCoupon" onclick="applyCoupon()">Apply Coupon</button>
+                                            <button id="removeCoupon" onclick="removeCoupon()">Remove Coupon</button>
+                                            <p id="couponMessage" style="color: red;"></p>
+                                            <p id="couponMessages" style="color: rgb(16, 151, 34);"></p>
+
+
+                                        </div>
+                                        <!-- todo---------------------------------------------------- Apply coupon- ------------------------------------------------------>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- !------------------------------- place Orderr Button ------------------------------------------>
+                            <div class="Place-order btn-hover">
+                                <a onclick="handleAddressSelection()">Place Order</a>
+                            </div>
+
+                            <!-- !------------------------------- place Orderr Button ------------------------------------------>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!----------------------------------------------------------------- Moda --------------------------------------------------------------->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Edit Your Address</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"
+                            style="border: none">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <form>
+                        <div class="modal-body">
+                            <div class="different-address open-toggle mt-30">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="billing-info mb-20">
+                                            <label>User Name</label>
+                                            <input type="text" placeholder="(Name)*" id="username1" name="username" />
+                                        </div>
+                                        <span id="usernameError3" class="error-message" style="color: red"></span>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="billing-info mb-20">
+                                            <label>Mobile Number</label>
+                                            <input type="text" placeholder="(10 Digits )*" id="usermobile1"
+                                                name="usermobile" />
+                                            <span id="usermobileError3" class="error-message" style="color: red"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="billing-info mb-20">
+                                            <label>Address</label>
+                                            <input type="text" placeholder="(House No. Building Name)*" id="address1"
+                                                name="address" />
+                                            <span id="addressError3" class="error-message" style="color: red"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-12">
+                                        <div class="billing-info mb-20">
+                                            <label>Street Address</label>
+
+                                            <input placeholder="(Road name,Area, colony)*" type="text"
+                                                id="streetaddress1" name="streetaddress" />
+                                            <span id="streetaddressError3" class="error-message"
+                                                style="color: red"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="billing-info mb-20">
+                                            <label>City</label>
+                                            <input type="text" placeholder="(your city)*" id="city1" name="city" />
+                                            <span id="cityError3" class="error-message" style="color: red"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="billing-info mb-20">
+                                            <label>Pincode</label>
+                                            <input type="text" placeholder="(Required)*" id="pincode1" name="pincode" />
+                                            <span id="pincodeError3" class="error-message" style="color: red"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="billing-info mb-20">
+                                            <label>State</label>
+                                            <input type="text" placeholder="(State)*" id="state1" name="state" />
+                                            <span id="stateError3" class="error-message"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12">
+                                        <div class="billing-info mb-20">
+                                            <label>Landmark</label>
+                                            <input type="text" placeholder="(Famous place your Area)*" id="landmark1"
+                                                name="landmark" />
+                                            <span id="landmarkError3" class="error-message" style="color: red"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                                <button class="green" id="save">Save changes</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <!-----------------------------------------------------------------End  Moda --------------------------------------------------------------->
+
+        <script>
+            let addressId;
+            function sendAddressId(id) {
+                fetch(`/checkoutpage/${id}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id }),
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log(data);
+                        document.getElementById("username1").value =
+                            data.addressDataSecond.name;
+                        document.getElementById("usermobile1").value =
+                            data.addressDataSecond.mobile;
+                        document.getElementById("pincode1").value =
+                            data.addressDataSecond.pincode;
+                        document.getElementById("address1").value =
+                            data.addressDataSecond.address;
+                        document.getElementById("streetaddress1").value =
+                            data.addressDataSecond.streetaddress;
+                        document.getElementById("city1").value = data.addressDataSecond.city;
+                        document.getElementById("state1").value =
+                            data.addressDataSecond.state;
+                        document.getElementById("landmark1").value =
+                            data.addressDataSecond.landmark;
+                        addressId = data.addressDataSecond._id;
+                    })
+
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            }
+
+            const save = document.getElementById("save");
+
+            save.addEventListener("click", (e) => {
+                e.preventDefault();
+
+                console.log("uuuu");
+
+                let username = document.getElementById("username1").value;
+                let usermobile = document.getElementById("usermobile1").value;
+                let address = document.getElementById("address1").value;
+                let streetaddress = document.getElementById("streetaddress1").value;
+                let pincode = document.getElementById("pincode1").value;
+                let state = document.getElementById("state1").value;
+                let landmark = document.getElementById("landmark1").value;
+                let city = document.getElementById("city1").value;
+
+                var username1 = document.getElementById("username1").value.trim();
+
+                if (!username1.match(/^[A-Za-z]+$/)) {
+                    document.getElementById("usernameError3").innerHTML =
+                        "Username can only contain letters!";
+                    return false;
+                } else {
+                    document.getElementById("usernameError3").innerHTML = "";
+                }
+
+                var usermobile1 = document.getElementById("usermobile1").value.trim();
+
+                if (!usermobile1.match(/^\d+$/)) {
+                    document.getElementById("usermobileError3").textContent =
+                        "Mobile number can only contain numbers!";
+                    return false;
+                } else if (usermobile.length !== 10) {
+                    document.getElementById("usermobileError3").textContent =
+                        "Mobile number must be 10 digits long!";
+                    return false;
+                } else {
+                    document.getElementById("usermobileError3").textContent = "";
+                }
+
+                var address1 = document.getElementById("address1").value.trim();
+
+                if (!address1) {
+                    document.getElementById("addressError3").textContent =
+                        "Address is required!";
+                    return false;
+                } else {
+                    document.getElementById("addressError3").textContent = "";
+                }
+
+                var streetaddress1 = document
+                    .getElementById("streetaddress1")
+                    .value.trim();
+
+                if (!streetaddress1) {
+                    document.getElementById("streetaddressError3").textContent =
+                        "Street address is required!";
+                    return false;
+                } else {
+                    document.getElementById("streetaddressError3").textContent = "";
+                }
+
+                var pincode1 = document.getElementById("pincode1").value.trim();
+
+                if (!pincode1.match(/^\d+$/)) {
+                    document.getElementById("pincodeError3").textContent =
+                        "Pincode can only contain numbers!";
+                    return false;
+                } else if (pincode.length !== 6) {
+                    document.getElementById("pincodeError3").textContent =
+                        "Pincode must be 6 digits long!";
+                    return false;
+                } else {
+                    document.getElementById("pincodeError3").textContent = "";
+                }
+
+                var city1 = document.getElementById("city1").value.trim();
+
+                if (!city1) {
+                    document.getElementById("cityError3").textContent = "City is required!";
+                    return false;
+                } else {
+                    document.getElementById("cityError3").textContent = "";
+                }
+
+                var state1 = document.getElementById("state1").value.trim();
+
+                if (!state1) {
+                    document.getElementById("stateError3").textContent =
+                        "State is required!";
+                    return false;
+                } else {
+                    document.getElementById("stateError3").textContent = "";
+                }
+
+                var landmark1 = document.getElementById("landmark1").value.trim();
+
+                if (!landmark1) {
+                    document.getElementById("landmarkError3").textContent =
+                        "Landmark is required!";
+                    return false;
+                } else {
+                    document.getElementById("landmarkError3").textContent = "";
+                }
+
+                fetch("/checkoutpage", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        addressId,
+                        username,
+                        usermobile,
+                        address,
+                        streetaddress,
+                        pincode,
+                        state,
+                        landmark,
+                        city,
+                    }),
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        if (data.message) {
+                            console.log(data.message);
+                            window.location.reload();
+                        } else {
+                            message.innerHTML = "Somthing wrong";
+                        }
+                    })
+
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            });
+        </script>
+
+        <script>
+            function validateForm() {
+                var username = document.getElementById('username2').value;
+                if (username.trim() === '') {
+                    document.getElementById('usernameError').innerHTML = 'Please enter your name.';
+                    return false;
+                } else {
+                    document.getElementById('usernameError').innerHTML = '';
+                }
+
+                var usermobile = document.getElementById('usermobile2').value;
+                if (!/^\d{10}$/.test(usermobile)) {
+                    document.getElementById('usermobileError').innerHTML = 'Please enter a valid 10-digit mobile number.';
+                    return false;
+                } else {
+                    document.getElementById('usermobileError').innerHTML = '';
+                }
+
+
+                var address = document.getElementById('address2').value;
+                if (address.trim() === '') {
+                    document.getElementById('addressError').innerHTML = 'Please enter your address.';
+                    return false;
+                } else {
+                    document.getElementById('addressError').innerHTML = '';
+                }
+
+
+                var streetaddress = document.getElementById('streetaddress2').value;
+                if (streetaddress.trim() === '') {
+                    document.getElementById('streetaddressError').innerHTML = 'Please enter your street address.';
+                    return false;
+                } else {
+                    document.getElementById('streetaddressError').innerHTML = '';
+                }
+
+
+                var pincode = document.getElementById('pincode2').value;
+                if (!/^\d{6}$/.test(pincode)) {
+                    document.getElementById('pincodeError').innerHTML = 'Please enter a valid 6-digit pincode.';
+                    return false;
+                } else {
+                    document.getElementById('pincodeError').innerHTML = '';
+                }
+
+                var city = document.getElementById('city2').value;
+                if (city.trim() === '') {
+                    document.getElementById('cityError').innerHTML = 'Please enter your city.';
+                    return false;
+                } else {
+                    document.getElementById('cityError').innerHTML = '';
+                }
+
+
+                var state = document.getElementById('state2').value;
+                if (state.trim() === '') {
+                    document.getElementById('stateError').innerHTML = 'Please enter your state.';
+                    return false;
+                } else {
+                    document.getElementById('stateError').innerHTML = '';
+                }
+
+
+                var landmark = document.getElementById('landmark2').value;
+                if (landmark.trim() === '') {
+                    document.getElementById('landmarkError').innerHTML = 'Please enter your landmark.';
+                    return false;
+                } else {
+                    document.getElementById('landmarkError').innerHTML = '';
+                }
+                return true;
+            }
+            // -------------------------------------------------------------------------------------------------------------------------------
+
+            function handleAddressSelection() {
+                const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
+                for (const radio of paymentMethodRadios) {
+                    if (radio.checked) {
+
+                        paymentmethod = radio.value;
+
+                    }
+                }
+
+                var radioButtons = document.querySelectorAll('input[name="addressId"]');
+                radioButtons.forEach(function (radioButton) {
+                    if (radioButton.checked) {
+                        activeAddressId = radioButton.value;
+                    }
+                });
+
+
+                const totalDiscount = document.getElementById("totalvalue1").innerText;
+                console.log("=======totalValue==========", totalDiscount);
+                const couponCode = document.getElementById("couponCodeInput").value;
+
+
+
+                fetch('/orderpage', {
+                    method: "post",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ activeAddressId, paymentmethod, totalDiscount, couponCode }),
+                })
+
+
+                    .then(response => {
+
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.message === "failed") {
+                            Swal.fire({
+                                title: 'Payment Failed',
+                                text: 'above Rs-1000/- Cash on delivery not available',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+
+                        if (data.paymentMethod === "RazorPay") {
+
+                            var options = {
+                                "key": data.key_id,
+                                "amount": data.order.amount,
+                                "currency": "INR",
+                                "name": "furni world",
+                                "description": "Pay & Checkout this Course, Upgrade your DSA Skill",
+                                "image": "/user/icon/estoreLogo.png",
+                                "order_id": data.order.id,
+
+                                "handler": function (response) {
+                                    console.log("ttttttttttttttttttttttt")
+
+                                    fetch('/verifyOrder', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            paymentId: response.razorpay_payment_id,
+                                            order_id: response.razorpay_order_id,
+                                            razorpay_signature: response.razorpay_signature,
+                                            couponCode: couponCode
+
+
+                                        })
+                                    })
+                                        .then(response => response.json())
+                                        .then(data => {
+
+                                            if (data.success === true) {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'Order Placed',
+                                                    showConfirmButton: false,
+                                                    timer: 1000,
+                                                    customClass: {
+                                                        confirmButton: 'btn btn-primary'
+                                                    },
+                                                    buttonsStyling: false
+                                                })
+                                                setTimeout(() => {
+                                                    window.location.href = `/orders/${data.curentData}`
+                                                }, 1000)
+                                            }
+                                        })
+
+
+                                }
+                                ,
+                                "prefill": {
+                                    "contact": "9876543210",
+                                    "name": "Twinkle Sharma",
+                                    "email": "smtwinkle@gmail.com"
+                                },
+                                "notes": {
+                                    "description": "description here",
+                                },
+                                "theme": {
+                                    "color": "#2300a3"
+                                }
+
+
+                            };
+
+                            var razorpayObject = new Razorpay(options);
+                            razorpayObject.open();
+
+                            razorpayObject.on('payment.failed', function (response) {
+                               
+                                Swal.fire({
+                                    title: 'Payment Failed',
+                                    text: 'Sorry, the payment failed. Please try again or choose a different payment method.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+
+
+                            });
+
+
+                        } else if (data.paymentmethod === "Cash On Delivery") {
+
+                            console.log("data.paymentMethod  :::::", data.paymentMethod)
+                            Swal.fire({
+                                title: 'Order Placed Successfully',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            });
+                            setTimeout(() => {
+                                window.location.href = `/orders/${data.newOrder._id}`
+                            }, 1500)
+
+
+                        } else if (data.paymentmethod === "Wallet") {
+                            Swal.fire({
+                                title: 'Order Placed Successfully',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            });
+                            setTimeout(() => {
+                                window.location.href = `/orders/${data.walletNewOrder._id}`
+                            }, 1500)
+                        }
+
+                    })
+
+                    .catch(error => {
+                        console.error('Error fetching address data:', error);
+                    });
+
+            }
+
+
+
+        </script>
+
+
+        <script>
+            function applyCoupon() {
+                const couponCode = document.getElementById("couponCodeInput").value;
+                console.log("=======couponCode==========", couponCode)
+                const totalDiscount = document.getElementById("totalvalue1").innerText;
+                console.log("=======totalValue2==========", totalDiscount);
+
+                fetch('/verifycoupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ couponCode, totalDiscount })
+                })
+                    .then((response) => {
+
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+
+                        }
+
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log("444444444444444444444444", data)
+                        if (data.couponDiscount === undefined) {
+
+                            document.getElementById('totalvalue2').innerHTML = "00"
+                        } else {
+                            document.getElementById('totalvalue2').innerHTML = data.couponDiscount;
+
+                        }
+                        if (data.total) {
+                            if (data.total <= 0 || isNaN(data.total)) {
+                                data.total = 1;
+                            }
+
+                            document.getElementById('totalvalue1').innerHTML = data.total;
+                            couponMessage.innerHTML = data.message
+                            document.getElementById('couponMessage').style.color = 'green'
+
+                        } else {
+                            console.log("888888888888888888888888888888888", data)
+                            couponMessage.innerHTML = data.message
+                            document.getElementById('couponMessage').style.color = 'red'
+                        }
+                    })
+
+                    .catch(error => {
+                        console.error("Error:", error);
+                    });
+            }
+
+            async function removeCoupon() {
+                const couponCode = document.getElementById("couponCodeInput").value;
+                const couponMessages = document.getElementById("couponMessages").value;
+                console.log(">>>>>>>>><<<<<<<<<<",)
+                try {
+                    const response = await fetch("user/removeCoupon", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ couponCode })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.message === "founded") {
+                        // Show success notification
+
+                        couponCodeInput.value = "";
+                        window.location.reload()
+
+
+                        toastr.success("Coupon removed successfully");
+                    } else {
+                        // Show error notification
+                        toastr.error("Failed to remove coupon");
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    // Show error notification
+                    toastr.error("An error occurred while removing the coupon");
+                }
+            }
+        </script>
+
+        <%- include('../partials/mainfooter.ejs')%>

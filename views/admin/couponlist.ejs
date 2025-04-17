@@ -1,0 +1,209 @@
+<%- include('../partials/asidenav.ejs')%>
+
+<style>
+    #delete{
+        background-color: red;
+        border: none;
+        color: white;
+        width: 70px;
+        height: 35px;
+        border-radius: 5px;
+    }
+</style>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Coupon List</h2>
+        </div>
+        <div>
+            <a href="/admin/createcoupon" class="btn btn-primary btn-sm rounded">Create Coupon</a>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <input type="text" placeholder="Search..." class="form-control" />
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select">
+                        <option>Status</option>
+                        <option>Active</option>
+                        <option>Disabled</option>
+                        <option>Show all</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select">
+                        <option>Show 20</option>
+                        <option>Show 30</option>
+                        <option>Show 40</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+        <!-- card-header end// -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                           
+                            <th scope="col">Coupon Code</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Discount Amount</th>
+                            <th scope="col">MIN Amount</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Expr Date</th>
+                            <th scope="col" class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <% if (couponData.length > 0) {%>
+                        <% couponData.forEach(item=>{ %>
+                    <tbody>
+                        <tr>
+                           
+                            <td><b><%= item.couponName %></b></td>
+                            <td><%= item.couponCode %></td>
+                            <td><%= item.discountAmount %></td>
+                            <td><%= item.minAmount %></td>
+                            <td><span class="badge rounded-pill alert-warning"><%= item.status %></span></td>
+                            <td><%= item.expiryDate.toDateString() %></td>
+                            <td class="text-end">
+                                <button id="delete" onclick="confirmDelete('<%= item._id %>')">Delete</button>
+                                
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        
+
+                    </tbody>
+                    <% }) %>
+                    <% } %>
+                </table>
+            </div>
+            <!-- table-responsive //end -->
+        </div>
+        <!-- card-body end// -->
+    </div>
+    <!-- card end// -->
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <li class="page-item active"><a class="page-link" href="#">01</a></li>
+                <li class="page-item"><a class="page-link" href="#">02</a></li>
+                <li class="page-item"><a class="page-link" href="#">03</a></li>
+                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                <li class="page-item"><a class="page-link" href="#">16</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</section>
+
+<script src="/adminpublic/adminlogin/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/adminpublic/adminlogin/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/adminpublic/adminlogin/js/vendors/select2.min.js"></script>
+<script src="/adminpublic/adminlogin/js/vendors/perfect-scrollbar.js"></script>
+<script src="/adminpublic/adminlogin/js/vendors/jquery.fullscreen.min.js"></script>
+<!-- Main Script -->
+<script src="/adminpublic/adminlogin/js/main.js?v=1.1" type="text/javascript"></script>
+
+
+<script>
+//     function confirmDelete(couponId) {
+//     // Display a confirmation dialog using SweetAlert
+//     swal.fire({
+//         title: "Are you sure?",
+//         text: "Once deleted, you will not be able to recover this coupon!",
+//         icon: "warning",
+//         buttons: true,
+//         dangerMode: true,
+//     })
+//     .then((willDelete) => {
+//         // If the user clicks the confirm button
+//         if (willDelete) {
+//             // Call the function to delete the coupon
+//             deleteCoupon(couponId);
+//         } else {
+//             // Inform the user that the action was canceled
+//             swal.fire("Your coupon is safe!", {
+//                 icon: "info",
+//             });
+//         }
+//     });
+// }
+function confirmDelete(couponId) {
+    // Display a confirmation dialog using SweetAlert
+    swal.fire({
+        title: "Are you sure?",
+        text: "Once deleted, you will not be able to recover this coupon!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it",
+        cancelButtonText: "No, cancel",
+        buttonsStyling: false,
+        customClass: {
+            confirmButton: "btn btn-danger me-3",
+            cancelButton: "btn btn-secondary",
+        }
+    })
+    .then((result) => {
+        // If the user clicks the confirm button
+        if (result.isConfirmed) {
+            // Call the function to delete the coupon
+            deleteCoupon(couponId);
+        } else {
+            // Inform the user that the action was canceled
+            swal.fire("Your coupon is safe!", {
+                icon: "info",
+            });
+        }
+    });
+}
+ 
+
+function deleteCoupon(couponId) {
+    console.log(couponId)
+    const data = couponId
+    fetch('/admin/deletecoupon', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({data})
+    })
+    .then(response => {
+        // Check if the response indicates success
+        if (response.ok) {
+            // Show success message using SweetAlert
+            swal.fire({
+                title: "Coupon deleted successfully!",
+                icon: "success",
+                button: "OK",
+            })
+            .then(() => {
+                // Refresh the page
+                location.reload();
+            });
+            // Optionally, update the UI or perform other actions
+        } else {
+            // Show error message using SweetAlert
+            swal.fire("Failed to delete coupon!", {
+                icon: "error",
+            });
+            
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        // Show error message using SweetAlert
+        swal("Failed to delete coupon!", {
+            icon: "error",
+        });
+    });
+}
+</script>

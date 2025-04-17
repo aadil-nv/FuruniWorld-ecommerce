@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Furni AdminSide</title>
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta property="og:title" content="" />
+        <meta property="og:type" content="" />
+        <meta property="og:url" content="" />
+        <meta property="og:image" content="" />
+        <!-- Favicon -->
+        <link rel="shortcut icon" type="image/x-icon" href="/adminpublic/adminlogin/imgs/theme/favicon.svg" />
+        <!-- Template CSS -->
+        <link href="/adminpublic/adminlogin/css/main.css?v=1.1" rel="stylesheet" type="text/css" />
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+
+
+
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        
+       
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.min.css" rel="stylesheet">
+
+       
+        
+    </head>
+
+    <body>
+        <style>
+            #logoutButton{
+                border: none;
+                width: 70px;
+                height: 35px;
+                background-color: white;
+                color: red;
+            }
+            
+        </style>
+        
+        <div class="screen-overlay"></div>
+        <aside class="navbar-aside" id="offcanvas_aside">
+            <div class="aside-top">
+                <a  class="brand-wrap">
+                    <!-- <img src="/adminpublic/adminlogin/imgs/theme/furnilogo.png" class="logo" alt="Nest Dashboard" /> -->
+                    <h3><i>Furni World</i></h3>
+                </a>
+                <div>
+                    <button class="btn btn-icon btn-aside-minimize"><i class="text-muted material-icons md-menu_open"></i></button>
+                </div>
+            </div>
+            <nav>
+                <ul class="menu-aside">
+                    <li class="menu-item">
+                        <a class="menu-link"    href="/admindashboard" >
+                            <i class="icon material-icons md-home"></i>
+                            <span class="text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="menu-item ">
+                        <a class="menu-link" href="/categorymanagement">
+                            <i class="icon material-icons md-category"></i>
+                            <span class="text">Category Management</span>
+                        </a>
+                        
+                   
+                    <li class="menu-item ">
+                        <a class="menu-link" href="/userslist">
+                            <i class="icon material-icons md-person"></i>
+                            <span class="text">Users Management</span>
+                        </a>
+                        
+                    </li>
+                    
+                    <li class="menu-item ">
+                        <a class="menu-link" href="/productlist">
+                            <i class="icon material-icons md-shopping_cart"></i>
+                          
+                            <span class="text">Product Management</span>
+                        </a>
+                       
+                    </li>
+                    <li class="menu-item ">
+                        <a class="menu-link" href="/orderslist">
+                            <i class="icon material-icons md-list_alt"></i>
+                            <span class="text">Orders List</span>
+                        </a>
+                        
+                    </li>
+                    <li class="menu-item ">
+                        <a class="menu-link" href="/admin/couponlist">
+                            <i class="icon material-icons md-payments"></i>
+                            <span class="text">Coupon mangement</span>
+                        </a>
+                        
+                    </li>
+                    <li class="menu-item ">
+                        <a class="menu-link" href='/admin/offerlist'>
+                            <i class="icon material-icons md-local_offer"></i>
+                            <span class="text">Offer mangement</span>
+                        </a>
+                    </li>
+                    <li class="menu-item ">
+                        <a class="menu-link" href='/admin/salesreports'>
+                            <i class="icon material-icons md-pie_chart"></i>
+                            <span class="text">Sales Report</span>
+                        </a>
+                    </li>
+                    <li class="menu-item ">
+                        <a class="menu-link" href='/admin/brandsmanagement'>
+                            <i class="icon material-icons md-stars"></i>
+                            <span class="text">Brands Management</span>
+                        </a>
+                    </li>
+                    <li class="menu-item ">
+                        <form action="/admin/adminlogout" method="post"  id="logoutForm">
+                            <p class="menu-link"  >
+                                <i class="icon material-icons md-exit_to_app"></i>
+                                
+                                <button type="submit" class="text"  id="logoutButton">Logout</button>
+                            </p>
+
+                        </form>
+                    </li>
+                   
+                   
+                    
+                    
+                </ul>
+                <hr />
+               
+                <br />
+                <br />
+            </nav>
+        </aside>
+        <main class="main-wrap">
+            <header class="main-header navbar">
+                <div class="col-search">
+                    <form class="searchform">
+                        <div class="input-group">
+                            <input list="search_terms" type="text" class="form-control" placeholder="Search term" />
+                            <button class="btn btn-light bg" type="button"><i class="material-icons md-search"></i></button>
+                        </div>
+                        <datalist id="search_terms">
+                            <option value="Products"></option>
+                            <option value="New orders"></option>
+                            <option value="Apple iphone"></option>
+                            <option value="Ahmed Hassan"></option>
+                        </datalist>
+                    </form>
+                </div>
+                <div class="col-nav">
+                    <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"><i class="material-icons md-apps"></i></button>
+                    <ul class="nav">
+                        <li class="nav-item">
+                            <a class="nav-link btn-icon" href="#">
+                                <i class="material-icons md-notifications animation-shake"></i>
+                                <span class="badge rounded-pill">3</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn-icon darkmode" href="#"> <i class="material-icons md-nights_stay"></i> </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="requestfullscreen nav-link btn-icon"><i class="material-icons md-cast"></i></a>
+                        </li>
+                        <li class="dropdown nav-item">
+                            <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownLanguage" aria-expanded="false"><i class="material-icons md-public"></i></a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownLanguage">
+                                <a class="dropdown-item text-brand" href="#"><img src="/adminpublic/adminlogin/imgs/theme/flag-us.png" alt="English" />English</a>
+                                <a class="dropdown-item" href="#"><img src="/adminpublic/adminlogin/imgs/theme/flag-fr.png" alt="Français" />Français</a>
+                                <a class="dropdown-item" href="#"><img src="/adminpublic/adminlogin/imgs/theme/flag-jp.png" alt="Français" />日本語</a>
+                                <a class="dropdown-item" href="#"><img src="/adminpublic/adminlogin/imgs/theme/flag-cn.png" alt="Français" />中国人</a>
+                            </div>
+                        </li>
+                        <li class="dropdown nav-item">
+                            <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false"> <img class="img-xs rounded-circle" src="/adminpublic/adminlogin/imgs/people/avatar-2.png" alt="User" /></a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
+                                <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit Profile</a>
+                                <a class="dropdown-item" href="#"><i class="material-icons md-settings"></i>Account Settings</a>
+                                <a class="dropdown-item" href="#"><i class="material-icons md-account_balance_wallet"></i>Wallet</a>
+                                <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i>Billing</a>
+                                <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help center</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger" href="#"><i class="material-icons md-exit_to_app"></i>Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </header>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+    // Function to handle form submission
+    function handleSubmit(event) {
+        event.preventDefault(); // Prevent default form submission
+        
+        Swal.fire({
+            title: 'Logout',
+            text: 'Are you sure you want to logout?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Logout',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // If confirmed, submit the form
+                document.getElementById('logoutForm').submit();
+            }
+        });
+    }
+
+    // Attach event listener to form submission
+    document.getElementById('logoutForm').addEventListener('submit', handleSubmit);
+});
+            </script>
+
+  

@@ -1,0 +1,428 @@
+<%- include('../partials/asidenav.ejs')%>
+    <style>
+        .preview-container {
+            display: inline-block;
+        }
+    </style>
+
+    <section class="content-main">
+        <div class="row">
+            <div class="col-9">
+                <div class="content-header">
+                    <h2 class="content-title">Add New Product</h2>
+                </div>
+            </div>
+            <form action="/addproduct" method="post" onsubmit="return validateForm() " enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    <label for="product_title" class="form-label">Product Name</label>
+                                    <input type="text" placeholder="Type here" class="form-control" name="productName"
+                                        id="productName" />
+                                    <p id="errorName" style="color: red"></p>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="product_sku" class="form-label">Brand</label>
+                                    <select type="text" placeholder="Type here" class="form-control" name="productBrand"
+                                        id="productBrand">
+                                        <p id="errorBrand" style="color: red"></p>
+                                        <%brandsData.forEach(item=>{%>
+
+                                            <option value="<%=item.brandname%>">
+                                                <%=item.brandname%>
+                                            </option>
+                                            <% })%>
+
+
+
+                                    </select>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <label for="product_sku" class="form-label">Quantity</label>
+                                        <input type="text" placeholder="Type here" class="form-control"
+                                            name="productQuantity" id="productQuantity" />
+                                        <p id="errorQuantity" style="color: red"></p>
+                                    </div>
+
+                                    <div class="col-lg-4">
+                                        <label for="product_sku" class="form-label">Category</label>
+                                        <select type="text" placeholder="Type here" class="form-control"
+                                            name="productCategory" id="productCategory">
+                                            <p id="errorCategory" style="color: red"></p>
+                                            <%category.forEach(category=>{%>
+
+                                                <option value="<%=category.categoryname%>">
+                                                    <%=category.categoryname%>
+                                                </option>
+                                                <% })%>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label for="product_sku" class="form-label">Price</label>
+                                        <input placeholder="Type here" type="number" class="form-control"
+                                            name="productPrice" id="productPrice" />
+                                        <p id="errorPrice" style="color: red"></p>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card ">
+                            <div class="card-body" style="height: 150px;">
+                                <div>
+                                    <label class="form-label">Description</label>
+                                    <input type="text" placeholder="Type here" class="form-control" rows="4"
+                                        name="productDescription" id="productDescription" />
+                                    <p id="errorDescription" style="color: red"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card ">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Images</label>
+                                    <input type="file" id="imageInput" name="images" accept=".png, .jpg, .jpeg"
+                                        multiple>
+                                    <p id="errorImage" style="color: red"></p>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        
+
+
+                    </div>
+
+                    <div id="imagePreviews" class="mt-3"></div>
+                    <div style="justify-content: center; align-items: center; display: flex;">
+
+                        <button type="submit" class="btn btn-md rounded font-sm hover-up">Add Products</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+
+   
+    <!-- <div class="d-flex justify-content-center" style="width: 800px;">
+        <div class="d-flex justify-content-evenly">
+            <div class="image-upload-container">
+                <div class="close-icon" onclick="deleteImage('image1', 'preview1');">&times;
+                </div>
+                <label for="image1" class="form-label">
+                    <img id="preview1" src="https://bit.ly/3ubuq5o" alt="">
+                </label>
+                <input type="file" class="form-control" id="image1" name="cropImages"
+                    style="display: none;">
+                <button type="button" onclick="document.getElementById('image1').click();">Upload
+                    Image</button>
+            </div>
+
+            <div class="image-upload-container">
+                <div class="close-icon" onclick="deleteImage('image2', 'preview2');">&times;
+                </div>
+                <label for="image2" class="form-label">
+                    <img id="preview2" src="https://bit.ly/3ubuq5o" alt="images">
+                </label>
+                <input type="file" class="form-control" id="image2" name="cropImages"
+                    style="display: none;">
+                <button type="button" onclick="document.getElementById('image2').click();">Upload
+                    Image</button>
+            </div>
+
+            <div class="image-upload-container">
+                <div class="close-icon" onclick="deleteImage('image3', 'preview3');">&times;
+                </div>
+                <label for="image3" class="form-label">
+                    <img id="preview3" src="https://bit.ly/3ubuq5o" alt="">
+                </label>
+                <input type="file" class="form-control" id="image3" name="cropImages"
+                    style="display: none;">
+                <button type="button" onclick="document.getElementById('image3').click();">Upload
+                    Image</button>
+            </div>
+            <div class="image-upload-container">
+                <div class="close-icon" onclick="deleteImage('image4', 'preview4');">&times;
+                </div>
+                <label for="image4" class="form-label">
+                    <img id="preview4" src="https://bit.ly/3ubuq5o" alt="">
+                </label>
+                <input type="file" class="form-control" id="image4" name="cropImages"
+                    style="display: none;">
+                <button type="button" onclick="document.getElementById('image4').click();">Upload
+                    Image</button>
+            </div>
+
+        </div>
+    </div> -->
+    <!-- card end// -->
+<!-- </div> -->
+<!-- <div class="modal fade" id="imageCropModal" tabindex="-1" aria-labelledby="imageCropModalLabel"
+aria-hidden="true">
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="imageCropModalLabel">Crop Image</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <img id="imageToCrop" src="" alt="Crop this image" style="max-width: 100%;">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="cropImageBtn">Crop</button>
+        </div>
+    </div>
+</div>
+</div> -->
+
+
+    <script src="/adminpublic/adminlogin/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/adminpublic/adminlogin/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/adminpublic/adminlogin/js/vendors/select2.min.js"></script>
+    <script src="/adminpublic/adminlogin/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/adminpublic/adminlogin/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+
+
+
+
+
+
+
+    <script>
+        function validateForm() {
+            const productName = document.getElementById("productName").value;
+            const productQuantity = document.getElementById("productQuantity").value;
+
+            const productCategory = document.getElementById("productCategory").value;
+            const productPrice = document.getElementById("productPrice").value;
+            const productDescription = document.getElementById("productDescription").value;
+            const imageInput = document.getElementById("imageInput");
+            console.log("price : ", productPrice);
+
+            const errorName = document.getElementById("errorName");
+            if (!productName.trim()) {
+                errorName.innerHTML = "Product name should not be empty";
+                return false;
+            } else {
+                errorName.innerHTML = "";
+            }
+
+            const errorQuantity = document.getElementById("errorQuantity");
+            if (!productQuantity.trim()) {
+                errorQuantity.innerHTML = "Quantity should not be empty";
+                return false;
+            } else if (isNaN(productQuantity) || Number(productQuantity) <= 0) {
+                errorQuantity.innerHTML = "Quantity should be a positive number";
+                return false;
+            } else {
+                errorQuantity.innerHTML = "";
+            }
+            
+
+            const errorPrice = document.getElementById("errorPrice");
+            if (!productPrice.trim()) {
+                errorPrice.innerHTML = "Price should not be empty";
+                return false;
+            } else if (isNaN(productPrice) || Number(productPrice) <= 0) {
+                errorPrice.innerHTML = "Quantity should be a positive number";
+                return false;
+            } else {
+                errorPrice.innerHTML = "";
+            }
+
+
+
+            const errorDescription = document.getElementById("errorDescription");
+            if (!productDescription.trim()) {
+                errorDescription.innerHTML = "Description should not be empty";
+                return false;
+            } else {
+                errorDescription.innerHTML = "";
+            }
+
+            const errorImage = document.getElementById("errorImage");
+            if (imageInput.files.length === 0) {
+                errorImage.innerHTML = "Please select at least one image";
+                return false;
+            } else if (imageInput.files.length < 4) {
+                errorImage.innerHTML = "Please select at least 4 images";
+                return false;
+            } else if (imageInput.files.length > 4) {
+                errorImage.innerHTML = "You can only upload up to 4 images";
+                return false;
+            } else {
+                errorImage.innerHTML = "";
+            }
+            return validateFileType();
+
+            return true;
+        }
+
+        function validateFileType() {
+            var fileName = document.getElementById("imageInput").value;
+            var idxDot = fileName.lastIndexOf(".") + 1;
+            var extFile = fileName.substr(idxDot, fileName.length).toLowerCase();
+            if (extFile == "jpg" || extFile == "jpeg" || extFile == "png") {
+                return true;
+            } else {
+                errorImage.innerHTML = "Only jpg/jpeg and png files are allowed!"
+                return false;
+            }
+        }
+
+
+
+        document.getElementById('imageInput').addEventListener('change', function (event) {
+            const imagePreviews = document.getElementById('imagePreviews');
+            imagePreviews.innerHTML = ''; // Clear previous previews
+
+            const files = event.target.files; // Get selected files
+
+            // Check if more than 4 images are selected
+            if (files.length > 4) {
+                // Display a SweetAlert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please select only 4 images',
+                });
+
+                // Slice the array to keep only the first 4 images
+                const selectedFiles = Array.from(files).slice(0, 4);
+                event.target.files = selectedFiles;
+            }
+
+            // Loop through each selected file
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // Create preview container
+                    const previewContainer = document.createElement('div');
+                    previewContainer.classList.add('preview-container'); // Add CSS class for styling
+
+                    // Create image element
+                    const imageElement = document.createElement('img');
+                    imageElement.classList.add('rounded-2', 'mr-2'); // Add CSS class for styling
+                    imageElement.style.width = '150px';
+                    imageElement.src = e.target.result; // Set image source
+
+                    // Append image to preview container
+                    previewContainer.appendChild(imageElement);
+
+                    // Create remove button
+                    const removeButton = document.createElement('button');
+                    removeButton.classList.add('btn', 'btn-sm', 'btn-danger', 'mt-1');
+
+
+                    removeButton.innerText = 'Remove';
+                    removeButton.addEventListener('click', function () {
+                        previewContainer.remove(); // Remove preview container when remove button is clicked
+                    });
+
+                    // Append remove button to preview container
+                    previewContainer.appendChild(removeButton);
+
+                    // Append preview container to image previews container
+                    imagePreviews.appendChild(previewContainer);
+                };
+
+                reader.readAsDataURL(file); // Read file as data URL
+            }
+        });
+
+
+    </script>
+
+    </script>
+    <script src="/adminpublic/adminlogin/js/main.js?v=1.1" type="text/javascript"></script>
+    <script>
+         let currentInputId, currentPreviewId, cropper;
+            let croppedImages = {};
+            let originalFileNames = {};
+
+
+            document.addEventListener("DOMContentLoaded", function () {
+
+                document.getElementById('image1').addEventListener('change', function () { prepareImageForCropping('image1', 'preview1'); });
+                document.getElementById('image2').addEventListener('change', function () { prepareImageForCropping('image2', 'preview2'); });
+                document.getElementById('image3').addEventListener('change', function () { prepareImageForCropping('image3', 'preview3'); });
+                document.getElementById('image4').addEventListener('change', function () { prepareImageForCropping('image4', 'preview4'); });
+
+
+                document.getElementById('cropImageBtn').addEventListener('click', function () {
+                    performCropping();
+                });
+
+
+                $('#imageCropModal').on('shown.bs.modal', function () {
+                    let image = document.getElementById('imageToCrop');
+                    cropper = new Cropper(image, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        dragMode: "move",
+                        minContainerWidth: 450,
+                        minContainerHeight: 500,
+                        minCropBoxWidth: 400,
+                        minCropBoxHeight: 400,
+                        minCanvasHeight: 500,
+                        minCanvasWidth: 500,
+
+                    });
+                });
+
+
+                $('#imageCropModal').on('hidden.bs.modal', function () {
+                    if (cropper) {
+                        cropper.destroy();
+                        cropper = null;
+                    }
+                });
+            });
+
+            function prepareImageForCropping(inputId, previewId) {
+                currentInputId = inputId;
+                currentPreviewId = previewId;
+                const input = document.getElementById(inputId);
+                const file = input.files[0];
+                originalFileNames[inputId] = file.name;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('imageToCrop').src = e.target.result;
+                    $('#imageCropModal').modal('show');
+                };
+                reader.readAsDataURL(file);
+            }
+
+
+            function performCropping() {
+                if (!cropper) {
+                    console.error("Cropper is not initialized.");
+                    return;
+                }
+                cropper.getCroppedCanvas().toBlob((blob) => {
+
+                    const preview = document.getElementById(currentPreviewId);
+                    preview.src = URL.createObjectURL(blob);
+
+                    croppedImages[currentInputId] = blob;
+
+
+                    $('#imageCropModal').modal('hide');
+                }, 'image/png')
+
+
+            }
+    </script>

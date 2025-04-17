@@ -1,0 +1,116 @@
+<%- include('../partials/mainheader.ejs')%>
+<style>
+    #name::placeholder {
+        color: #999;
+        font-style: italic;
+    }
+    #email::placeholder {
+        color: #999;
+        font-style: italic;
+    }
+    #password::placeholder {
+        color: #999;
+        font-style: italic;
+    }
+    #mno::placeholder {
+        color: #999;
+        font-style: italic;
+    }
+    #referdid::placeholder {
+        color: #999;
+        font-style: italic;
+    }
+
+</style>
+      
+        <div class="login-register-area" style="padding-top: 30px;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-md-12 offset-lg-2">
+                        <div class="login-register-wrapper">
+                            <div class="login-register-tab-list nav">
+                                <a   href="/login/">
+                                    <h4> login </h4>
+                                </a>
+                                <a  class="active"     href="#lg2">
+                                    <h4> register </h4>
+                                </a>
+                            </div>
+                            <div class="tab-content">
+                                <div id="lg1" class="tab-pane active">
+                                    <div class="login-form-container">
+                                        <div class="login-register-form">
+
+                                          <p id="show1" class="text-danger" style="text-align: center;"></p>
+
+                                          <% if(typeof message !=='undefined' ){ %>
+                                            <p style="color: red;">
+                                                <%= message %>
+                                            </p>
+                              
+                                            <% } %>
+                                            <form action=""  onsubmit="return handleSubmit()"  method="post" novalidate>
+                                                <label>Enter your Name :</label>
+                                                <input type="text" id="name"  name="name" placeholder="your name" required>
+                                                <label>Enter your Email :</label>
+                                                <input type="email" id="email"  name="email" placeholder="(e.g., example@example.com)" required>
+                                                <label>Enter your Mobile/phone No :</label>
+                                                <input type="number" id="mno"  name="mno" placeholder="10 Digit mobile no" required>
+                                                <label>Enter your Passsword :</label>
+                                                <input type="password" id="password"  name="password" placeholder="5 Digit Password" required>
+                                                <label>Referal Id :</label>
+                                                <input type="text" id="referdid"  name="referdid" placeholder="Optional" >
+                                                
+                                                <div class="button-box btn-hover" style="justify-content: center; align-items: center; display: flex;">
+                                                    <button type="submit">Register</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                              
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+       
+
+    <script>
+      let show=document.getElementById("show1");
+
+function handleSubmit(){
+   let username=document.getElementById("name").value;
+   let email=document.getElementById("email").value;
+   let mobile=document.getElementById("mno").value;
+   let password=document.getElementById("password").value;
+   if(username.trim()==""){
+       document.getElementById("show1").innerHTML="Username can't be empty";
+     return false;
+   }
+  let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+   if (!email.match(emailRegex)) {
+     document.getElementById("show1").innerHTML = "Please enter a valid email address";
+     return false;
+   }
+   let mobileRegex=/^\d{10}$/
+   if(!mobile.match(mobileRegex)){
+     document.getElementById("show1").innerHTML="mobile can't be empty";
+     return false;
+   }
+   let passwordeRegex=/^\d{5}$/
+   if(!password.match(passwordeRegex)){
+     document.getElementById("show1").innerHTML="Passwords can't be empty";
+     return false;
+   }
+   
+
+return true
+  }
+
+   </script>
+
+<%- include('../partials/mainfooter.ejs')%>

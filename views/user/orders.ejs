@@ -1,0 +1,792 @@
+<%- include('../partials/mainheader.ejs')%>
+    <style>
+        
+        body {
+            min-height: 100vh;
+            background-size: cover;
+            font-family: 'Lato', sans-serif;
+            color: rgba(116, 116, 116, 0.667);
+            background: linear-gradient(140deg , #fff );    
+
+        }
+        .container-fluid {
+            margin-top: 200px ;
+        }
+
+        p {
+            font-size: 14px;
+            margin-bottom: 7px;
+
+        }
+
+        .small {
+            letter-spacing: 0.5px !important;
+        }
+
+        .card-1 {
+            box-shadow: 2px 2px 10px 0px rgb(190, 108, 170);
+        }
+
+        hr {
+            background-color: rgba(248, 248, 248, 0.667);
+        }
+
+
+        .bold {
+            font-weight: 500;
+        }
+
+        .change-color {
+            color: #AB47BC !important;
+        }
+
+        .card-2 {
+            box-shadow: 1px 1px 3px 0px rgb(112, 115, 139);
+
+        }
+
+        .fa-circle.active {
+            font-size: 8px;
+            color: #AB47BC;
+        }
+
+        .fa-circle {
+            font-size: 8px;
+            color: #aaa;
+        }
+
+        .rounded {
+            border-radius: 2.25rem !important;
+        }
+
+
+        .progress-bar {
+            background-color: #9dbc47 !important;
+        }
+
+
+        .progress {
+            height: 5px !important;
+            margin-bottom: 0;
+        }
+
+        .invoice {
+            position: relative;
+            top: -70px;
+        }
+
+        .Glasses {
+            position: relative;
+            top: -12px !important;
+        }
+
+        .card-footer {
+            background-color: #e97910;
+            color: #fff;
+        }
+
+        h2 {
+            color: rgb(78, 0, 92);
+            letter-spacing: 2px !important;
+        }
+
+        .display-3 {
+            font-weight: 500 !important;
+        }
+
+        @media (max-width: 479px) {
+            .invoice {
+                position: relative;
+                top: 7px;
+            }
+
+            .border-line {
+                border-right: 0px solid rgb(226, 206, 226) !important;
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            h2 {
+                color: rgb(78, 0, 92);
+                font-size: 17px;
+            }
+
+            .display-3 {
+                font-size: 28px;
+                font-weight: 500 !important;
+            }
+        }
+
+        .card-footer small {
+            letter-spacing: 7px !important;
+            font-size: 12px;
+        }
+
+        .border-line {
+            border-right: 1px solid rgb(226, 206, 226)
+        }
+        .progress-bar {
+    height: 10px;
+    border-radius: 5px;
+}
+
+.fa-circle {
+    color: #6c757d;
+}
+
+.fa-circle.active {
+    color: #28a745;
+}
+#invoisebutton{
+    width: 120px;
+    height: 40px;
+    border: none;
+    background-color: #ffffff;
+    color: rgb(14, 3, 65);
+    font-size: 13px;
+    margin-bottom: 30px;
+    margin-left: 30px;
+    border-radius: 10px;
+
+
+}
+
+    </style>
+
+
+
+    <!-- !-----------------------------------------------------------------------------------------------------------------------------------------------neworder -->
+    
+    <body>
+        <div class="invoice-box" id="invoiceContent" style="   max-width: 800px; margin: auto; padding: 30px; border: 1px solid #000000; box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); font-size: 16px; line-height: 24px; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; color: #555; display: none;">
+            <table cellpadding="0" cellspacing="0" style="width: 100%; line-height: inherit; text-align: left;">
+                <tr class="top">
+                    <td colspan="2">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td class="title" style="padding-bottom: 20px;">
+                                    <img src="https://sparksuite.github.io/simple-html-invoice-template/images/logo.png" alt="Company Logo" style="width: 100%; max-width: 300px;" />
+                                </td>
+                                <% orderData.forEach((item)=> { %>
+                                <td style="text-align: right;">
+                                    Invoice #: <%= item.orderId %><br />
+                                    Created: <%= item.shippingDate.toDateString() %><br />
+                                    Due: <%= item.shippingDate.toDateString() %>
+                                </td>
+                                <% }) %>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+    
+                <tr class="information">
+                    <td colspan="2">
+                        <table style="width: 100%;">
+                            <tr>
+                                <% orderData.forEach((item)=> { %>
+                                <td>
+                                    <%= item.deliveryAddress.address %><br />
+                                    <%= item.deliveryAddress.streetaddress%><br />
+                                    <%= item.deliveryAddress.city %>,<%= item.deliveryAddress.state %><br>
+                                    <%= item.deliveryAddress.pincode %>
+                                </td>
+    
+                                <td style="text-align: right;">
+                                    <%= item.userId.name %><br />
+                                    <%= item.userId.mobile %><br />
+                                    <%= item.userId.email %>
+                                </td>
+                                <% }) %>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <% orderData.forEach((item)=> { %>
+                <tr class="heading" style="background: #d3b7b7; color: #fff; font-weight: bold;">
+                    <td style="width: 70%;">Payment Method</td>
+    
+                    <td style="width: 30%; text-align: right;"> <%= item.paymentMethod %></td>
+                </tr>
+                <% }) %>
+
+                </table>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 40px;">
+                    <thead>
+                      <tr style="background-color: #f2f2f2;">
+                        <th style=" text-align: left;">Number</th>
+                        <th style=" text-align: left;">Product Name</th>
+                        <th style=" text-align: left;">Product Price</th>
+                        <th style=" text-align: left;">Quantity</th>
+                        <th style=" text-align: left;">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <% if(orderData.length> 0){ %>
+                            <% let uid=1 %>
+                            <% orderData.forEach((item)=> { %>
+                                <%item.orderedItem.forEach((product)=> { %>
+
+                      <tr>
+                        <td style="background-color: #dddddd;"><%= uid++  %></td>
+                        <td style="background-color: #dddddd;"><%=product.productId.productname %></td>
+                        <td style="background-color: #dddddd;"><%=product.totalProductAmount %></td>
+                        <td style="background-color: #dddddd;"><%=product.quantity %></td>
+                        <td style="background-color: #dddddd;"><% let total=product.quantity*product.totalProductAmount %><%=total  %><td>
+                      </tr>
+                      <% }) %>
+                      <% }) %>
+                      <% } %>
+                      <tr class="total">
+                        <% orderData.forEach((item)=> { %>
+        
+                        <td style="border-top: 2px solid #eee; font-weight: bold; text-align: right;">Total:Rs.<%= item.orderAmount  %>/-</td>
+                        <% }) %>
+                    </tr>
+                    </tbody>
+                  </table>
+        </div>
+    </body>
+    
+
+
+    
+        <div class="container-fluid my-5  d-flex  justify-content-center"  >
+            <div class="card card-1">
+                <div class="card-header bg-white">
+                    <div class="row">
+                        <div class="col">
+                            <% orderData.forEach((item)=> { %>
+                            <div class="my-auto">
+                                <h4 class="mb-0">Thanks for your Order,<span class="change-color"><%= item.userId.name %></span> !</h4>
+                            </div>
+                            <% }) %>
+                        </div>
+                        <% orderData.forEach((item)=> { %>
+                        <div class="col-auto text-start my-auto pl-0 pt-sm-4" style="font-size: 12px;">
+                           
+                          
+                        Mobile :<%= item.deliveryAddress.mobile %><br />
+                         Pincode:<%= item.deliveryAddress.pincode %><br />
+                        Address :<%= item.deliveryAddress.address %><br />
+                       StreetAddress<%= item.deliveryAddress.streetaddress%><br />
+                        City :<%= item.deliveryAddress.city %><br />
+                        State:<%= item.deliveryAddress.state %>
+                       <br />
+                        Landmark :<%=
+                          item.deliveryAddress.landmark %>
+                           
+                        </div>
+                        <% }) %>
+                    </div>
+                    <!-- Address -->
+                    
+                </div>
+                
+                
+                
+                <div class="card-body">
+                  
+                    <div class="row">
+                        <div class="col">
+                            <% if(orderData.length> 0){ %>
+                                <% orderData.forEach((item)=> { %>
+                                    <input type="hidden" value="<%= item._id%>" id="orderId" name="orderId">
+                                    <%item.orderedItem.forEach((product)=> { %>
+                            <div class="card card-2">
+                                            <div class="card-body">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <img class="img-fluid" src="/uploads/<%=product.productId.productimage[0] %>" width="135" height="135" /> 
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="row">
+                                                            <div class="col-auto"><h6> <%=product.productId.productname %></h6></div>
+                                                            <div class="col-auto"><small><%=product.productId.categoryId %></small></div>
+                                                            
+                                                            <div class="col-auto"><small>Qty:<%=product.quantity %></small></div>
+                                                            <div class="col-auto"><h6>&#8377; <%=product.totalProductAmount %></h6></div>
+                                                        </div>
+                                                        <hr class="my-3">
+
+
+                                                        <div class="row align-items-center">
+                                                            
+                                                            <div class="col-8">
+                                                               
+
+                                                                <% if(product.productStatus==="pending") {%>
+                                                                <div class="progress my-auto" >
+                                                                    <div style="width: 33.33%; background-color: #d8b516; " role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" s></div>
+                                                                </div>
+                                                                <% }else if(product.productStatus==="Shipped"){%>
+                                                                <div class="progress my-auto" >
+                                                                    <div style="width: 67%; background-color: #2008a5; " role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" s></div>
+                                                                </div>
+                                                                <% }else if(product.productStatus==="Delivered"){%>
+                                                                <div class="progress my-auto" >
+                                                                    <div style="width: 100%; background-color: #28a745; " role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" s></div>
+                                                                </div>
+                                                                <% }else if(product.productStatus==="Order Cancelled"){%>
+                                                                <div class="progress my-auto" >
+                                                                    <div style="width: 100%; background-color: #cf1818; " role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" s></div>
+                                                                </div>
+                                                                <%} else if(product.productStatus==="Returned"){%>
+                                                                <div class="progress my-auto" >
+                                                                    <div style="width: 100%; background-color: #d6511c; " role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" s></div>
+                                                                </div>
+                                                                <% } %>
+
+                                                                
+                                                                <div class="media row justify-content-between">
+                                                                    <div class="col-auto text-center">
+                                                                        <span><small class="text-muted">Pending</small><br><i class="fa fa-circle text-warning"></i></span>
+                                                                    </div>
+                                                                    
+                                                                    <div class="col-auto text-center">
+                                                                        <span><small class="text-muted">Shipped</small><br><i class="fa fa-circle text-primary"></i></span>
+                                                                    </div>
+                                                                    <div class="col-auto text-center">
+                                                                        <span><small class="text-muted">Delivered</small><br><i class="fa fa-circle text-success"></i></span>
+                                                                    </div>
+
+                                                                    
+                                                                </div>
+                                                                
+                                                            </div>
+                                                            <div class="col-4">
+                                                              
+
+                                                               
+
+                                                                <% if(product.productStatus==="pending") {%>
+                                                                    <div class="col-auto text-center">
+                                                                        <button class="btn btn-sm btn-danger" 
+                                                                         data-product-id="<%= product.productId._id %>" 
+                                                                         onclick="cancelOrder(this)"><i class="fa fa-undo"
+                                                                          aria-hidden="true"></i>Cancel</button>
+                                                                    </div>
+                                                                <% }else if(product.productStatus==="Shipped"){%>
+                                                                    <div class="col-auto text-center">
+                                                                        <button class="btn btn-sm btn-danger" 
+                                                                        data-product-id="<%= product.productId._id %>"  
+                                                                        onclick="cancelOrder(this)"><i class="fa fa-undo"
+                                                                         aria-hidden="true"></i>Cancel</button>
+                                                                    </div>
+                                                                <% }else if(product.productStatus==="Delivered"){%>
+                                                                    <div class="col-auto text-center">
+                                                                        <button class="btn btn-sm btn-danger"  
+                                                                         onclick="requestReturn('<%= product.productId._id %>',
+                                                                         '<%= item._id %>','<%= item.paymentMethod %>',
+                                                                         '<%=  product.quantity %>','<%=  product.totalProductAmount %>'  )">
+                                                                         <i class="fa fa-undo" aria-hidden="true"></i> Return</button>
+                                                                    </div>
+                                                                <% }else if(product.productStatus==="Order Cancelled"){%>
+                                                                    <h5><b>Product Returned</b></h5>
+                                                                <%} else if(product.productStatus==="Returned"){%>
+                                                                    <h5><b>Money will Debited in your account</b></h5>
+                                                                <%} else if(product.productStatus==="Return request rejected"){%>
+                                                                    <h5><b>Sorry , Return request has been declined</b></h5>
+                                                                <%} else if(product.productStatus==="Return Requested"){%>
+                                                                    <h5><b>will update shortly</b></h5>
+                                                                <% } %>
+
+                                                                
+                                                               
+                                                            </div>
+                                                        </div>
+
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <% }) %>
+                                    <% }) %>
+                                <% } %>
+                        </div>
+                        
+                    </div>
+                    
+                    
+
+                    <div class="row mt-4">
+                        <% orderData.forEach((item)=> { %>
+                        <div class="col">
+                            <div class="row justify-content-between">
+                                <div class="col-auto"><p class="mb-1 text-dark"><b>Order Details</b></p></div>
+                            </div>
+                            <div class="row justify-content-between">
+                                <div class="flex-sm-col text-right col"><p class="mb-1" style="text-align: end;"> <b>Discount</b></p> </div>
+                                <div class="flex-sm-col col-auto"><p class="mb-1">&#8377;<%= item.couponDeduction %></p></div>
+                            </div>
+                            <div class="row justify-content-between">
+                                <div class="flex-sm-col text-right col"><p class="mb-1"  style="text-align: end;"><b>GST 18%</b></p></div>
+                                <div class="flex-sm-col col-auto"><p class="mb-1">Free</p></div>
+                            </div>
+                            <div class="row justify-content-between">
+                                <div class="flex-sm-col text-right col"><p class="mb-1"  style="text-align: end;"><b>Delivery Charges</b></p></div>
+                                <div class="flex-sm-col col-auto"><p class="mb-1">Free</p></div>
+                            </div>
+                        </div>
+                        <% }) %>
+                    </div>
+                    <div class="row invoice ">
+                        <% orderData.forEach((item)=> { %>
+                        <div class="col">
+                            <p class="mb-1"> Invoice Number : <%= item.orderId %></p>
+                            <p class="mb-1">Invoice Date : <%= item.shippingDate.toDateString() %></p>
+                            <p class="mb-1">Paymnet Detiles: <%= item.paymentMethod %></p>
+                            <p class="mb-1">Paymnet Status: <%= item.paymentStatus %></p>
+                        </div>
+                        <% }) %>
+                    </div>
+                </div>
+
+                
+
+                <div class="card-footer" style="height: 170px;">
+                    <div class="jumbotron-fluid">
+                        <div class="row justify-content-between ">
+                            <div class="col-sm-auto col-auto my-auto"><img class="img-fluid my-auto align-self-center " src="/userpublic/indexassets/assets/images/brand-logo/brand-logo-2.png" width="115" height="115"></div>
+                            <% orderData.forEach(item=>{ %>  
+                                <% if(item.paymentStatus==="Payment Successfull") {%>
+                            <div class="col-auto my-auto "><h2 class="mb-0 font-weight-bold" >TOTAL PAID</h2></div>
+                            <% }else{ %>
+                                <div class="col-auto my-auto "><h2 class="mb-0 font-weight-bold" >TOTAL PAYABLE</h2></div>
+
+                                <% } %>
+                            <% }) %>
+                            <% orderData.forEach((item)=> { %>
+                            <div class="col-auto my-auto ml-auto"><h1 class="display-3 " style="color: white;">&#8377; <%= item.orderAmount %></h1></div>
+                            <% }) %>
+                        </div>
+                        <div class="row mb-3 mt-3 mt-md-0 ">
+                            <div class="col-auto "  style="padding-top: 10px;"> <small class="text-white">PAN:AA02hDW7E</small></div>
+                            <div class="col-auto "  style="padding-top: 10px;"> <small class="text-white">CIN:UMMC20PTC </small></div>
+                            <div class="col-auto "  style="padding-left: 30px;"><small class="text-white">
+                                <% orderData.forEach(item=>{ %>  
+                                    <% if(item.paymentStatus==="Payment Successfull") {%>
+                                        <button  id="invoisebutton"  onclick="downloadInvoice()">Download Invoice</button>
+                                    <% } %>
+                                    <% }) %> </small> </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+
+
+
+
+
+    <!-- !-----------------------------------------------------------------------------------------------------------------------------------------------neworder -->
+
+
+
+    <div class="related-product-area pb-95 pt-100">
+        <div class="container">
+            <div class="section-title-2 st-border-center text-center mb-75" data-aos="fade-up" data-aos-delay="200">
+                <h2>Related Products</h2>
+            </div>
+            <div class="related-product-active swiper-container">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="product-wrap" data-aos="fade-up" data-aos-delay="200">
+                            <div class="product-img img-zoom mb-25">
+                                <a href="product-details.html">
+                                    <img src="/userpublic/indexassets/assets/images/product/product-1.png" alt="" />
+                                </a>
+                                <div class="product-badge badge-top badge-right badge-pink">
+                                    <span>-10%</span>
+                                </div>
+                                <div class="product-action-wrap">
+                                    <button class="product-action-btn-1" title="Wishlist">
+                                        <i class="pe-7s-like"></i>
+                                    </button>
+                                    <button class="product-action-btn-1" title="Quick View" data-bs-toggle="modal"
+                                        data-bs-target="#exampleModal">
+                                        <i class="pe-7s-look"></i>
+                                    </button>
+                                </div>
+                                <div class="product-action-2-wrap">
+                                    <button class="product-action-btn-2" title="Add To Cart">
+                                        <i class="pe-7s-cart"></i> Add to cart
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-content">
+                                <h3><a href="product-details.html">New Modern Sofa Set</a></h3>
+                                <div class="product-price">
+                                    <span class="old-price">$25.89 </span>
+                                    <span class="new-price">$20.25 </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="product-wrap" data-aos="fade-up" data-aos-delay="400">
+                            <div class="product-img img-zoom mb-25">
+                                <a href="product-details.html">
+                                    <img src="/userpublic/indexassets/assets/images/product/product-2.png" alt="" />
+                                </a>
+                                <div class="product-action-wrap">
+                                    <button class="product-action-btn-1" title="Wishlist">
+                                        <i class="pe-7s-like"></i>
+                                    </button>
+                                    <button class="product-action-btn-1" title="Quick View" data-bs-toggle="modal"
+                                        data-bs-target="#exampleModal">
+                                        <i class="pe-7s-look"></i>
+                                    </button>
+                                </div>
+                                <div class="product-action-2-wrap">
+                                    <button class="product-action-btn-2" title="Add To Cart">
+                                        <i class="pe-7s-cart"></i> Add to cart
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-content">
+                                <h3><a href="product-details.html">New Modern Sofa Set</a></h3>
+                                <div class="product-price">
+                                    <span>$50.25 </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="product-wrap" data-aos="fade-up" data-aos-delay="600">
+                            <div class="product-img img-zoom mb-25">
+                                <a href="product-details.html">
+                                    <img src="/userpublic/indexassets/assets/images/product/product-3.png" alt="" />
+                                </a>
+                                <div class="product-badge badge-top badge-right badge-pink">
+                                    <span>-10%</span>
+                                </div>
+                                <div class="product-action-wrap">
+                                    <button class="product-action-btn-1" title="Wishlist">
+                                        <i class="pe-7s-like"></i>
+                                    </button>
+                                    <button class="product-action-btn-1" title="Quick View" data-bs-toggle="modal"
+                                        data-bs-target="#exampleModal">
+                                        <i class="pe-7s-look"></i>
+                                    </button>
+                                </div>
+                                <div class="product-action-2-wrap">
+                                    <button class="product-action-btn-2" title="Add To Cart">
+                                        <i class="pe-7s-cart"></i> Add to cart
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-content">
+                                <h3><a href="product-details.html">Easy Modern Chair</a></h3>
+                                <div class="product-price">
+                                    <span class="old-price">$45.00 </span>
+                                    <span class="new-price">$40.00 </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="product-wrap" data-aos="fade-up" data-aos-delay="800">
+                            <div class="product-img img-zoom mb-25">
+                                <a href="product-details.html">
+                                    <img src="/userpublic/indexassets/assets/images/product/product-4.png" alt="" />
+                                </a>
+                                <div class="product-action-wrap">
+                                    <button class="product-action-btn-1" title="Wishlist">
+                                        <i class="pe-7s-like"></i>
+                                    </button>
+                                    <button class="product-action-btn-1" title="Quick View" data-bs-toggle="modal"
+                                        data-bs-target="#exampleModal">
+                                        <i class="pe-7s-look"></i>
+                                    </button>
+                                </div>
+                                <div class="product-action-2-wrap">
+                                    <button class="product-action-btn-2" title="Add To Cart">
+                                        <a href="#" onclick=""><i class="pe-7s-cart"></i>Add To Cart</a>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-content">
+                                <h3><a href="product-details.html">Stylish Swing Chair</a></h3>
+                                <div class="product-price">
+                                    <span>$30.25 </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="product-wrap">
+                            <div class="product-img img-zoom mb-25">
+                                <a href="product-details.html">
+                                    <img src="/userpublic/indexassets/assets/images/product/product-2.png" alt="" />
+                                </a>
+                                <div class="product-badge badge-top badge-right badge-pink">
+                                    <span>-10%</span>
+                                </div>
+                                <div class="product-action-wrap">
+                                    <button class="product-action-btn-1" title="Wishlist">
+                                        <i class="pe-7s-like"></i>
+                                    </button>
+                                    <button class="product-action-btn-1" title="Quick View" data-bs-toggle="modal"
+                                        data-bs-target="#exampleModal">
+                                        <i class="pe-7s-look"></i>
+                                    </button>
+                                </div>
+                                <div class="product-action-2-wrap">
+                                    <button class="product-action-btn-2" title="Add To Cart">
+                                        <i class="pe-7s-cart"></i> Add to cart
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-content">
+                                <h3><a href="product-details.html">New Modern Sofa Set</a></h3>
+                                <div class="product-price">
+                                    <span class="old-price">$80.50 </span>
+                                    <span class="new-price">$75.25 </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+    <script>  
+        async function cancelOrder(button) {
+            const productId = button.getAttribute("data-product-id");
+            const orderId = document.getElementById('orderId').value
+                console.log("--------------orderid is +++   ----------------------------",orderId)
+                console.log("--------------productId is--------------------------",productId)
+            // Display a SweetAlert confirmation dialog
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This action cannot be undone!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, cancel it!",
+                cancelButtonText: "No, keep it",
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch('/ordersone', {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({productId ,orderId}),
+                        });
+
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+
+                        // Optionally, perform any additional actions after successful cancellation
+                        window.location.reload();
+                    } catch (error) {
+                        console.error(error);
+                        // Optionally, display an error message to the user
+                    }
+                } else {
+                    // Action cancelled by user
+                    console.log("Action cancelled");
+                }
+            });
+        }
+    </script>
+
+
+<script>
+    function requestReturn(productId, order_id,paymentMethod,quantity,totalProductAmount){
+        console.log("=========productId========",productId)
+        console.log("==========order_id=======",order_id)
+  swal.fire({
+    title: 'Enter your Reason',
+    input: 'text',
+    inputAttributes: {
+      autocapitalize: 'off'
+    },
+    showCancelButton: true,
+    confirmButtonText: 'Submit',
+    preConfirm: inputValue => {
+      if (inputValue === false) {
+        swal.showValidationMessage("Enter a valid Reason");
+        return false;
+      }
+      if (inputValue.trim() === "") {
+        swal.showValidationMessage("Enter a valid Reason");
+        return false;
+      }
+      return inputValue;
+    },
+    customContainerClass: {
+      padding: '2rem',
+      'font-size': '12px',
+      'max-width': '1000px'
+    }
+  }).then(result => {
+    if (result.dismiss === "cancel") {
+      swal.fire("Cancelled", "Return request cancelled");
+    } else if (result.value) {
+      let reason = result.value
+      swal.fire({
+        title: "Return requested",
+        text: "Reason:" + result.value,
+       
+        preConfirm:function(){
+          fetch('/user/productreturn',{
+          method: 'POST',
+          body: JSON.stringify({productId, order_id,paymentMethod,quantity,totalProductAmount, reason  }),
+          headers:{
+            'Content-Type':'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data=>{
+         
+          if(data.message){
+            window.location.reload()
+          }
+
+          
+        })
+        },
+        
+      });
+      
+    }
+  });
+}
+</script>
+
+<script>
+  function downloadInvoice() {
+    const invoiceContent = document.getElementById("invoiceContent").innerHTML
+
+    // Create a configuration object for html2pdf
+    const options = {
+        margin: 10,
+        filename: 'invoice.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // Use html2pdf to generate the PDF
+    html2pdf().from(invoiceContent).set(options).save();
+}
+
+</script>
+
+ 
+
+    <%- include('../partials/mainfooter.ejs')%>
