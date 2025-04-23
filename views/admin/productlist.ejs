@@ -10,7 +10,7 @@
 
             </div>
             <div>
-                <a type="button" class="btn btn-primary" href="/addproduct">add Products</a>
+                <a type="button" class="btn btn-primary" href="/admin-product/addproduct">add Products</a>
             </div>
         </div>
 
@@ -59,7 +59,7 @@
                                                             </>
                                                     <td>
 
-                                                        <a href="/editproductdetiles/<%= data._id %>"
+                                                        <a href="/admin-product/editproductdetiles/<%= data._id %>"
                                                             style="background-color: #3BB77E;"> <button
                                                                 class="btn btn-md rounded font-sm"
                                                                 style=" background-color: #3BB77E;"> Edit </button> </a>
@@ -139,7 +139,7 @@
                 confirmButtonText: 'Yes, unList it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = "/listProduct?id=" + userId;
+                    window.location.href = "/admin-product/listProduct?id=" + userId;
                 }
             });
         }
@@ -156,7 +156,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
 
-                    window.location.href = "/listProduct?id=" + userId;
+                    window.location.href = "/admin-product/listProduct?id=" + userId;
                 }
             });
         }

@@ -765,7 +765,7 @@
 
 
 
-                fetch('/orderpage', {
+                fetch('/order/orderpage', {
                     method: "post",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ activeAddressId, paymentmethod, totalDiscount, couponCode }),
@@ -803,7 +803,7 @@
                                 "handler": function (response) {
                                     console.log("ttttttttttttttttttttttt")
 
-                                    fetch('/verifyOrder', {
+                                    fetch('/order/verifyOrder', {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json'
@@ -832,7 +832,7 @@
                                                     buttonsStyling: false
                                                 })
                                                 setTimeout(() => {
-                                                    window.location.href = `/orders/${data.curentData}`
+                                                    window.location.href = `/order/orders/${data.curentData}`
                                                 }, 1000)
                                             }
                                         })
@@ -880,7 +880,7 @@
                                 confirmButtonText: 'OK'
                             });
                             setTimeout(() => {
-                                window.location.href = `/orders/${data.newOrder._id}`
+                                window.location.href = `/order/orders/${data.newOrder._id}`
                             }, 1500)
 
 
@@ -891,7 +891,7 @@
                                 confirmButtonText: 'OK'
                             });
                             setTimeout(() => {
-                                window.location.href = `/orders/${data.walletNewOrder._id}`
+                                window.location.href = `/order/orders/${data.walletNewOrder._id}`
                             }, 1500)
                         }
 

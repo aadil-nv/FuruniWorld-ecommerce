@@ -151,7 +151,7 @@
                                             <div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="Container">
                                                 <div class="product-wrap mb-35" data-aos="fade-up" data-aos-delay="50" id="container1">
                                                     <div class="product-img img-zoom mb-25">
-                                                        <a href="/producttab/<%= data._id %>">
+                                                        <a href="/product/producttab/<%= data._id %>">
                                                             <img src="/uploads/<%= data.productimage[0] %>" alt="">
                                                         </a>
                                                         <div class="product-badge badge-top badge-right badge-pink">
@@ -181,7 +181,7 @@
                                                     </div>
                                                     <div class="product-content">
                                                         <h3 id="productname">
-                                                            <a href="/producttab/<%= data._id %>"><%= data.productname %></a>
+                                                            <a href="/product/producttab/<%= data._id %>"><%= data.productname %></a>
                                                         </h3>
                                                         <div class="product-price">
                                                             <% if (!data.offerId) { %>
@@ -318,9 +318,9 @@
                 .then((response) => {
                     if (response.ok) {
 
-                        window.location.href = '/viewcart';
+                        window.location.href = '/cart/viewcart';
                     } else {
-                        window.location.href = '/viewcart';
+                        window.location.href = '/cart/viewcart';
                     }
                 })
                 .catch((err) => {
@@ -337,15 +337,15 @@
             const selectedValue = selectElement.value;
             console.log("=============================", selectedValue)
             if (selectedValue === 'popularity') {
-                window.location.href = '/productspopular';
+                window.location.href = '/query/productspopular';
             } else if (selectedValue === 'lowToHigh') {
-                window.location.href = '/productslowtohigh';
+                window.location.href = '/query/productslowtohigh';
             } else if (selectedValue === 'highTolow') {
-                window.location.href = '/productshightolow';
+                window.location.href = '/query/productshightolow';
             } else if (selectedValue === 'ATOZ') {
-                window.location.href = '/productsatoz';
+                window.location.href = '/query/productsatoz';
             } else if (selectedValue === 'ZTOA') {
-                window.location.href = '/productsztoa';
+                window.location.href = '/query/productsztoa';
             }
         }
     </script>
@@ -355,7 +355,7 @@
 
         function wishlstProductId(id) {
             console.log('=======================productId==========================', id)
-            fetch('/user/wishlist', {
+            fetch('/wishlist/wishlist', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -415,7 +415,7 @@
 
                 const searchInput = document.getElementById("searchInput").value;
 
-                fetch("/user/search", {
+                fetch("/query/search", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -442,7 +442,7 @@
                             const productHTML = `
                     <div class="product-wrap mb-35" data-aos="fade-up" data-aos-delay="200" id="container1">
                         <div class="product-img img-zoom mb-25">
-                            <a href="/producttab/${product._id}">
+                            <a href="/product/producttab/${product._id}">
                                 <img src="/uploads/${product.productimage[0]}" alt="">
                             </a>
                             <div class="product-badge badge-top badge-right badge-pink">
@@ -457,7 +457,7 @@
                             </div>
                         </div>
                         <div class="product-content">
-                            <h3 id="productname"><a href="/producttab/${product._id}">${product.productname}</a></h3>
+                            <h3 id="productname"><a href="/product/producttab/${product._id}">${product.productname}</a></h3>
                             <div class="product-price">
 
                                 ${!product.offerId ? `<span class="new-price" id="productprice">${product.productprice}</span>` : `<span class="text-muted"><del>${product.productprice}</del></span><span class="new-price" id="productprice">₹${(product.productprice - (product.productprice * product.offerId.percentage / 100)).toFixed(0)}/-</span>`}
@@ -493,7 +493,7 @@
             });
 
             const sendDataToController = (categoryName) => {
-                fetch("/user/sendcategoryname", {
+                fetch("/query/sendcategoryname", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -520,7 +520,7 @@
                             const productHTML = `
                     <div class="product-wrap mb-35" data-aos="fade-up" data-aos-delay="200" id="container1">
                         <div class="product-img img-zoom mb-25">
-                            <a href="/producttab/${product._id}">
+                            <a href="/product/producttab/${product._id}">
                                 <img src="/uploads/${product.productimage[0]}" alt="">
                             </a>
                             <div class="product-badge badge-top badge-right badge-pink">
@@ -570,7 +570,7 @@
             });
 
             const sendDataToController = (categoryName) => {
-                fetch("/user/sendcategoryname", {
+                fetch("/query/sendcategoryname", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"

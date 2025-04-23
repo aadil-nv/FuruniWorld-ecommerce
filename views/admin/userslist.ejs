@@ -144,7 +144,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             // If the user confirms, redirect to the block user endpoint
-            window.location.href = "/blockuser?id=" + userId;
+            window.location.href = "/admin-user/blockuser?id=" + userId;
         }
     });
 }
@@ -163,7 +163,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             // If the user confirms, redirect to the block user endpoint
-            window.location.href = "/blockuser?id=" + userId;
+            window.location.href = "/admin-user/blockuser?id=" + userId;
         }
     });
 }

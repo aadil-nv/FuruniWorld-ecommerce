@@ -678,7 +678,7 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const response = await fetch('/ordersone', {
+                        const response = await fetch('/order/ordersone', {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json",
@@ -743,7 +743,7 @@
         text: "Reason:" + result.value,
        
         preConfirm:function(){
-          fetch('/user/productreturn',{
+          fetch('/order/productreturn',{
           method: 'POST',
           body: JSON.stringify({productId, order_id,paymentMethod,quantity,totalProductAmount, reason  }),
           headers:{

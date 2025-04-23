@@ -9,7 +9,7 @@
             <div>
 
 
-                <a href="/addcategory" class="btn btn-danger btn-sm rounded">Add Category +</a>
+                <a href="/admin-category/addcategory" class="btn btn-danger btn-sm rounded">Add Category +</a>
 
             </div>
         </div>
@@ -69,7 +69,7 @@
                                             <td >
 
                                                 
-                                                    <a href="/editCategory/<%= data._id %>" class="btn btn-sm font-sm rounded btn-brand"> <i class="material-icons md-edit"></i><button class="btn btn-sm rounded font-sm"   style=" align-items: center; justify-content: center; width: 15px; height: 22px; color: white;" >Edit</button> </a>
+                                                    <a href="/admin-category/editCategory/<%= data._id %>" class="btn btn-sm font-sm rounded btn-brand"> <i class="material-icons md-edit"></i><button class="btn btn-sm rounded font-sm"   style=" align-items: center; justify-content: center; width: 15px; height: 22px; color: white;" >Edit</button> </a>
 
                                                 </button>
                                             </td  >
@@ -157,7 +157,7 @@
         confirmButtonText: 'Yes, block it!'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = "/adminBlockcategory/" + categoryId;
+            window.location.href = "/admin-category/adminBlockcategory/" + categoryId;
         }
     });
 }
@@ -172,7 +172,7 @@
         confirmButtonText: 'Yes, unBlock it!'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = "/adminBlockcategory/" + categoryId;
+            window.location.href = "/admin-category/adminBlockcategory/" + categoryId;
         }
     });
 }

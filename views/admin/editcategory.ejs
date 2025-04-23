@@ -67,7 +67,7 @@
       return false;
     }
 
-    fetch(`/editcategoryfetch/${id}`, {
+    fetch(`/admin-category/editcategoryfetch/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, des }),
@@ -82,7 +82,7 @@
         if (data.already) {
           message.innerHTML = data.already;
         } else if (data.success) {
-          window.location.href = "/categorymanagement";
+          window.location.href = "/admin-category/categorymanagement";
         } else {
           message.innerHTML = "Somthing wrong";
         }

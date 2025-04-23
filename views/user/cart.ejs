@@ -271,7 +271,7 @@
       return;
     }
 
-    fetch("/viewcart", {
+    fetch("/cart/viewcart", {
       method: "post",
       headers: {
         "Content-Type": "application/json",
@@ -298,7 +298,7 @@
 </script>
 <script>
   function removeProduct(id) {
-    fetch(`/viewcart/${id}`, {
+    fetch(`/cart/viewcart/${id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     })

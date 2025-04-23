@@ -144,7 +144,7 @@
     <script>
         function removewishlistProduct(productId) {
             console.log('=================productId=====================', productId)
-            fetch('/user/wishlistone', {
+            fetch('/wishlist/wishlistone', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -169,7 +169,7 @@
 <script>
     function addItemInCart(id) {
         console.log(id);
-        fetch(`/producttab/${id}`, {
+        fetch(`/product/producttab/${id}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
         })

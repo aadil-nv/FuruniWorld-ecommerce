@@ -109,7 +109,7 @@
                       </li>
 
                       <li>
-                        <a href="/login">SHOP</a>
+                        <a href="/auth/login">SHOP</a>
 
                         <%}%>
                       </li>
@@ -126,7 +126,7 @@
                                   <% if(locals.customer){ %>
                                     <li><a href="/userprofile">PROFILE</a></li>
                                     <% }else{ %>
-                                      <li><a href="/login">LOGIN</a></li>
+                                      <li><a href="/auth/login">LOGIN</a></li>
                                       <%}%>
                   </ul>
                 </nav>
@@ -134,51 +134,26 @@
             </div>
             <div class="col-lg-3 col-md-6 col-6">
               <div class="header-action-wrap">
-                <!-- <div claSss="header-action-style header-search-1">
-                                    <a class="search-toggle" >
-                                        <i class="pe-7s-search s-open"></i>
-                                        <i class="pe-7s-close s-close"></i>
-                                    </a>
-                                    <div class="search-wrap-1">
-                                        <form action="#">
-                                            <input placeholder="Search products…" type="text">
-                                            <button class="button-search"><i class="pe-7s-search"></i></button>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div class="header-action-style">
-                                    <a title="Login Register" href="login-register.html"><i class="pe-7s-user"></i></a>
-                                </div> -->
 
-                <!-- <% if(locals.customer){ %>
-                  <div class="header-action-style">
-                    <a title="Login Register" href="/userprofile"><i class="material-icons"
-                        id="userprofile">account_circle</i></a>
-                  </div>
-                  <% }else{ %>
-                    <div class="header-action-style">
-                      <a title="Login Register" href="/login"><i class="pe-7s-user" id="userprofile2"></i></a>
-                    </div>
-                    <%}%> -->
                       <% if(locals.customer){ %>
                         <div class="header-action-style">
-                          <a title="Wishlist" href="/user/wishlist"><i class="pe-7s-like" id="userwishlist1"></i></a>
+                          <a title="Wishlist" href="/wishlist/wishlist"><i class="pe-7s-like" id="userwishlist1"></i></a>
                           
                         </div>
                         <% }else{ %>
                           <div class="header-action-style">
-                            <a title="Wishlist" href="/login"><i class="pe-7s-like" id="userwishlist2"></i></a>
+                            <a title="Wishlist" href="/auth/login"><i class="pe-7s-like" id="userwishlist2"></i></a>
                           </div>
                           <%}%>
                             <% if(locals.customer){ %>
                               <div class="header-action-style header-action-cart">
-                                <a class="cart-active" href="/viewcart"><i class="pe-7s-shopbag" id="usercart1"></i>
-                                  <span class="product-count bg-black"><%= productcount  %></span>
+                                <a class="cart-active" href="/cart/viewcart"><i class="pe-7s-shopbag" id="usercart1"></i>
+                                  <span class="product-count bg-black"><%= productcount %></span>
                                 </a>
                               </div>
                               <% }else{ %>
                                 <div class="header-action-style header-action-cart">
-                                  <a class="cart-active" href="/login"><i class="pe-7s-shopbag" id="usercart2"></i>
+                                  <a class="cart-active" href="/auth/login"><i class="pe-7s-shopbag" id="usercart2"></i>
                                     <span class="product-count bg-black">0</span>
                                   </a>
                                 </div>
@@ -207,17 +182,17 @@
           <% if(locals.customer){ %>
             <li><a href="/shoppage">SHOP</a></li>
             <% }else{ %>
-              <li><a href="/login">SHOP</a></li>
+              <li><a href="/auth/login">SHOP</a></li>
               <%}%>
                 <% if(locals.customer){ %>
                   <li><a href="/aboutpage">ABOUT</a></li>
                   <% }else{ %>
-                    <li><a href="/login">ABOUT</a></li>
+                    <li><a href="/auth/login">ABOUT</a></li>
                     <%}%>
                       <% if(locals.customer){ %>
                         <li><a href="/contactpage">CONTACT US</a></li>
                         <% }else{ %>
-                          <li><a href="/login">CONTACT US</a></li>
+                          <li><a href="/auth/login">CONTACT US</a></li>
                           <%}%>
         </ul>
       </nav>

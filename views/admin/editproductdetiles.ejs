@@ -26,7 +26,7 @@
 
                             <div class="card-body">
                                 <form enctype="multipart/form-data" method="post" onsubmit="return validateForm()"
-                                    action="/editproductdetilesfetch/<%= product._id %> ">
+                                    action="/admin-product/editproductdetilesfetch/<%= product._id %> ">
                                     <div class="mb-4">
                                         <label for="product_name" class="form-label">Product Name</label>
                                         <input type="text" placeholder="Type here" id="name" name="name"
@@ -156,7 +156,7 @@
 
                                         </div>
                                     </div>
-                                    <a href="/editproductdetilesfetch/<%= product._id %>?name=<%= data %>">
+                                    <a href="/admin-product/editproductdetilesfetch/<%= product._id %>?name=<%= data %>">
 
                                         <button class="btn btn-md rounded font-sm hover-up">Remove Image</button>
 

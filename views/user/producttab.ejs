@@ -566,16 +566,16 @@
     <script>
         function addItemInCart(id) {
             console.log(id);
-            fetch(`/producttab/${id}`, {
+            fetch(`/product/producttab/${id}`, {
                 method: "post",
                 headers: { "Content-Type": "application/json" },
             })
             .then((response) => {
                 if (response.ok) {
                     // If response is okay, redirect to the cart page
-                    window.location.href = '/viewcart';
+                    window.location.href = '/cart/viewcart';
                 } else {
-                    window.location.href = '/viewcart';
+                    window.location.href = '/cart/viewcart';
                 }
             })
             .catch((err) => {
@@ -587,7 +587,7 @@
 
         function wishlstProductId(id) {
     console.log('=======================productId==========================', id)
-    fetch('/user/wishlist', {
+    fetch('/wishlist/wishlist', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

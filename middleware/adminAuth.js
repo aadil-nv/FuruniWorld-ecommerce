@@ -1,35 +1,32 @@
 const isLogin = async (req, res, next) => {
     try {
-        if (req.session.admin) {
+        if (req.session && req.session.admin) {
+            console.log("nextttttttttttttttttttttttttttttttttttttttttt");
             
-            next()
+            return next()
+        } else {
+            return res.redirect("/adminlogin");
         }
-        else {
-            
-            res.redirect("/adminlogin");
-
-        }
-
-    } catch (erorr) {
-        console.log(erorr.message)
+    } catch (error) {
+        console.error("isLogin middleware error:", error.message);
+        res.status(500).send("Internal Server Error");
     }
-}
+};
 
 const isLogout = async (req, res, next) => {
     try {
-        if (!req.session.admin) {
-
-            next()
+        if (!req.session || !req.session.admin) {
+            return next();
         } else {
-            res.redirect('/adminlogin')
+            return res.redirect("/admindashboard");
         }
-
-    } catch (erorr) {
-        console.log(erorr.message)
+    } catch (error) {
+        console.error("isLogout middleware error:", error.message);
+        res.status(500).send("Internal Server Error");
     }
-}
+};
 
 module.exports = {
     isLogin,
     isLogout
-}
+};

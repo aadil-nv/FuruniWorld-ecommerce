@@ -281,7 +281,7 @@
                     const selectedStatus = statusSelect.value;
                     const orderId = document.getElementById('orderId').value;
 
-                    fetch(`/orderdetiles/${productId}`, {
+                    fetch(`/order/orderdetiles/${productId}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'

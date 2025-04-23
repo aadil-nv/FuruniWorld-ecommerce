@@ -210,7 +210,7 @@
                                 <div class="product-wrap mb-35" data-aos="fade-up" data-aos-delay="200">
                                     <div class="product-img img-zoom mb-25">
                                    
-                                        <a href="/producttab/<%= data._id %>">
+                                        <a href="/product/producttab/<%= data._id %>">
                                             <img src="/uploads/<%= data.productimage[0] %>" alt="">
                                         </a>
                                        
@@ -239,7 +239,7 @@
                                     </div>
                                     <div class="product-content">
 
-                                        <h3><a href="/producttab?id=<%= data._id %>" id="productname7"><%= data.productname %></a></h3>
+                                        <h3><a href="/product/producttab?id=<%= data._id %>" id="productname7"><%= data.productname %></a></h3>
                                         <div class="product-price">
                                             <% if (!data.offerId) { %>
                                             <span id="productprice">₹<%= data.productprice %></span>
@@ -452,16 +452,16 @@
         <script>
             function addItemInCart(id) {
                 console.log(id);
-                fetch(`/producttab/${id}`, {
+                fetch(`/product/producttab/${id}`, {
                     method: "post",
                     headers: { "Content-Type": "application/json" },
                 })
                 .then((response) => {
                     if (response.ok) {
                        
-                        window.location.href = '/viewcart';
+                        window.location.href = '/cart/viewcart';
                     } else {
-                        window.location.href = '/viewcart';
+                        window.location.href = '/cart/viewcart';
                     }
                 })
                 .catch((err) => {
@@ -476,7 +476,7 @@
 
             function wishlstProductId(id) {
     console.log('=======================productId==========================', id)
-    fetch('/user/wishlist', {
+    fetch('/wishlist/wishlist', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
