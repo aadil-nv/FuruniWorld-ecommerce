@@ -336,11 +336,11 @@
 
     <script>
         function addItemInCart(id) {
-            console.log(id);
-            fetch(`/producttab/${id}`, {
-                method: "post",
-                headers: { "Content-Type": "application/json" },
-            })
+            console.log("iddddddddsssssssssssssssssssssssssssssssssssdddd",id);
+            fetch(`/product/producttab/${id}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+        })
                 .then((response) => {
                     if (response.ok) {
 

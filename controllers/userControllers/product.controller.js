@@ -28,6 +28,9 @@ const loadProductTab = async (req, res) => {
   }
 };
 const addProductInCart = async (req, res) => {
+
+  console.log("calling aadproduct iin cart ===>");
+  
   try {
     const productId = req.params.id;
     const userId = req.session.user;
@@ -58,7 +61,8 @@ const addProductInCart = async (req, res) => {
       },
       { new: true, upsert: true });
 
-
+      console.log("###################################################");
+      
     res.status(200).json({ message: "Product added to cart successfully" });
   } catch (error) {
     console.error(error.message);
