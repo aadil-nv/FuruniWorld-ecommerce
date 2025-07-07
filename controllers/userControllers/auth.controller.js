@@ -6,7 +6,6 @@ const Products = require("../../models/productModel");
 const securedPassword = require('../../utils/hashPassword')
 const generateOTP=require("../../utils/genarateOtp")
 const generateReferralCode =require("../../utils/generateReferralCode")
-const Cart = require("../../models/cartModel");
 
 require("dotenv").config();
 
@@ -232,16 +231,12 @@ let userData;
  const loadGoogleAuth = async (req, res) => {
   try {
     const ProductData = await Products.find();
-    const cartData = await Cart.find({ userId: user });
     const gUser = req.user;
     
-    let productcount = 0;
-    for (const cart of cartData) {
-      productcount += cart.products.length;
+    if (gUser) {
+      req.session.user = gUser._id;
+      res.redirect("/");
     }
-
-    // res.render("user/index", { ProductData });
-    res.redirect("/userhome");
   } catch (error) {
     console.log(error.message);
   }

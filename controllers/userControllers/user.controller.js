@@ -7,6 +7,8 @@ const order = require("../../models/orderModal");
 const Coupon = require("../../models/couponModal");
 const Category = require("../../models/categoryModel");
 const Products = require("../../models/productModel")
+const { securedPassword } = require("../../helpers/passwordHelper");
+
 require("dotenv").config();
 
 
@@ -225,34 +227,63 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
+// const updateUserPassword = async (req, res) => {
+//   try {
+//     const passId = req.params.id;
+//     const oldPass = req.body.oldpassword;
+//     const newPass = req.body.newpassword;
+
+//     const newPassData = await User.findOne({ _id: passId });
+//     if (newPassData) {
+//       const passwordMatch = await bcrypt.compare(
+//         req.body.oldpassword,
+//         newPassData.password
+//       );
+//       const newSpassword = await securedPassword(req.body.newpassword);
+
+//       if (!passwordMatch) {
+//         res.json({ already: "Please check your Password" });
+//       } else {
+//         await User.findByIdAndUpdate(
+//           { _id: passId },
+//           { password: newSpassword }
+//         );
+//         res.json({ already: "Password changed SuccesFully" });
+//       }
+//     }
+//   } catch (error) {
+//     console.log(error.message);
+//   }
+// };
+
+
+
 const updateUserPassword = async (req, res) => {
   try {
-    const passId = req.params.id;
-    const oldPass = req.body.oldpassword;
-    const newPass = req.body.newpassword;
+    const userId = req.params.id;
+    const { oldpassword, newpassword } = req.body;
 
-    const newPassData = await User.findOne({ _id: passId });
-    if (newPassData) {
-      const passwordMatch = await bcrypt.compare(
-        req.body.oldpassword,
-        newPassData.password
-      );
-      const newSpassword = await securedPassword(req.body.newpassword);
-
-      if (!passwordMatch) {
-        res.json({ already: "Please check your Password" });
-      } else {
-        await User.findByIdAndUpdate(
-          { _id: passId },
-          { password: newSpassword }
-        );
-        res.json({ already: "Password changed SuccesFully" });
-      }
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
+
+    const isMatch = await bcrypt.compare(oldpassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Incorrect current password" });
+    }
+
+    const hashedPassword = await securedPassword(newpassword);
+
+    await User.findByIdAndUpdate(userId, { password: hashedPassword });
+    res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
-    console.log(error.message);
+    console.error("Error updating password:", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
+
+module.exports = { updateUserPassword };
 
 
 const loadAddressPage = async (req, res) => {

@@ -427,37 +427,6 @@ function redirectToSelectedPage() {
 
 
 
-
-// document.getElementById('downloadBtn').addEventListener('click', async () => {
-//     const tableHtml = document.getElementById('tablebody').outerHTML;
-
-//     try {
-//         const response = await fetch('/generate-pdf', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify({ html: tableHtml }), // Pass the HTML content in the request body
-//         });
-
-//         const blob = await response.blob();
-//         const url = window.URL.createObjectURL(blob);
-
-//         const a = document.createElement('a');
-//         a.style.display = 'none';
-//         a.href = url;
-//         a.download = 'report.pdf';
-//         document.body.appendChild(a);
-//         a.click();
-//         window.URL.revokeObjectURL(url);
-//     } catch (error) {
-//         console.error('Error downloading PDF:', error);
-//     }
-// });
-
-
-
-
 document.getElementById("downloadBtn").addEventListener("click", function() {
     const invoiceContent = document.getElementById("invoiceContent").innerHTML;
 

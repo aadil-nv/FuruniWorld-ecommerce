@@ -17,6 +17,11 @@
         <!-- Font Awesome for the eye icon -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
         <style>
+            :root {
+                --primary-color: #3a7bd5;
+                --error-color: #dc3545;
+                --success-color: #28a745;
+            }
             .content-main {
                 display: flex;
                 justify-content: center;
@@ -29,9 +34,13 @@
             .card-login {
                 max-width: 400px;
                 width: 100%;
-                background-color: #3a7bd5 !important;
+                background-color: var(--primary-color) !important;
                 border-radius: 10px;
                 box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+                transition: background-color 0.5s ease;
+            }
+            .card-login.error-theme {
+                background-color: var(--success-color) !important;
             }
             .card-body {
                 padding: 30px;
@@ -42,14 +51,27 @@
                 font-weight: 600;
                 margin-bottom: 25px !important;
             }
+            /* Updated error message styles with red color */
             .error-message {
                 background-color: rgba(255, 255, 255, 0.9);
-                color: #e63946;
+                color: var(--error-color);
                 border-radius: 5px;
                 padding: 10px;
                 margin-bottom: 15px;
                 text-align: center;
                 font-weight: 500;
+                border-left: 4px solid var(--error-color);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                transform: translateY(-20px);
+                opacity: 0;
+                animation: slideIn 0.5s forwards;
+                display: none;
+            }
+            @keyframes slideIn {
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
             }
             .form-control {
                 border-radius: 5px;
@@ -61,7 +83,7 @@
                 box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
             }
             .btn-primary {
-                background-color: #28a745;
+                background-color: var(--primary-color);
                 border: none;
                 border-radius: 5px;
                 padding: 12px 0;
@@ -72,7 +94,7 @@
                 margin: 0 auto;
             }
             .btn-primary:hover {
-                background-color: #218838;
+                background-color: #2c6ec5;
                 transform: translateY(-2px);
             }
             .password-container {
@@ -100,15 +122,27 @@
     <body>
         <main>
             <section class="content-main">
-                <div class="card mx-auto card-login">
+                <div class="card mx-auto card-login" id="login-card">
                     <div class="card-body">
                         <h2 class="card-title">Admin Sign In</h2>
                         <div id="error-container">
-                            <p id="show1" class="error-message" style="display: none;"></p>
+                            <p id="show1" class="error-message"></p>
                             <% if(typeof message!=='undefined' ){ %>
-                                <h6 id="errorMessage" class="error-message">
+                                <h6 id="errorMessage" class="error-message" style="display: block;">
                                     <%= message %>
                                 </h6>
+                                <script>
+                                    // Animate the server-side error message and change theme
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const errorMsg = document.getElementById('errorMessage');
+                                        const loginCard = document.getElementById('login-card');
+                                        errorMsg.style.display = 'block';
+                                        loginCard.classList.add('error-theme');
+                                        setTimeout(() => {
+                                            errorMsg.style.animation = 'slideIn 0.5s forwards';
+                                        }, 100);
+                                    });
+                                </script>
                             <% } %>
                         </div>
                         <form action="/admin-auth/adminlogin" method="post" onsubmit="return validateForm()">
@@ -121,9 +155,7 @@
                                     <i id="eyeIcon" class="fa-solid fa-eye"></i>
                                 </span>
                             </div>
-                            <div class="password-requirements">
-                                Password must contain at least one uppercase letter, one lowercase letter, and one special symbol.
-                            </div>
+                            
                             <div class="mb-3">
                                 <button type="submit" class="btn btn-primary">Login</button>
                             </div>
@@ -142,15 +174,24 @@
                 let email = document.getElementById("email").value;
                 let password = document.getElementById("password").value;
                 let errorElement = document.getElementById("show1");
+                let loginCard = document.getElementById("login-card");
                 
-                // Reset error display
+                // Reset error display and theme
                 errorElement.style.display = "none";
+                errorElement.style.animation = "none";
+                loginCard.classList.remove("error-theme");
+                errorElement.offsetHeight; // Trigger reflow
+                errorElement.style.animation = null;
 
                 // Email validation - proper format
                 let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(email)) {
                     errorElement.innerHTML = "Please enter a valid email address";
                     errorElement.style.display = "block";
+                    loginCard.classList.add("error-theme");
+                    setTimeout(() => {
+                        errorElement.style.animation = "slideIn 0.5s forwards";
+                    }, 10);
                     return false;
                 }
                 
@@ -162,18 +203,30 @@
                 if (!uppercaseRegex.test(password)) {
                     errorElement.innerHTML = "Password must contain at least one uppercase letter";
                     errorElement.style.display = "block";
+                    loginCard.classList.add("error-theme");
+                    setTimeout(() => {
+                        errorElement.style.animation = "slideIn 0.5s forwards";
+                    }, 10);
                     return false;
                 }
                 
                 if (!lowercaseRegex.test(password)) {
                     errorElement.innerHTML = "Password must contain at least one lowercase letter";
                     errorElement.style.display = "block";
+                    loginCard.classList.add("error-theme");
+                    setTimeout(() => {
+                        errorElement.style.animation = "slideIn 0.5s forwards";
+                    }, 10);
                     return false;
                 }
                 
                 if (!symbolRegex.test(password)) {
                     errorElement.innerHTML = "Password must contain at least one special symbol";
                     errorElement.style.display = "block";
+                    loginCard.classList.add("error-theme");
+                    setTimeout(() => {
+                        errorElement.style.animation = "slideIn 0.5s forwards";
+                    }, 10);
                     return false;
                 }
                 

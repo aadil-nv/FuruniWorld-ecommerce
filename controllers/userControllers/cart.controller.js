@@ -1,6 +1,7 @@
 const Products = require("../../models/productModel");
 const Cart = require("../../models/cartModel");
 const Offer = require("../../models/offerModal");
+const Address = require("../../models/addressModel");
 require("dotenv").config();
 
 
@@ -142,6 +143,8 @@ const deleteCartProduct = async (req, res) => {
 };
 
 const headerCount= async (req,res)=>{
+  console.log("calling header count is -->");
+  
   try {
     const userId= req.session.user 
     let cartCount = 0; // Initialize cartCount to 0
@@ -154,6 +157,9 @@ const headerCount= async (req,res)=>{
         cartCount = cartData.products.reduce((total, product) => total + product.quantity, 0);
       }
     }
+
+    console.log("header cart ccount is ==>",cartCount);
+    
     res.send('/partials/maiheader',{cartCount})
   } catch (error) {
     console.log(error.message)

@@ -1,5 +1,7 @@
 const Products = require("../../models/productModel");
 const Cart = require("../../models/cartModel");
+const Address = require("../../models/addressModel");
+
 require("dotenv").config();
 
 
@@ -94,6 +96,12 @@ const loadtCheckoutPage = async (req, res) => {
     for (const cart of cartData) {
       productcount += cart.products.length;
     }
+
+    console.log("data from loadtCheckoutPage 11111111" ,addressData, );
+    console.log("data from loadtCheckoutPage 22222222222" ,cartDetiles);
+    console.log("data from loadtCheckoutPage 333333333" ,total );
+    console.log("data from loadtCheckoutPage 4444444" ,productcount );
+    
 
     res.render("user/checkout", { addressData, cartDetiles, total,productcount });
   } catch (error) {

@@ -3,149 +3,411 @@
 <style>
     #logicontainer{
         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); 
-        
         margin-bottom: 150px;
     }
     .login-with-google-btn {
-  transition: background-color .3s, box-shadow .3s;
+        transition: background-color .3s, box-shadow .3s;
+        padding: 12px 16px 12px 42px;
+        border: none;
+        border-radius: 3px;
+        box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 1px 1px rgba(0, 0, 0, .25);
+        color: #757575;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
+        background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzA1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=);
+        background-color: white;
+        background-repeat: no-repeat;
+        background-position: 12px 11px;
+    }
     
-  padding: 12px 16px 12px 42px;
-  border: none;
-  border-radius: 3px;
-  box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 1px 1px rgba(0, 0, 0, .25);
-  
-  color: #757575;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
-  
-  background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzA1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=);
-  background-color: white;
-  background-repeat: no-repeat;
-  background-position: 12px 11px;
-  
-  &:hover {
-    box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 2px 4px rgba(0, 0, 0, .25);
-  }
-  
-  &:active {
-    background-color: #eeeeee;
-  }
-  
-  &:focus {
-    outline: none;
-    box-shadow: 
-      0 -1px 0 rgba(0, 0, 0, .04),
-      0 2px 4px rgba(0, 0, 0, .25),
-      0 0 0 3px #c8dafc;
-  }
-  
-  &:disabled {
-    filter: grayscale(100%);
-    background-color: #ebebeb;
-    box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 1px 1px rgba(0, 0, 0, .25);
-    cursor: not-allowed;
-  }
-}
-body {
-  text-align: center;
-  padding-top: 2rem;
-}
-#password::placeholder {
+    .login-with-google-btn:hover {
+        box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 2px 4px rgba(0, 0, 0, .25);
+    }
+    
+    .login-with-google-btn:active {
+        background-color: #eeeeee;
+    }
+    
+    .login-with-google-btn:focus {
+        outline: none;
+        box-shadow: 
+            0 -1px 0 rgba(0, 0, 0, .04),
+            0 2px 4px rgba(0, 0, 0, .25),
+            0 0 0 3px #c8dafc;
+    }
+    
+    .login-with-google-btn:disabled {
+        filter: grayscale(100%);
+        background-color: #ebebeb;
+        box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 1px 1px rgba(0, 0, 0, .25);
+        cursor: not-allowed;
+    }
+    
+    body {
+        text-align: center;
+        padding-top: 2rem;
+    }
+    
+    #password::placeholder, #email::placeholder {
         color: #999;
         font-style: italic;
     }
-#email::placeholder {
-        color: #999;
-        font-style: italic;
+    
+    /* Enhanced Error Message Styles */
+    .error-message {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin: 10px 0;
+        font-size: 14px;
+        font-weight: 500;
+        border-left: 4px solid #d63031;
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        animation: slideIn 0.3s ease-out;
+        position: relative;
+        overflow: hidden;
     }
-
+    
+    .error-message::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+        animation: shimmer 2s infinite;
+    }
+    
+    .error-message i {
+        margin-right: 8px;
+        font-size: 16px;
+    }
+    
+    .success-message {
+        background: linear-gradient(135deg, #00b894, #00a085);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin: 10px 0;
+        font-size: 14px;
+        font-weight: 500;
+        border-left: 4px solid #00b894;
+        box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    .warning-message {
+        background: linear-gradient(135deg, #fdcb6e, #e17055);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin: 10px 0;
+        font-size: 14px;
+        font-weight: 500;
+        border-left: 4px solid #f39c12;
+        box-shadow: 0 4px 12px rgba(253, 203, 110, 0.3);
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    /* Input field enhancements */
+    .form-input {
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 12px 15px;
+        font-size: 14px;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    .form-input:focus {
+        border-color: #4285f4;
+        box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+        outline: none;
+    }
+    
+    .form-input.error {
+        border-color: #ff6b6b;
+        box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+    }
+    
+    .form-input.success {
+        border-color: #00b894;
+        box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+    }
+    
+    /* Label styles */
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+        text-align: left;
+    }
+    
+    /* Button enhancements */
+    .login-btn {
+        background: linear-gradient(135deg, #4285f4, #34a853);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+    }
+    
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(66, 133, 244, 0.4);
+    }
+    
+    .login-btn:active {
+        transform: translateY(0);
+    }
+    
+    /* Validation feedback icons */
+    .input-wrapper {
+        position: relative;
+    }
+    
+    .validation-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .validation-icon.show {
+        opacity: 1;
+    }
+    
+    .validation-icon.success {
+        color: #00b894;
+    }
+    
+    .validation-icon.error {
+        color: #ff6b6b;
+    }
 </style>
         
-        <div class="login-register-area ">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-md-12 offset-lg-2">
-                        <div class="login-register-wrapper">
-                            <div class="login-register-tab-list nav">
-                              <a class="active"><h4>Login</h4></a>
-                                <a  href="/auth/registration/">
-                                    <h4>Register</h4> 
-                                </a>
-                            </div>
-                            <div class="tab-content">
-                                <div id="lg1" class="tab-pane active">
-                                    <div class="login-form-container" id="logicontainer">
-                                        <div class="login-register-form">
-                                            <form action="/auth/userlogin" method="post"  onsubmit="return handleSubmit()">
-
-                                              <p id="show1" class="text-danger" ></p>
-                                                <% if(typeof message!=='undefined' ){ %>
-
-                                                    <h6 id="errorMessage"  style="color: red; justify-content: center; text-align: center;">
-                                                        <%= message %>
-                                                    </h6>
-                                                    <% } %>
-
-                                                    <label>Enter Your Email :</label>
-                                                <input type="text" id="email" name="email" placeholder="(e.g., example@example.com)">
-                                                <label>Enter Your Paasword :</label>
-                                                <input type="password" id="password" name="password" placeholder="(Password)"  class="muted-placeholder">
-                                                
-                                                <div class="button-box btn-hover"  style="justify-content: center; align-items: center; display: flex;">
-                                                    <button type="submit">Login</button>
-                                                </div>
-                                                
-                                                
-                                            </form>
-                                            <div style="justify-content: center; align-items: center; display:  flex; padding-top: 30px;">
-                                                
-                                                <a href="/auth/google"><button class="login-with-google-btn" > Sign in with Google</button></a>
+<div class="login-register-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12 offset-lg-2">
+                <div class="login-register-wrapper">
+                    <div class="login-register-tab-list nav">
+                        <a class="active"><h4>Login</h4></a>
+                        <a href="/auth/registration/">
+                            <h4>Register</h4> 
+                        </a>
+                    </div>
+                    <div class="tab-content">
+                        <div id="lg1" class="tab-pane active">
+                            <div class="login-form-container" id="logicontainer">
+                                <div class="login-register-form">
+                                    <form action="/auth/userlogin" method="post" onsubmit="return handleSubmit()">
+                                        
+                                        <!-- Error Message Display -->
+                                        <div id="errorContainer"></div>
+                                        
+                                        <% if(typeof message!=='undefined' ){ %>
+                                            <div id="errorMessage" class="error-message">
+                                                <i class="fas fa-exclamation-circle"></i>
+                                                <%= message %>
                                             </div>
+                                        <% } %>
+
+                                        <!-- Email Input -->
+                                        <label class="form-label">Enter Your Email:</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="email" name="email" class="form-input" placeholder="example@example.com">
+                                            <span class="validation-icon" id="emailIcon"></span>
                                         </div>
+
+
+
+                                        <!-- Password Input -->
+                                        <label class="form-label">Enter Your Password:</label>
+                                        <div class="input-wrapper">
+                                            <input type="password" id="password" name="password" class="form-input" placeholder="Password (min 6 chars, 1 uppercase, 1 digit, 1 symbol)">
+                                            <span class="validation-icon" id="passwordIcon"></span>
+                                        </div>
+                                        
+                                        <div class="button-box btn-hover" style="justify-content: center; align-items: center; display: flex;">
+                                            <button type="submit" class="login-btn">Login</button>
+                                        </div>
+                                    </form>
+                                    
+                                    <div style="justify-content: center; align-items: center; display: flex; padding-top: 30px;">
+                                        <a href="/auth/google">
+                                            <button class="login-with-google-btn">Sign in with Google</button>
+                                        </a>
                                     </div>
                                 </div>
-  
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <br>
-        <br>
+    </div>
+</div>
+<br><br>
 
-        <script>
+<script>
+    // Auto-hide server error messages
+    setTimeout(function() {
+        var errorMessage = document.getElementById('errorMessage');
+        if (errorMessage) {
+            errorMessage.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => errorMessage.remove(), 300);
+        }
+    }, 5000);
 
-            setTimeout(function() {
-                var errorMessage = document.getElementById('errorMessage');
-                if (errorMessage) {
-                    errorMessage.remove();
-                }
-            }, 3000); 
-        </script>
-       
-
-        <script>
-          let show=document.getElementById("show1")
-          function handleSubmit(){
-              let email=document.getElementById("email").value;
-              let password=document.getElementById("password").value;
-      
-              let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-              if (!email.match(emailRegex)) {
-               document.getElementById("show1").innerHTML = "Enter a valid Email address or Pssaword";
-               return false;
+    // Function to display error messages with styling
+    function showError(message, type = 'error') {
+        const errorContainer = document.getElementById('errorContainer');
+        const errorDiv = document.createElement('div');
+        
+        let iconClass = '';
+        let messageClass = '';
+        
+        switch(type) {
+            case 'error':
+                iconClass = 'fas fa-exclamation-circle';
+                messageClass = 'error-message';
+                break;
+            case 'success':
+                iconClass = 'fas fa-check-circle';
+                messageClass = 'success-message';
+                break;
+            case 'warning':
+                iconClass = 'fas fa-exclamation-triangle';
+                messageClass = 'warning-message';
+                break;
+        }
+        
+        errorDiv.className = messageClass;
+        errorDiv.innerHTML = `<i class="${iconClass}"></i>${message}`;
+        
+        errorContainer.innerHTML = '';
+        errorContainer.appendChild(errorDiv);
+        
+        // Auto-hide after 4 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => errorDiv.remove(), 300);
             }
-            let passwordeRegex=/^\d{5}$/
-              if(!password.match(passwordeRegex)){
-               document.getElementById("show1").innerHTML="Enter a valid Email address or Pssaword";
-               return false;
-           }
-           return true
-      
-          }
-      </script>
+        }, 4000);
+    }
+
+    // Function to update input validation state
+    function updateInputState(inputId, isValid) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(inputId + 'Icon');
+        
+        input.classList.remove('error', 'success');
+        icon.classList.remove('show', 'success', 'error');
+        
+        if (isValid) {
+            input.classList.add('success');
+            icon.classList.add('show', 'success');
+            icon.innerHTML = '<i class="fas fa-check"></i>';
+        } else {
+            input.classList.add('error');
+            icon.classList.add('show', 'error');
+            icon.innerHTML = '<i class="fas fa-times"></i>';
+        }
+    }
+
+    // Real-time validation
+    document.getElementById('email').addEventListener('input', function() {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isValid = emailRegex.test(this.value);
+        updateInputState('email', isValid);
+    });
 
 
-        <%- include('../partials/mainfooter.ejs')%>
+
+    document.getElementById('password').addEventListener('input', function() {
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+        const isValid = passwordRegex.test(this.value);
+        updateInputState('password', isValid);
+    });
+
+    // Form submission validation
+    function handleSubmit() {
+        let isValid = true;
+        
+        // Get form values
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            showError("Please enter a valid email address.", "error");
+            updateInputState('email', false);
+            isValid = false;
+        }
+        
+        // Password validation (min 6 chars, 1 uppercase, 1 digit, 1 symbol)
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+        if (!password || !passwordRegex.test(password)) {
+            showError("Password must be at least 6 characters long and contain at least one uppercase letter, one digit, and one symbol (@$!%*?&).", "error");
+            updateInputState('password', false);
+            isValid = false;
+        }
+        
+        // If all validations pass
+        if (isValid) {
+            showError("All fields are valid! Logging you in...", "success");
+        }
+        
+        return isValid;
+    }
+
+    // Add slideOut animation for better UX
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
+<%- include('../partials/mainfooter.ejs')%>

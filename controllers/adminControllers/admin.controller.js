@@ -273,14 +273,8 @@ const addNewCoupon = async (req, res) => {
     } else {
       const couponname = data.couponName
       const couponcode = data.couponCode
-      console.log(":::::::::::::::::::::::::::::::::::::::")
-      console.log(couponcode)
-      console.log(":::::::::::::::::::::::::::::::::::::::")
-
       const existingCouponName = await Coupon.findOne({ couponName:couponname });
-      console.log("existingCouponName::",existingCouponName)
       const existingCouponCode = await Coupon.findOne({ couponCode:couponcode });
-      console.log("existingCouponCode >>",existingCouponCode)
 
       if (existingCouponName ) {
         return res.json({ message: "Coupon name already exists" });
@@ -351,10 +345,11 @@ const adminOfferList = async (req, res) => {
 
 const createCoupon = async (req, res) => {
   try {
-    const categoryData = await Addcategory.find()
+    const categoryData = await Category.find()
     const productData = await Products.find()
 
-
+        console.log("category data is ==>",categoryData);
+        
     res.render('admin/createoffer', { categoryData, productData })
 
   } catch (error) {
@@ -434,7 +429,7 @@ const selectOfferType = async (req, res) => {
     const { selectedValue } = req.body
 
     if (selectedValue === "category") {
-      const categoryData = await Addcategory.find()
+      const categoryData = await Category.find()
       return res.json({ categoryData })
 
     } else {
