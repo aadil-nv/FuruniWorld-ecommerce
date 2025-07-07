@@ -1,0 +1,54 @@
+# 🛒 FurniWorld E-Commerce
+
+FurniWorld is a full-featured e-commerce web application designed for a smooth and modern furniture shopping experience. This project supports product browsing, user authentication, cart management, order processing, and admin functionality.
+
+## 🌐 Tech Stack
+
+### Frontend
+- React.js / Next.js
+- Tailwind CSS
+- Redux / Context API
+
+### Backend
+- Node.js
+- Express.js
+- MongoDB (Mongoose)
+- JWT Authentication
+- Bcrypt for password hashing
+
+### Other Tools
+- Stripe (for payment integration)
+- Cloudinary (for image uploads)
+- Docker (containerization)
+- Nginx (reverse proxy)
+- RabbitMQ (if using microservices/queues)
+- GitHub Actions (CI/CD)
+- AWS EC2 / Render / Vercel (deployment)
+
+---
+
+## ✨ Features
+
+### 🧑‍💻 User
+- Signup / Login
+- View products by category
+- Search and filter furniture
+- Add to cart & manage cart
+- Place orders and track status
+- Payment integration via Stripe
+
+### 🛠️ Admin
+- Add, edit, and delete products
+- Manage user accounts
+- Manage orders
+- View sales reports
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/furniworld-ecommerce.git
+cd furniworld-ecommerce
