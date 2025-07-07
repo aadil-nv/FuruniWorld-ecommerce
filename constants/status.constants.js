@@ -1,6 +1,6 @@
 // src/constants/statusCodes.ts
 
-export const StatusCodes = {
+ const StatusCodes = {
     // 1xx Informational
     CONTINUE: 100,
     SWITCHING_PROTOCOLS: 101,
@@ -70,3 +70,4 @@ export const StatusCodes = {
     NETWORK_AUTHENTICATION_REQUIRED: 511,
   };
   
+  module.exports=StatusCodes

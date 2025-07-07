@@ -1,8 +1,6 @@
 const isLogin = async (req, res, next) => {
     try {
-        if (req.session && req.session.admin) {
-            console.log("nextttttttttttttttttttttttttttttttttttttttttt");
-            
+        if (req.session && req.session.admin) {            
             return next()
         } else {
             return res.redirect("/adminlogin");

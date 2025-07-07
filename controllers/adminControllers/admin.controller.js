@@ -448,9 +448,6 @@ const selectOfferType = async (req, res) => {
   }
 }
 
-
-
-
 const totalSalesReport = async (req, res) => {
   try {
     const page = req.query.page || 1; 

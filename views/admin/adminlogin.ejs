@@ -14,72 +14,186 @@
         <link rel="shortcut icon" type="image/x-icon" href="/adminpublic/adminlogin/imgs/theme/favicon.svg" />
         <!-- Template CSS -->
         <link href="/adminpublic/adminlogin/css/main.css?v=1.1" rel="stylesheet" type="text/css" />
+        <!-- Font Awesome for the eye icon -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+        <style>
+            .content-main {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }
+            .card-login {
+                max-width: 400px;
+                width: 100%;
+                background-color: #3a7bd5 !important;
+                border-radius: 10px;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            }
+            .card-body {
+                padding: 30px;
+            }
+            .card-title {
+                color: #fff;
+                text-align: center;
+                font-weight: 600;
+                margin-bottom: 25px !important;
+            }
+            .error-message {
+                background-color: rgba(255, 255, 255, 0.9);
+                color: #e63946;
+                border-radius: 5px;
+                padding: 10px;
+                margin-bottom: 15px;
+                text-align: center;
+                font-weight: 500;
+            }
+            .form-control {
+                border-radius: 5px;
+                padding: 12px 15px;
+                border: none;
+                background-color: rgba(255, 255, 255, 0.9);
+            }
+            .form-control:focus {
+                box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+            }
+            .btn-primary {
+                background-color: #28a745;
+                border: none;
+                border-radius: 5px;
+                padding: 12px 0;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                display: block;
+                width: 100% !important;
+                margin: 0 auto;
+            }
+            .btn-primary:hover {
+                background-color: #218838;
+                transform: translateY(-2px);
+            }
+            .password-container {
+                position: relative;
+            }
+            .password-toggle {
+                position: absolute;
+                right: 10px;
+                top: 12px;
+                cursor: pointer;
+                color: #6c757d;
+            }
+            .password-requirements {
+                color: white;
+                font-size: 12px;
+                margin-top: 5px;
+                margin-bottom: 15px;
+                background-color: rgba(0, 0, 0, 0.2);
+                padding: 8px;
+                border-radius: 5px;
+            }
+        </style>
     </head>
 
-    <body >
-        <main >
-           
-            <section class="content-main mt-80 mb-80" >
-                <div class="card mx-auto card-login" style="background-color: rgb(58, 211, 122); ;">
-                    <div class="card-body" >
-                        <h2 class="card-title mb-4"  >Admin Sign In</h2>
-                        <div style="justify-content: center; align-items: center;">
-                            <p id="show1" style="color: crimson;"></p>
+    <body>
+        <main>
+            <section class="content-main">
+                <div class="card mx-auto card-login">
+                    <div class="card-body">
+                        <h2 class="card-title">Admin Sign In</h2>
+                        <div id="error-container">
+                            <p id="show1" class="error-message" style="display: none;"></p>
                             <% if(typeof message!=='undefined' ){ %>
-
-                                <h6 id="errorMessage"  style="color: red;" style="justify-content: center; text-align: center;">
+                                <h6 id="errorMessage" class="error-message">
                                     <%= message %>
                                 </h6>
-                                <% } %>
+                            <% } %>
                         </div>
-                        <form action="/admin-auth/adminlogin" method="post" onsubmit="return handleSubmit()">
+                        <form action="/admin-auth/adminlogin" method="post" onsubmit="return validateForm()">
                             <div class="mb-3">
-                                <input class="form-control"  id="email" name="email" placeholder="Username or email" type="text" />
+                                <input class="form-control" id="email" name="email" placeholder="Email address" type="text" />
                             </div>
-                            <!-- form-group// -->
+                            <div class="mb-3 password-container">
+                                <input class="form-control" id="password" name="password" placeholder="Password" type="password" />
+                                <span class="password-toggle" onclick="togglePassword()">
+                                    <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                                </span>
+                            </div>
+                            <div class="password-requirements">
+                                Password must contain at least one uppercase letter, one lowercase letter, and one special symbol.
+                            </div>
                             <div class="mb-3">
-                                <input class="form-control" id="password"  name="password" placeholder="Password contain 5 digits" type="password" />
+                                <button type="submit" class="btn btn-primary">Login</button>
                             </div>
-                            
-                            
-                            <!-- form-group form-check .// -->
-                            <div class="mb-3">
-                                <button type="submit" class="btn btn-primary w-50 "  style="padding-left: 50px; margin-left: 70px;">Login</button>
-                            </div>
-                            <!-- form-group// -->
                         </form>
-                        
                     </div>
                 </div>
             </section>
-            
         </main>
         <script src="/admin/public/adminlogin/js/vendors/jquery-3.6.0.min.js"></script>
         <script src="/admin/public/adminlogin/js/vendors/bootstrap.bundle.min.js"></script>
         <script src="/admin/public/adminlogin/js/vendors/jquery.fullscreen.min.js"></script>
-        <!-- Main Script -->
         <script src="/admin/public/adminlogin/js/main.js?v=1.1" type="text/javascript"></script>
 
         <script>
-            let show=document.getElementById("show1")
-            function handleSubmit(){
-                let email=document.getElementById("email").value;
-                let password=document.getElementById("password").value;
+            function validateForm() {
+                let email = document.getElementById("email").value;
+                let password = document.getElementById("password").value;
+                let errorElement = document.getElementById("show1");
+                
+                // Reset error display
+                errorElement.style.display = "none";
 
+                // Email validation - proper format
                 let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!email.match(emailRegex)) {
-                 document.getElementById("show1").innerHTML = "Please enter a valid email address";
-                 return false;
-              }
-              let passwordeRegex=/^\d{5}$/
-                if(!password.match(passwordeRegex)){
-                 document.getElementById("show1").innerHTML="Something wrong in password ";
-                 return false;
-             }
-             return true
-
+                if (!emailRegex.test(email)) {
+                    errorElement.innerHTML = "Please enter a valid email address";
+                    errorElement.style.display = "block";
+                    return false;
+                }
+                
+                // Password validation - at least one uppercase, one lowercase, and one symbol
+                let uppercaseRegex = /[A-Z]/;
+                let lowercaseRegex = /[a-z]/;
+                let symbolRegex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+                
+                if (!uppercaseRegex.test(password)) {
+                    errorElement.innerHTML = "Password must contain at least one uppercase letter";
+                    errorElement.style.display = "block";
+                    return false;
+                }
+                
+                if (!lowercaseRegex.test(password)) {
+                    errorElement.innerHTML = "Password must contain at least one lowercase letter";
+                    errorElement.style.display = "block";
+                    return false;
+                }
+                
+                if (!symbolRegex.test(password)) {
+                    errorElement.innerHTML = "Password must contain at least one special symbol";
+                    errorElement.style.display = "block";
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            function togglePassword() {
+                const passwordInput = document.getElementById("password");
+                const eyeIcon = document.getElementById("eyeIcon");
+                
+                if (passwordInput.type === "password") {
+                    passwordInput.type = "text";
+                    eyeIcon.classList.remove("fa-eye");
+                    eyeIcon.classList.add("fa-eye-slash");
+                } else {
+                    passwordInput.type = "password";
+                    eyeIcon.classList.remove("fa-eye-slash");
+                    eyeIcon.classList.add("fa-eye");
+                }
             }
         </script>
-
     </body>
 </html>

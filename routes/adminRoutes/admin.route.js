@@ -11,7 +11,6 @@
     admin_route.use(bodyParser.json());
     admin_route.use(bodyParser.urlencoded({ extended: true }));
 
-    
 
     admin_route.get('/admindashboard',adminAuth.isLogin,admincontroller.adminDashboard)
 
