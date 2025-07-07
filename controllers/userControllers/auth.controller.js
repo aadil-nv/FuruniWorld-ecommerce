@@ -240,7 +240,8 @@ let userData;
       productcount += cart.products.length;
     }
 
-    res.render("user/index", { ProductData });
+    // res.render("user/index", { ProductData });
+    res.redirect("/userhome");
   } catch (error) {
     console.log(error.message);
   }
