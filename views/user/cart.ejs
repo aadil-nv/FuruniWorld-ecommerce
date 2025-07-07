@@ -260,14 +260,33 @@
     console.log("change", change);
     const take = current.querySelector("input");
     const sQuantity = current.querySelector("input").value;
+    const maxQuantity = 5; // Set maximum quantity limit
 
     let message = document.getElementById(`stock${index}`);
-    if (parseInt(sQuantity) > 5) {
+    
+    // Check if quantity exceeds the maximum limit
+    if (parseInt(sQuantity) > maxQuantity) {
       Swal.fire({
-        icon: "warning",
-        title: "Quantity Limit Exceeded",
-        text: "You can select a maximum of 5 quantities.",
+        icon: "error",
+        title: "Maximum Quantity Reached",
+        text: "You can only add up to 5 quantities of this product.",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "OK"
       });
+      take.value = maxQuantity; // Reset to max quantity
+      return;
+    }
+
+    // Check if quantity is less than 1
+    if (parseInt(sQuantity) < 1) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Quantity",
+        text: "Quantity must be at least 1.",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "OK"
+      });
+      take.value = 1; // Reset to minimum quantity
       return;
     }
 
@@ -289,10 +308,26 @@
         if (data.message) {
           message.style.display = "block";
           message.innerHTML = data.message;
+          // If server rejects the quantity (like stock limit), reset to previous value
+          take.value = data.actualQuantity || sQuantity;
+          
+          if (data.message.includes("maximum")) {
+            Swal.fire({
+              icon: "error",
+              title: "Quantity Limit",
+              text: data.message,
+              confirmButtonColor: "#3085d6",
+              confirmButtonText: "OK"
+            });
+          }
         } else {
           message.style.display = "none";
           document.getElementById("total").innerHTML = data.totalAmount;
         }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        take.value = sQuantity; // Revert to original value on error
       });
   }
 </script>
