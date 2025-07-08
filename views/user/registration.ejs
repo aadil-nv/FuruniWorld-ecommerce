@@ -1,24 +1,39 @@
 <%- include('../partials/mainheader.ejs')%>
 <style>
+    /* Apply sans-serif font family to the entire form area */
+    .login-register-area {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    /* Ensure all form elements use sans-serif */
+    .login-register-area * {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
     #name::placeholder {
         color: #999;
         font-style: italic;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     #email::placeholder {
         color: #999;
         font-style: italic;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     #password::placeholder {
         color: #999;
         font-style: italic;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     #mno::placeholder {
         color: #999;
-        font-style: italic;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* font-style: italic; */
     }
     #referdid::placeholder {
         color: #999;
         font-style: italic;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     /* Message styling */
@@ -27,12 +42,31 @@
         text-align: center;
         font-weight: 500;
         margin-bottom: 15px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .error-message {
         color: #E97730;
         font-size: 14px;
         margin-top: 5px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Form elements styling */
+    .login-register-form label {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .login-register-form input {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .login-register-form button {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .login-register-tab-list h4 {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 </style>
       

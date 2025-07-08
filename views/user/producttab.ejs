@@ -1,30 +1,267 @@
 <%- include('../partials/mainheader.ejs')%>
     <!-- mini cart start -->
 
-<style>
-    #hurry{
-        color: orangered;
-    }
-    #limited{
-        color: blue;
+    <style>
+        #hurry {
+            color: orangered;
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+        }
 
-    }
-    #available{
-        color: green;
-    }
-   
-    .swal2-popup {
-        width: 300px; 
-        height: 160px; 
-        font-size: 9px;
-    }
-    #wishlist{
-    color: red;
-    fill: red;
-    font-size: 35px;
-}
- 
-</style>
+        #limited {
+            color: blue;
+            font-weight: 600;
+            animation: bounce 2s infinite;
+        }
+
+        #available {
+            color: green;
+            font-weight: 600;
+            animation: fadeIn 2s infinite;
+        }
+
+        .swal2-popup {
+            width: 300px;
+            height: 160px;
+            font-size: 9px;
+        }
+
+        #wishlist {
+            color: red;
+            fill: red;
+            font-size: 35px;
+            transition: all 0.3s ease;
+        }
+
+        #wishlist:hover {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.7));
+        }
+
+        /* New animations */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0.7;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.7;
+            }
+        }
+
+        /* Enhanced product details styling */
+        .product-details-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease;
+        }
+
+        .product-details-content:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .product-details-price {
+            margin: 20px 0;
+        }
+
+        .new-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: #c96;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-muted {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .product-details-meta ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .product-details-meta li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .product-details-meta .title {
+            font-weight: 600;
+            margin-right: 10px;
+            min-width: 80px;
+        }
+
+        /* Enhanced action buttons */
+        .product-details-action-wrap {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .btn-hover button {
+            background-color: #c96 !important;
+            width: 180px !important;
+            height: 60px !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 16px !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 8px rgba(201, 102, 102, 0.3);
+        }
+
+        .btn-hover button:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 6px 12px rgba(201, 102, 102, 0.4) !important;
+            background-color: #b85d5d !important;
+        }
+
+        /* Enhanced image gallery */
+        .product-details-img-wrap {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .pd-small-img-style {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .product-details-small-img {
+            border: 2px solid transparent;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .product-details-small-img:hover {
+            border-color: #c96;
+            transform: scale(1.05);
+        }
+
+        .pd-nav-style-2 {
+            background: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .pd-nav-style-2:hover {
+            background: #c96;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Enhanced tabs */
+        .description-review-topbar {
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 30px;
+        }
+
+        .description-review-topbar a {
+            padding: 15px 25px;
+            font-weight: 600;
+            color: #666;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .description-review-topbar a.active,
+        .description-review-topbar a:hover {
+            color: #c96;
+        }
+
+        .description-review-topbar a.active:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #c96;
+            animation: tabUnderline 0.3s ease-out;
+        }
+
+        @keyframes tabUnderline {
+            from {
+                transform: scaleX(0);
+            }
+
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        /* Related products */
+        .related-product-area {
+            background: #f9f9f9;
+            padding: 80px 0;
+            margin-top: 50px;
+        }
+
+        .section-title-2 h2 {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+
+        .section-title-2 h2:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: #c96;
+        }
+    </style>
 
     <div class="product-details-area pb-100 pt-100">
         <div class="container">
@@ -100,12 +337,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="product-details-small-img-wrap  " >
+                        <div class="product-details-small-img-wrap">
                             <div
-                                class="swiper-container product-details-small-img-slider-2 pd-small-img-style pd-small-img-style-modify" >
+                                class="swiper-container product-details-small-img-slider-2 pd-small-img-style pd-small-img-style-modify">
                                 <div class="swiper-wrapper" id="downrap">
                                     <div class="swiper-slide">
-                                        <div class="product-details-small-img ">
+                                        <div class="product-details-small-img">
                                             <img src="/uploads/<%= savedData.productimage[1] %>" alt="Product Thumnail">
                                         </div>
                                     </div>
@@ -131,8 +368,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="pd-prev-2 pd-nav-style-2" id="downrap1"> <i class="ti-angle-left" ></i></div>
-                            <div class="pd-next-2 pd-nav-style-2"  id="downrap2"> <i class="ti-angle-right" ></i></div>
+                            <div class="pd-prev-2 pd-nav-style-2" id="downrap1"> <i class="ti-angle-left"></i></div>
+                            <div class="pd-next-2 pd-nav-style-2" id="downrap2"> <i class="ti-angle-right"></i></div>
                         </div>
                     </div>
                 </div>
@@ -141,20 +378,21 @@
                         <h2>
                             <%= savedData.productname %>
                         </h2>
-                        
+
                         <div class="product-details-price">
 
                             <% if (!savedData.offerId) { %>
-                            <span class="new-price">₹<%= savedData.productprice %></span>
-                            <% }else{ %>
-                            <% var discountedPrice = savedData.productprice - (savedData.productprice * savedData.offerId?.percentage / 100);%>
-                            <span class="text-muted" ><del><%= savedData.productprice %></del></span>
-                            <span class="new-price" id="productprice">Rs.<%= discountedPrice.toFixed(0) %>/-</span>
-                            <% } %>
-
+                                <span class="new-price">₹<%= savedData.productprice %></span>
+                                <% }else{ %>
+                                    <% var discountedPrice=savedData.productprice - (savedData.productprice *
+                                        savedData.offerId?.percentage / 100);%>
+                                        <span class="text-muted"><del>₹<%= savedData.productprice %></del></span>
+                                        <span class="new-price" id="productprice">₹<%= discountedPrice.toFixed(0) %>
+                                                /-</span>
+                                        <% } %>
 
                         </div>
-                       
+
                         <div class="product-details-review">
                             <div class="product-rating">
                                 <i class=" ti-star"></i>
@@ -169,60 +407,53 @@
 
                         <div class="product-details-meta">
                             <ul>
-                                
-                                <% if (savedData.productquadity > 100) { %>
-                                    <li><h6 class="title">Stock:</h6> <h6 id="available">Stock Avilable</h6></li>
-                                <% } else if (savedData.productquadity < 100 && savedData.productquadity >= 50) { %>
-                                    <li><h6 class="title">Stock:</h6> <h6 id="limited">Limited stock Only</h6></li>
-                                <% } else if (savedData.productquadity < 50 && savedData.productquadity >= 10) { %>
-                                    <li><h6 class="title">Stock:</h6><h6 id="hurry">Hurry few left</h6> </li>
-                                <% } else if (savedData.productquadity < 10  && savedData.productquadity >= 1) { %>
-                                    <li><h6 class="title">Stock:</h6><h6 style="color: rgb(236, 118, 63); ">Only(<%= savedData.productquadity %>) Avilable</h6></li>
-                                <% } else if (savedData.productquadity < 1) { %> 
-                                    <li><h6 class="title">Stock:</h6><h6 style="color: red; ">Only(<%= savedData.productquadity %>) Avilable</h6></li>
 
-                                <% } %>
+                                <% if (savedData.productquadity> 100) { %>
+                                    <li><span class="title">Stock:</span> <span id="available">Stock Available</span>
+                                    </li>
+                                    <% } else if (savedData.productquadity < 100 && savedData.productquadity>= 50) { %>
+                                        <li><span class="title">Stock:</span> <span id="limited">Limited stock
+                                                Only</span></li>
+                                        <% } else if (savedData.productquadity < 50 && savedData.productquadity>= 10) {
+                                            %>
+                                            <li><span class="title">Stock:</span><span id="hurry">Hurry few left</span>
+                                            </li>
+                                            <% } else if (savedData.productquadity < 10 && savedData.productquadity>= 1)
+                                                { %>
+                                                <li><span class="title">Stock:</span><span
+                                                        style="color: rgb(236, 118, 63); font-weight: 600;">Only(<%=
+                                                            savedData.productquadity %>) Available</span></li>
+                                                <% } else if (savedData.productquadity < 1) { %>
+                                                    <li><span class="title">Stock:</span><span
+                                                            style="color: red; font-weight: 600;">Out of Stock</span>
+                                                    </li>
+                                                    <% } %>
 
-
-
-                                <li><span class="title">Category:</span>
-                                    <ul>
-                                        <li><a href="#">
-                                                <%= savedData.categoryId %>
-                                            </a>,</li>
-
-                                    </ul>
-                                </li>
-                                <li><span class="title">Tags:</span>
-                                    <ul class="tag">
-                                        <li><a href="#">
-                                                <%= savedData.brand %>
-                                            </a></li>
-                                    </ul>
-                                </li>
+                                                        <li><span class="title">Category:</span>
+                                                            <span>
+                                                                <%= savedData.categoryId %>
+                                                            </span>
+                                                        </li>
+                                                        <li><span class="title">Tags:</span>
+                                                            <span class="tag">
+                                                                <%= savedData.brand %>
+                                                            </span>
+                                                        </li>
                             </ul>
                         </div>
-                        <!-------------------------------------- ad-------------------------------------------------------------- -->
 
-                        
                         <div class="product-details-action-wrap">
-                            
-                            <div class=" btn-hover">
-
-                                <button
-                                    style="background-color: rgb(206, 76, 53); width: 150px; height: 70px ; color: rgb(255, 254, 254); border: none;"
-                                    onclick="addItemInCart('<%= savedData._id %>')">Add to Cart</button>
-
+                            <div class="btn-hover">
+                                <button onclick="addItemInCart('<%= savedData._id %>')">Add to Cart</button>
                             </div>
                             <div class="single-product-wishlist">
-                                <a title="Wishlist" onclick="wishlstProductId('<%= savedData._id %>')"><i class="pe-7s-like" id="wishlist" ></i></a>
+                                <a title="Wishlist" onclick="wishlstProductId('<%= savedData._id %>')"><i
+                                        class="pe-7s-like" id="wishlist"></i></a>
                             </div>
                             <div class="single-product-compare">
                                 <a title="Compare" href="#"><i class="pe-7s-shuffle"></i></a>
                             </div>
                         </div>
-                        <!-------------------------------------- ad-------------------------------------------------------------- -->
-
 
                     </div>
                 </div>
@@ -456,11 +687,8 @@
                                     </button>
                                 </div>
                                 <div class="product-action-2-wrap">
-
-
                                     <button class="product-action-btn-2" title="Add To Cart"><a href="#" onclick=""><i
                                                 class="pe-7s-cart"></i>Add To Cart</a></button>
-
                                 </div>
                             </div>
                             <div class="product-content">
@@ -519,27 +747,24 @@
 
         .imf {
             overflow: hidden;
+            border-radius: 15px;
+            transition: all 0.3s ease;
         }
 
         .imf img {
-
             transform: scale(var(--zoom, 1));
             object-fit: cover;
             transform-origin: var(--x) var(--y);
-            transition: cubic-bezier(0.18, 0.9, 0.33, 1.01) 1s;
-            /* opacity: 0.3; */
+            transition: transform 0.5s cubic-bezier(0.18, 0.9, 0.33, 1.01);
         }
 
         .imf:hover {
             --zoom: 2.5;
             cursor: crosshair;
-
-
-
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
         }
     </style>
     <script>
-
         const elem = document.querySelector('.imf');
 
         let x, y, height, width;
@@ -549,96 +774,85 @@
             y = size.y;
             width = size.width;
             height = size.height;
-
         }
         elem.onmousemove = e => {
             const horizontel = (e.clientX - x) / width * 100;
             const vertical = (e.clientY - y) / height * 100;
-            console.log(vertical);
-
             elem.style.setProperty('--x', horizontel + '%')
             elem.style.setProperty('--y', vertical + '%')
-            console.log(elem);
         }
 
-
-    </script>
-    <script>
         function addItemInCart(id) {
             console.log(id);
             fetch(`/product/producttab/${id}`, {
                 method: "post",
                 headers: { "Content-Type": "application/json" },
             })
-            .then((response) => {
-                if (response.ok) {
-                    // If response is okay, redirect to the cart page
-                    window.location.href = '/cart/viewcart';
-                } else {
-                    window.location.href = '/cart/viewcart';
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-                // If an error occurs, handle it accordingly (e.g., show an error message)
-            });
+                .then((response) => {
+                    if (response.ok) {
+                        // If response is okay, redirect to the cart page
+                        window.location.href = '/cart/viewcart';
+                    } else {
+                        window.location.href = '/cart/viewcart';
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    // If an error occurs, handle it accordingly (e.g., show an error message)
+                });
         }
-
 
         function wishlstProductId(id) {
-    console.log('=======================productId==========================', id)
-    fetch('/wishlist/wishlist', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id: id })
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json(); // Parse response JSON if response is okay
-        } else {
-            throw new Error('Error adding product to wishlist');
-        }
-    })
-    .then(data => {
-        console.log('Response Data:', data); // Log the parsed data to the console
-        if (data.message==='success') {
-            Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: "product added in Wishlist",
-                    position: 'top-end',
-                    timer: 900,
-                    showConfirmButton: false
-                });
-        } else {
-            Swal.fire({
-                    icon: 'warning',
-                    title: 'Success!',
-                    text: "Product Alredy in wishlist",
-                    position: 'top-end',
-                    timer: 900,
-                    showConfirmButton: false
-                });
-        }
-    })
-    .catch(error => {
-        Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: error.message,
-                position: 'top-end',
-                timer: 1000,
-                showConfirmButton: false
-            });
-      
-        console.error('Error:', error);
-    });
-}
+            console.log('=======================productId==========================', id)
+            fetch('/wishlist/wishlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: id })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json(); // Parse response JSON if response is okay
+                    } else {
+                        throw new Error('Error adding product to wishlist');
+                    }
+                })
+                .then(data => {
+                    console.log('Response Data:', data); // Log the parsed data to the console
+                    if (data.message === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: "product added in Wishlist",
+                            position: 'top-end',
+                            timer: 900,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Success!',
+                            text: "Product Alredy in wishlist",
+                            position: 'top-end',
+                            timer: 900,
+                            showConfirmButton: false
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: error.message,
+                        position: 'top-end',
+                        timer: 1000,
+                        showConfirmButton: false
+                    });
 
+                    console.error('Error:', error);
+                });
+        }
     </script>
-    
-
 
     <%- include('../partials/mainfooter.ejs')%>
