@@ -12,7 +12,7 @@ order_route.post('/ordersone',userAuth.isLogin,userAuth.isUserBlock,orderControl
 order_route.post("/verifyorder",userAuth.isLogin,userAuth.isUserBlock,orderController.verifyOrder)
 order_route.post("/verifycoupon",userAuth.isLogin,userAuth.isUserBlock,orderController.verifyCoupon)
 order_route.post("/productreturn",userAuth.isLogin,userAuth.isUserBlock,orderController.userReturnProduct)
-order_route.post("/order/removecoupon",userAuth.isLogin,userAuth.isUserBlock,orderController.removeCoupon)
+order_route.post("/removecoupon",userAuth.isLogin,userAuth.isUserBlock,orderController.removeCoupon)
 
 
 module.exports=order_route

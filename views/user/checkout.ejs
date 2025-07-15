@@ -915,7 +915,7 @@
                 const totalDiscount = document.getElementById("totalvalue1").innerText;
                 console.log("=======totalValue2==========", totalDiscount);
 
-                fetch('/verifycoupon', {
+                fetch('/order/verifycoupon', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -966,7 +966,7 @@
                 const couponMessages = document.getElementById("couponMessages").value;
                 console.log(">>>>>>>>><<<<<<<<<<",)
                 try {
-                    const response = await fetch("user/removeCoupon", {
+                    const response = await fetch("/order/removeCoupon", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
