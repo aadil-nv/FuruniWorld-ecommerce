@@ -791,7 +791,7 @@
         return true;
     }
 
-    function handleAddressSelection() {
+    function handleAddressSelection(retryOrderId = null) {
         const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
         let paymentmethod;
         for (const radio of paymentMethodRadios) {
@@ -819,7 +819,7 @@
         fetch('/order/orderpage', {
             method: "post",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ activeAddressId, paymentmethod, totalDiscount, couponCode }),
+            body: JSON.stringify({ activeAddressId, paymentmethod, totalDiscount, couponCode, retryOrderId }),
         })
             .then(response => {
                 if (!response.ok) {
@@ -875,6 +875,21 @@
                                         setTimeout(() => {
                                             window.location.href = `/order/orders/${data.curentData}`
                                         }, 1000)
+                                    } else {
+                                        Swal.fire({
+                                            title: 'Payment Failed',
+                                            text: 'Sorry, the payment failed. Please try again or choose a different payment method.',
+                                            icon: 'error',
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Retry Payment',
+                                            cancelButtonText: 'View Order'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                handleRetryPayment(data.orderId);
+                                            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                                window.location.href = `/order/orders/${data.curentData}`;
+                                            }
+                                        });
                                     }
                                 })
                         },
@@ -895,11 +910,34 @@
                     razorpayObject.open();
 
                     razorpayObject.on('payment.failed', function (response) {
-                        Swal.fire({
-                            title: 'Payment Failed',
-                            text: 'Sorry, the payment failed. Please try again or choose a different payment method.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
+                        fetch('/order/verifyOrder', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                paymentId: response.error.metadata.payment_id,
+                                order_id: response.error.metadata.order_id,
+                                razorpay_signature: null,
+                                couponCode: couponCode
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            Swal.fire({
+                                title: 'Payment Failed',
+                                text: 'Sorry, the payment failed. Please try again or choose a different payment method.',
+                                icon: 'error',
+                                showCancelButton: true,
+                                confirmButtonText: 'Retry Payment',
+                                cancelButtonText: 'View Order'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    handleRetryPayment(data.orderId);
+                                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                    window.location.href = `/order/orders/${data.curentData}`;
+                                }
+                            });
                         });
                     });
                 } else if (data.paymentmethod === "Cash On Delivery") {
@@ -925,6 +963,139 @@
             .catch(error => {
                 console.error('Error fetching address data:', error);
             });
+    }
+
+    function handleRetryPayment(orderId) {
+        fetch('/order/retryPayment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ orderId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const options = {
+                    "key": data.key_id,
+                    "amount": data.order.amount,
+                    "currency": "INR",
+                    "name": "furni world",
+                    "description": "Pay & Checkout this Course, Upgrade your DSA Skill",
+                    "image": "/user/icon/estoreLogo.png",
+                    "order_id": data.order.id,
+                    "handler": function (response) {
+                        fetch('/order/verifyOrder', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                paymentId: response.razorpay_payment_id,
+                                order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature,
+                                couponCode: document.getElementById("couponCodeInput").value
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success === true) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Order Placed',
+                                    showConfirmButton: false,
+                                    timer: 1000,
+                                    customClass: {
+                                        confirmButton: 'btn btn-primary'
+                                    },
+                                    buttonsStyling: false
+                                })
+                                setTimeout(() => {
+                                    window.location.href = `/order/orders/${data.curentData}`
+                                }, 1000)
+                            } else {
+                                Swal.fire({
+                                    title: 'Payment Failed',
+                                    text: 'Sorry, the payment failed. Please try again or choose a different payment method.',
+                                    icon: 'error',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Retry Payment',
+                                    // cancelButtonText: 'View Order'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        handleRetryPayment(data.orderId);
+                                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                        window.location.href = `/order/orders/${data.curentData}`;
+                                    }
+                                });
+                            }
+                        });
+                    },
+                    "prefill": {
+                        "contact": "9876543210",
+                        "name": "Twinkle Sharma",
+                        "email": "smtwinkle@gmail.com"
+                    },
+                    "notes": {
+                        "description": "description here",
+                    },
+                    "theme": {
+                        "color": "#2300a3"
+                    }
+                };
+
+                var razorpayObject = new Razorpay(options);
+                razorpayObject.open();
+
+                razorpayObject.on('payment.failed', function (response) {
+                    fetch('/order/verifyOrder', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            paymentId: response.error.metadata.payment_id,
+                            order_id: response.error.metadata.order_id,
+                            razorpay_signature: null,
+                            couponCode: document.getElementById("couponCodeInput").value
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        Swal.fire({
+                            title: 'Payment Failed',
+                            text: 'Sorry, the payment failed. Please try again or choose a different payment method.',
+                            icon: 'error',
+                            showCancelButton: true,
+                            confirmButtonText: 'Retry Payment',
+                            cancelButtonText: 'View Order'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                handleRetryPayment(data.orderId);
+                            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                window.location.href = `/order/orders/${data.curentData}`;
+                            }
+                        });
+                    });
+                });
+            } else {
+                Swal.fire({
+                    title: 'Retry Failed',
+                    text: 'Unable to initiate retry payment. Please try again later.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error retrying payment:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'An error occurred while retrying payment.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
     }
 
     function applyCoupon() {

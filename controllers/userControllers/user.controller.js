@@ -58,6 +58,15 @@ const loadUserProfile = async (req, res) => {
     if (User) {
       userData.walletHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
       const message = req.flash("succ");
+
+      console.log("======================>>>>>>>>>>>");
+      console.log("======================>>>>>>>>>>>");
+      console.log("======================>>>>>>>>>>>");
+      console.log("orderData",orderData);
+      console.log("======================>>>>>>>>>>>");
+      console.log("======================>>>>>>>>>>>");
+      console.log("======================>>>>>>>>>>>");
+      
       if (added) {
         return res.render("user/userprofile", {
           userData,

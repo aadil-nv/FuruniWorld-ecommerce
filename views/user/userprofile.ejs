@@ -338,17 +338,63 @@
     }
 
     /* Order Card Styles */
-    .order-card {
-        border: none;
-        border-radius: 10px;
+     .order-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
+        background-color: #fff;
+        padding: 10px;
     }
 
-    .order-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    .textorderstatus {
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .textorderstatus.payment-failed {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .pay-now-btn {
+        background-color: #ff6200;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: background-color 0.3s;
+    }
+
+    .pay-now-btn:hover {
+        background-color: #e55a00;
+    }
+
+    .check-btn {
+        background-color: #28a745;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .no-coupons {
+        text-align: center;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .no-coupons-icon {
+        font-size: 40px;
+        color: #6c757d;
+        margin-bottom: 10px;
     }
 
     /* Wallet Table Styles */
@@ -519,52 +565,58 @@
 
                                 <!-- Orders Tab -->
                                 <div class="tab-pane fade" id="orders" role="tabpanel">
-                                    <div class="myaccount-content">
-                                        <h3>Orders History</h3>
-                                        <% if(orderData.length > 0) { %>
-                                            <% orderData.forEach((item) => { %>
-                                                <% item.orderedItem.forEach((product) => { %>
-                                                    <div class="order-card">
-                                                        <div class="row g-0 align-items-center">
-                                                            <div class="col-md-2">
-                                                                <img src="/Uploads/<%= product.productId.productimage[0] %>"
-                                                                     class="img-fluid rounded-start"
-                                                                     style="max-width: 80px; margin: 10px;">
-                                                            </div>
-                                                            <div class="col-md-4">
-                                                                <div class="card-body">
-                                                                    <h6 class="card-title"><%= product.productId.productname %></h6>
-                                                                    <p class="card-text text-muted">Qty: <%= product.quantity %></p>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                                <div class="card-body">
-                                                                    <p class="card-title">₹<%= product.totalProductAmount %></p>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-4">
-    <div class="card-body">
-        <p class="card-title textorderstatus <%= product.productStatus.toLowerCase().replace(' ', '-') %>">
-            <%= product.productStatus %>
-        </p>
-        <a href="/order/orders/<%= item._id %>" class="check-btn">Details</a>
+    <div class="myaccount-content">
+        <h3>Orders History</h3>
+        <% if(orderData.length > 0) { %>
+            <% orderData.forEach((item) => { %>
+                <% item.orderedItem.forEach((product) => { %>
+                    <div class="order-card">
+                        <div class="row g-0 align-items-center">
+                            <div class="col-md-2">
+                                <img src="/Uploads/<%= product.productId.productimage[0] %>"
+                                     class="img-fluid rounded-start"
+                                     style="max-width: 80px; margin: 10px;">
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card-body">
+                                    <h6 class="card-title"><%= product.productId.productname %></h6>
+                                    <p class="card-text text-muted">Qty: <%= product.quantity %></p>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="card-body">
+                                    <p class="card-title">₹<%= product.totalProductAmount %></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card-body">
+                                    <p class="card-title textorderstatus <%= product.productStatus.toLowerCase().replace(' ', '-') %>">
+                                        <%= product.productStatus %>
+                                    </p>
+                                    <!-- <p><%= item.paymentStatus %></p> -->
+                                    <% if(item.paymentStatus !== 'Payment Failed') { %>
+                                        <a href="/order/orders/<%= item._id %>" class="check-btn">Details</a>
+                                    <% } %>
+                                    <% if(item.paymentStatus === 'Payment Failed') { %>
+                                        <button class="pay-now-btn" onclick="handlePayNow('<%= item._id %>', '<%= item.orderId %>', '<%= product.productId._id %>')">Pay Now</button>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% }); %>
+        <% } else { %>
+            <div class="no-coupons">
+                <div class="no-coupons-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h4>No Orders Found</h4>
+                <p>Start shopping to see your order history!</p>
+            </div>
+        <% } %>
     </div>
 </div>
-                                                        </div>
-                                                    </div>
-                                                <% }); %>
-                                            <% }); %>
-                                        <% } else { %>
-                                            <div class="no-coupons">
-                                                <div class="no-coupons-icon">
-                                                    <i class="fas fa-shopping-cart"></i>
-                                                </div>
-                                                <h4>No Orders Found</h4>
-                                                <p>Start shopping to see your order history!</p>
-                                            </div>
-                                        <% } %>
-                                    </div>
-                                </div>
 
                                 <!-- Wallet Tab -->
                                 <div class="tab-pane fade" id="download" role="tabpanel">
@@ -1017,5 +1069,150 @@
         }
     });
 </script>
+<script>
+    function handlePayNow(orderId, orderIdStr, productId) {
 
+        console.log("====================================");
+        console.log("====================================");
+        console.log("orderId",orderId );
+        console.log("orderIdStr",orderIdStr );
+        console.log("productId",productId );
+        console.log("====================================");
+        console.log("====================================");
+        
+        const couponCode = ''; // Assuming no coupon for retry, adjust if needed
+        fetch('/order/retryPayment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ orderId, productId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("calling user profile to veriyorder funtion =>>>",data);
+            
+            if (data.success ===true) {
+                console.log("is sucesssssssssssssssssssssssssssssss");
+                
+                const options = {
+                    "key": data.key_id,
+                    "amount": data.order.amount,
+                    "currency": "INR",
+                    "name": "furni world",
+                    "description": "Retry Payment for Order",
+                    "image": "/user/icon/estoreLogo.png",
+                    "order_id": data.order.id,
+                    "handler": function (response) {
+                        fetch('/order/verifyOrder', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                paymentId: response.razorpay_payment_id,
+                                order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature,
+                                couponCode: couponCode,
+                                productId: productId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success === true) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Payment Successful',
+                                    showConfirmButton: false,
+                                    timer: 1000
+                                });
+                                setTimeout(() => {
+                                    window.location.href = `/order/orders/${data.curentData}`;
+                                }, 1000);
+                            } else {
+                                Swal.fire({
+                                    title: 'Payment Failed',
+                                    text: 'Sorry, the payment failed. Please try again.',
+                                    icon: 'error',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Retry Payment',
+                                    cancelButtonText: 'View Order'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        handlePayNow(orderId, orderIdStr, productId);
+                                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                        window.location.href = `/order/orders/${data.curentData}`;
+                                    }
+                                });
+                            }
+                        });
+                    },
+                    "prefill": {
+                        "contact": "9876543210",
+                        "name": "Twinkle Sharma",
+                        "email": "smtwinkle@gmail.com"
+                    },
+                    "notes": {
+                        "description": "Retry payment for order",
+                    },
+                    "theme": {
+                        "color": "#2300a3"
+                    }
+                };
+
+                var razorpayObject = new Razorpay(options);
+                razorpayObject.open();
+
+                razorpayObject.on('payment.failed', function (response) {
+                    fetch('/order/verifyOrder', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            paymentId: response.error.metadata.payment_id,
+                            order_id: response.error.metadata.order_id,
+                            razorpay_signature: null,
+                            couponCode: couponCode,
+                            productId: productId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        Swal.fire({
+                            title: 'Payment Failed',
+                            text: 'Sorry, the payment failed. Please try again.',
+                            icon: 'error',
+                            showCancelButton: true,
+                            confirmButtonText: 'Retry Payment',
+                            cancelButtonText: 'View Order'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                handlePayNow(orderId, orderIdStr, productId);
+                            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                window.location.href = `/order/orders/${data.curentData}`;
+                            }
+                        });
+                    });
+                });
+            } else {
+                Swal.fire({
+                    title: 'Retry Failed',
+                    text: 'Unable to initiate retry payment. Please try again later.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error retrying payment:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'An error occurred while retrying payment.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+    }
+</script>   
 <%- include('../partials/mainfooter.ejs') %>
