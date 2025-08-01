@@ -3,92 +3,215 @@
     .error-message {
       color: red;
     }
+    
+    /* Toast notification styles */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #28a745;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateX(300px);
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      min-width: 300px;
+      max-width: 400px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .toast.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    .toast.error {
+      background-color: #dc3545;
+    }
+    
+    .toast.warning {
+      background-color: #ffc107;
+      color: #212529;
+    }
+    
+    .toast-close {
+      background: none;
+      border: none;
+      color: white;
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+      margin-left: 15px;
+      line-height: 1;
+      opacity: 0.8;
+    }
+    
+    .toast-close:hover {
+      opacity: 1;
+    }
+    
+    .toast.warning .toast-close {
+      color: #212529;
+    }
+    
+    /* Toast container to stack multiple toasts */
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+    
+    #toast-container .toast:not(:first-child) {
+      margin-top: 10px;
+    }
   </style>
 
   <div class="col-lg-9 col-md-8"
     style="justify-content: center; align-items: center; display: flex; margin-top: 100px; margin-bottom: 100px; padding-left: 30%;">
     <div class="tab-content" id="myaccountContent">
       <!-- Single Tab Content Start -->
-      <p id="msg" class="text-danger" style="justify-content:  center; align-items: center; display: flex;"></p>
+      <p id="msg" class="text-danger" style="justify-content: center; align-items: center; display: flex;"></p>
       <% if(typeof message!=='undefined' ){ %>
-
-        <h6 id="errorMessage" style="color: red;" style="justify-content: center; text-align: center;">
+        <h6 id="errorMessage" style="color: red; justify-content: center; text-align: center;">
           <%= message %>
         </h6>
-        <% } %>
+      <% } %>
 
-          <div class="tab-pane fade show active" id="dashboad" role="tabpanel">
-            <div class="myaccount-content">
-              <h3>Edit Your Details</h3>
-              <div class="account-details-form">
-                <!-- <form action="/edituserdetiles?id=<%= userData._id %>" method="post"> -->
-                <form>
-                  <div class="row">
-                    <div class="col-lg-6">
-                      <div class="single-input-item">
-                        <label for="first-name" class="required">User Name</label>
-                        <input type="text" id="user-name" value="<%=userData.name %>" name="username" />
-                        <div id="userNameError" class="error-message"></div>
-                      </div>
-                    </div>
-                    <div class="col-lg-6">
-                      <div class="single-input-item">
-                        <label for="last-name" class="required">Mobile No</label>
-                        <input type="text" id="user-mobile" value="<%=userData.mobile %>" name="usermobile" />
-                        <div id="userMobileError" class="error-message"></div>
-                      </div>
-                    </div>
+      <div class="tab-pane fade show active" id="dashboad" role="tabpanel">
+        <div class="myaccount-content">
+          <h3>Edit Your Details</h3>
+          <div class="account-details-form">
+            <form>
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="single-input-item">
+                    <label for="user-name" class="required">User Name</label>
+                    <input type="text" id="user-name" value="<%=userData.name %>" name="username" />
+                    <div id="userNameError" class="error-message"></div>
                   </div>
-                  <div class="single-input-item btn-hover">
-                    <input type="hidden" name="id" value="<%= userData._id %>" />
-
-                    <a href="#" onclick="editcat('<%= userData._id %>')"> <button class="check-bt sqr-btn"
-                        type="submit">Update</button>
-                    </a>
-                    <!-- <button class="check-bt sqr-btn" type="submit"></button> -->
+                </div>
+                <div class="col-lg-6">
+                  <div class="single-input-item">
+                    <label for="user-mobile" class="required">Mobile No</label>
+                    <input type="text" id="user-mobile" value="<%=userData.mobile %>" name="usermobile" />
+                    <div id="userMobileError" class="error-message"></div>
                   </div>
-                </form>
+                </div>
               </div>
-            </div>
+              <div class="single-input-item btn-hover">
+                <input type="hidden" name="id" value="<%= userData._id %>" />
+                <button type="button" class="check-bt sqr-btn" onclick="editcat('<%= userData._id %>')">
+                  Update
+                </button>
+              </div>
+            </form>
           </div>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Toast notification container -->
+  <div id="toast-container"></div>
 
   <script>
+    // Function to show toast notifications
+    function showToast(message, type = 'success', duration = 3000) {
+      const toastContainer = document.getElementById('toast-container');
+      
+      const toast = document.createElement('div');
+      toast.className = `toast ${type === 'error' ? 'error' : type === 'warning' ? 'warning' : ''}`;
+      toast.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span>${message}</span>
+          <button class="toast-close" onclick="closeToast(this)">&times;</button>
+        </div>
+      `;
+      
+      toastContainer.appendChild(toast);
+      
+      // Show toast with animation
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 100);
+      
+      // Auto hide after 3 seconds
+      setTimeout(() => {
+        if (toast.parentElement) {
+          closeToast(toast.querySelector('.toast-close'));
+        }
+      }, duration);
+    }
+    
+    // Function to close toast
+    function closeToast(closeBtn) {
+      const toast = closeBtn.closest('.toast');
+      toast.classList.remove('show');
+      setTimeout(() => {
+        if (toast && toast.parentElement) {
+          toast.remove();
+        }
+      }, 400);
+    }
+    
+    // Function to clear all error messages
+    function clearErrors() {
+      document.getElementById('userNameError').textContent = '';
+      document.getElementById('userMobileError').textContent = '';
+      document.getElementById('msg').innerHTML = '';
+    }
+
     function editcat(id) {
+      // Clear previous errors
+      clearErrors();
+      
       let username = document.getElementById("user-name").value;
       let usermobile = document.getElementById("user-mobile").value;
       let message = document.getElementById("msg");
+      
       var userName = document.getElementById('user-name').value.trim();
       var userMobile = document.getElementById('user-mobile').value.trim();
       var userNameError = document.getElementById('userNameError');
       var userMobileError = document.getElementById('userMobileError');
-      var onlyLetters = /^[A-Za-z]+$/;
+      var onlyLetters = /^[A-Za-z\s]+$/; // Allow spaces in names
       var onlyNumbers = /^[0-9]+$/;
 
-      userNameError.textContent = '';
-      userMobileError.textContent = '';
-
-      if (userName.trim() === '') {
+      // Validation
+      let hasError = false;
+      
+      if (userName === '') {
         userNameError.innerHTML = 'Please enter a valid username!';
-        return false;
-      } else if (!userName.trim()) {
-        userNameError.innerHTML = 'Please enter a valid username!';
-        return false;
+        hasError = true;
+      } else if (!onlyLetters.test(userName)) {
+        userNameError.innerHTML = 'Username can only contain letters and spaces!';
+        hasError = true;
       }
 
       if (userMobile === '') {
         userMobileError.innerHTML = 'Please enter a valid mobile number!';
-        return false;
+        hasError = true;
       } else if (!onlyNumbers.test(userMobile)) {
         userMobileError.innerHTML = 'Mobile number can only contain numbers!';
-        return false;
+        hasError = true;
       } else if (userMobile.length !== 10) {
         userMobileError.innerHTML = 'Mobile number must be 10 digits long!';
+        hasError = true;
+      }
+
+      if (hasError) {
         return false;
       }
 
+      // Show loading state
+      const updateBtn = document.querySelector('.check-bt');
+      const originalText = updateBtn.textContent;
+      updateBtn.textContent = 'Updating...';
+      updateBtn.disabled = true;
 
       fetch(`/edituserdetiles/${id}`, {
         method: "POST",
@@ -102,18 +225,39 @@
           return response.json();
         })
         .then((data) => {
+          // Reset button state
+          updateBtn.textContent = originalText;
+          updateBtn.disabled = false;
+          
           if (data.already) {
             message.innerHTML = data.already;
-           
+            showToast(data.already, 'error');
           } else if (data.success) {
-            window.location.href = "/edituserdetiles";
+            // Update the form fields with new data (if server sends updated data)
+            if (data.updatedUser) {
+              document.getElementById('user-name').value = data.updatedUser.name;
+              document.getElementById('user-mobile').value = data.updatedUser.mobile;
+            }
+            
+            // Show success toast
+            showToast('Profile updated successfully!', 'success');
+            
+            // Clear any existing error messages
+            message.innerHTML = '';
+            
           } else {
-            message.innerHTML = "Something wrong";
-           
+            message.innerHTML = "Something went wrong. Please try again.";
+            showToast('Update failed. Please try again.', 'error');
           }
         })
         .catch((err) => {
           console.log(err);
+          // Reset button state
+          updateBtn.textContent = originalText;
+          updateBtn.disabled = false;
+          
+          message.innerHTML = "Network error. Please check your connection.";
+          showToast('Network error. Please try again.', 'error');
         });
     }
   </script>

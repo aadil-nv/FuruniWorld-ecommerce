@@ -1,6 +1,7 @@
 const Products = require("../../models/productModel");
 const Cart = require("../../models/cartModel");
 const Address = require("../../models/addressModel");
+const User = require("../../models/userModel");
 
 require("dotenv").config();
 
@@ -28,10 +29,7 @@ const loadProductTab = async (req, res) => {
   }
 };
 const addProductInCart = async (req, res) => {
-
-  console.log("calling aadproduct iin cart ===>");
-  
-  try {
+   try {
     const productId = req.params.id;
     const userId = req.session.user;
 
@@ -101,10 +99,6 @@ const loadtCheckoutPage = async (req, res) => {
       productcount += cart.products.length;
     }
 
-    console.log("data from loadtCheckoutPage 11111111" ,addressData, );
-    console.log("data from loadtCheckoutPage 22222222222" ,cartDetiles);
-    console.log("data from loadtCheckoutPage 333333333" ,total );
-    console.log("data from loadtCheckoutPage 4444444" ,productcount );
     
 
     res.render("user/checkout", { addressData, cartDetiles, total,productcount });
@@ -158,8 +152,12 @@ const updatecartAddress = async (req, res) => {
 };
 
 const addCheckoutAddress = async (req, res) => {
+  console.log("addcheck out is caling ....................................");
+  console.log("addcheck out is caling ....................................");
+  
   try {
     const userData = await User.findOne({ _id: req.session.user });
+    console.log("addcheck out is caling ....................req.session.user ",req.session.user );
 
     if (userData) {
       const newAddress = new Address({
@@ -177,7 +175,7 @@ const addCheckoutAddress = async (req, res) => {
       await newAddress.save();
       const message = "New address addedd Succesfully";
       req.flash("succ", message);
-      return res.redirect("/checkoutpage");
+      return res.redirect("/product/checkoutpage");
     }
   } catch (error) {
     console.log(error.message);

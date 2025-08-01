@@ -16,7 +16,6 @@ var {
 const placeOrder = async (req, res) => {
 
   try {
-    console.log("comigggggggggggggggggggggggggggggggggggg")
     const { activeAddressId, paymentmethod, totalDiscount, couponCode } = req.body;
 
     const generateRandomOrderId = (length) => {
@@ -68,7 +67,6 @@ const placeOrder = async (req, res) => {
     req.session.newOrders = newOrder;
 
     if (paymentmethod === "RazorPay") {
-      console.log("razoooooooooooooooooooooorrrrrrrrrrrr")
       const options = {
         amount: totalDiscount * 100,
         currency: "INR",

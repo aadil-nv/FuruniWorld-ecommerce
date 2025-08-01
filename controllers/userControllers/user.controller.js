@@ -208,53 +208,45 @@ const editUseprofile = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
   try {
-    const newId = req.params.id;
-
-    const userData = await User.findOne({ _id: newId });
+    const userId = req.params.id;
+    const updates = {};
 
     if (req.body.username) {
-      await User.findByIdAndUpdate({ _id: newId }, { name: req.body.username });
+      updates.name = req.body.username;
     }
     if (req.body.usermobile) {
-      await User.findByIdAndUpdate(
-        { _id: newId },
-        { mobile: req.body.usermobile }
-      );
+      updates.mobile = req.body.usermobile;
     }
-    res.json({ already: "Upadated Succefully " });
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      updates,
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Updated Successfully",
+      username: updatedUser.name,
+      usermobile: updatedUser.mobile,
+    });
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({
+      success: false,
+      error: "Update failed",
+    });
   }
 };
 
-// const updateUserPassword = async (req, res) => {
-//   try {
-//     const passId = req.params.id;
-//     const oldPass = req.body.oldpassword;
-//     const newPass = req.body.newpassword;
 
-//     const newPassData = await User.findOne({ _id: passId });
-//     if (newPassData) {
-//       const passwordMatch = await bcrypt.compare(
-//         req.body.oldpassword,
-//         newPassData.password
-//       );
-//       const newSpassword = await securedPassword(req.body.newpassword);
-
-//       if (!passwordMatch) {
-//         res.json({ already: "Please check your Password" });
-//       } else {
-//         await User.findByIdAndUpdate(
-//           { _id: passId },
-//           { password: newSpassword }
-//         );
-//         res.json({ already: "Password changed SuccesFully" });
-//       }
-//     }
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// };
 
 
 

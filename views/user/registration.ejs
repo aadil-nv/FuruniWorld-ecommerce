@@ -107,7 +107,7 @@
                                         <input type="number" id="mno" name="mno" placeholder="10 Digit mobile no" required>
                                         
                                         <label>Enter your Password :</label>
-                                        <input type="password" id="password" name="password" placeholder="5 Digit Password" required>
+                                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
                                         
                                         <label>Referral Id :</label>
                                         <input type="text" id="referdid" name="referdid" placeholder="Optional">
@@ -132,52 +132,70 @@
     let show = document.getElementById("show1");
 
     function handleSubmit() {
-        // Clear previous error messages
-        show.innerHTML = "";
-        
-        let username = document.getElementById("name").value;
-        let email = document.getElementById("email").value;
-        let mobile = document.getElementById("mno").value;
-        let password = document.getElementById("password").value;
-        let referralId = document.getElementById("referdid").value;
+    // Clear previous error messages
+    show.innerHTML = "";
+    
+    let username = document.getElementById("name").value;
+    let email = document.getElementById("email").value;
+    let mobile = document.getElementById("mno").value;
+    let password = document.getElementById("password").value;
+    let referralId = document.getElementById("referdid").value;
 
-        // Name validation - cannot be empty and should contain only letters and spaces
-        let nameRegex = /^[a-zA-Z\s]+$/;
-        if (username.trim() === "") {
-            show.innerHTML = "Name cannot be empty";
-            return false;
-        }
-        if (!username.match(nameRegex)) {
-            show.innerHTML = "Name should contain only letters and spaces";
-            return false;
-        }
-
-        // Email validation
-        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email.match(emailRegex)) {
-            show.innerHTML = "Please enter a valid email address";
-            return false;
-        }
-
-        // Mobile validation - exactly 10 digits
-        let mobileRegex = /^\d{10}$/;
-        if (!mobile.match(mobileRegex)) {
-            show.innerHTML = "Mobile number must be exactly 10 digits";
-            return false;
-        }
-
-        // Password validation - exactly 5 digits
-        let passwordRegex = /^\d{5}$/;
-        if (!password.match(passwordRegex)) {
-            show.innerHTML = "Password must be exactly 5 digits";
-            return false;
-        }
-
-        // Referral ID is optional - no validation needed
-        // If referralId is empty, it's okay
-
-        return true;
+    // Name validation - cannot be empty and should contain only letters and spaces
+    let nameRegex = /^[a-zA-Z\s]+$/;
+    if (username.trim() === "") {
+        show.innerHTML = "Name cannot be empty";
+        return false;
     }
+    if (!username.match(nameRegex)) {
+        show.innerHTML = "Name should contain only letters and spaces";
+        return false;
+    }
+
+    // Email validation
+    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.match(emailRegex)) {
+        show.innerHTML = "Please enter a valid email address";
+        return false;
+    }
+
+    // Mobile validation - exactly 10 digits
+    let mobileRegex = /^\d{10}$/;
+    if (!mobile.match(mobileRegex)) {
+        show.innerHTML = "Mobile number must be exactly 10 digits";
+        return false;
+    }
+
+    // Password validation - minimum 6 characters, at least one uppercase, one digit, one symbol
+    if (password.length < 6) {
+        show.innerHTML = "Password must be at least 6 characters long";
+        return false;
+    }
+    
+    let hasUppercase = /[A-Z]/.test(password);
+    let hasDigit = /\d/.test(password);
+    let hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password);
+    
+    if (!hasUppercase) {
+        show.innerHTML = "Password must contain at least one uppercase letter";
+        return false;
+    }
+    
+    if (!hasDigit) {
+        show.innerHTML = "Password must contain at least one digit";
+        return false;
+    }
+    
+    if (!hasSymbol) {
+        show.innerHTML = "Password must contain at least one symbol (!@#$%^&*()_+-=[]{}|;':\",./<>?~`)";
+        return false;
+    }
+
+    // Referral ID is optional - no validation needed
+    // If referralId is empty, it's okay
+
+    return true;
+}
 </script>
 
 <%- include('../partials/mainfooter.ejs')%>
