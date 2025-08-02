@@ -1,4 +1,3 @@
-// app.js
 require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
@@ -25,10 +24,8 @@ require("./middleware/passport");
 
 const app = express();
 
-// DB connection
 connectDB();
 
-// Middleware setup
 app.use(session({
   secret: process.env.SESSION_SECRET || "defaultSecret",
   resave: false,
@@ -49,7 +46,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(nocache());
 
-// Routes
 app.use("/", userRoute);
 app.use("/auth", userAuthRoute);
 app.use("/", adminRoute);
@@ -63,7 +59,6 @@ app.use("/admin-user", adminUserRoute);
 app.use("/admin-product", adminProductRoute);
 app.use("/admin-category", adminCategoryRoute);
 
-// Views
 app.get("/adminlogin", (req, res) => {
   if (req.session.admin) return res.redirect("/admindashboard");
   res.render("admin/adminlogin");

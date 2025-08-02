@@ -1,4 +1,3 @@
-// server.js
 const colors = require("colors");
 const app = require("./app");
 
