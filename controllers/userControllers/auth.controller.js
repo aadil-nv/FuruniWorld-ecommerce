@@ -3,110 +3,111 @@ const Otp = require("../../models/otp");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const Products = require("../../models/productModel");
-const securedPassword = require('../../utils/hashPassword')
-const generateOTP=require("../../utils/genarateOtp")
-const generateReferralCode =require("../../utils/generateReferralCode")
+const securedPassword = require("../../utils/hashPassword");
+const generateOTP = require("../../utils/genarateOtp");
+const generateReferralCode = require("../../utils/generateReferralCode");
+const StatusCodes = require("../../constants/status.constants");
 
 require("dotenv").config();
 
-
 let userData;
 
-
- const loadRegister = async (req, res) => {
+const loadRegister = async (req, res) => {
   try {
-    res.render("user/registration");
+    res.status(StatusCodes.OK).render("user/registration");
   } catch (erorr) {
     console.log(erorr.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
+const insertUser = async (req, res) => {
+  try {
+    const referalId = generateReferralCode(7);
 
- const insertUser = async (req, res) => {
-  console.log("calling insert user frum auth controller=====>");
-  
-   try {
-     const referalId=generateReferralCode(7)
- 
-     const checkemail = await User.findOne({ email: req.body.email });
-     if (checkemail) {
-       return res.render("user/registration", {
-         message: "Email already exist",
-       });
-     }
- 
-     const spassword = await securedPassword(req.body.password);
- 
-     const email = req.body.email;
-     const emailRegex = /^[A-Za-z0-9.%+-]+@gmail\.com$/;
-     if (!emailRegex.test(email)) {
-       res.render("user/registration", { message: "Invalid Email Provided" });
-     }
- 
-     const name = req.body.name;
-     const nameRegex = /^[a-zA-Z]+(?: [a-zA-Z]+)*$/;
- 
-     if (!nameRegex.test(name.trim())) {
-       res.render("user/registration", { message: "Invalid Name Provided" });
-     }
- 
-     const mobileRegex = /^\d{10}$/;
-     if (!mobileRegex.test(req.body.mno)) {
-       return res.render("user/registration", {
-         message: "Invalid Mobile Number Povided",
-       });
-     }
- 
-     const user = new User({
-       name: req.body.name,
-       email: req.body.email,
-       mobile: req.body.mno,
-       password: spassword,
-       is_admin: 0,
-       is_blocked: false,
-       referalId:referalId,
-       wallet:0,
-       walletHistory:[],
-       referdId:req.body.referdid
-     });
- 
-     userData = user;
- 
-     if (userData) {
-       const otp = generateOTP();
- 
-       const userotp = new Otp({
-         otp: otp,
-         email: req.body.email,
-       });
-       await userotp.save();
- 
-       verifyEmail(name, email, otp);
- 
-       return res.render("user/otp");
-     } else {
-       res.render("registration", {
-         message: "Your Registration has been Failed ",
-       });
-     }
-   } catch (erorr) {
-     console.log(erorr.message);
-   }
- };
+    const checkemail = await User.findOne({ email: req.body.email });
+    if (checkemail) {
+      return res.status(StatusCodes.BAD_REQUEST).render("user/registration", {
+        message: "Email already exist",
+      });
+    }
 
+    const spassword = await securedPassword(req.body.password);
 
- const verifyEmail = async (name, email, otp) => {
+    const email = req.body.email;
+    const emailRegex = /^[A-Za-z0-9.%+-]+@gmail\.com$/;
+    if (!emailRegex.test(email)) {
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .render("user/registration", { message: "Invalid Email Provided" });
+    }
+
+    const name = req.body.name;
+    const nameRegex = /^[a-zA-Z]+(?: [a-zA-Z]+)*$/;
+
+    if (!nameRegex.test(name.trim())) {
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .render("user/registration", { message: "Invalid Name Provided" });
+    }
+
+    const mobileRegex = /^\d{10}$/;
+    if (!mobileRegex.test(req.body.mno)) {
+      return res.status(StatusCodes.BAD_REQUEST).render("user/registration", {
+        message: "Invalid Mobile Number Povided",
+      });
+    }
+
+    const user = new User({
+      name: req.body.name,
+      email: req.body.email,
+      mobile: req.body.mno,
+      password: spassword,
+      is_admin: 0,
+      is_blocked: false,
+      referalId: referalId,
+      wallet: 0,
+      walletHistory: [],
+      referdId: req.body.referdid,
+    });
+
+    userData = user;
+
+    if (userData) {
+      const otp = generateOTP();
+
+      const userotp = new Otp({
+        otp: otp,
+        email: req.body.email,
+      });
+      await userotp.save();
+
+      verifyEmail(name, email, otp);
+
+      return res.render("user/otp");
+    } else {
+      res.status(StatusCodes.BAD_REQUEST).render("registration", {
+        message: "Your Registration has been Failed ",
+      });
+    }
+  } catch (erorr) {
+    console.log(erorr.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+  }
+};
+
+const verifyEmail = async (name, email, otp) => {
   try {
     const transport = nodemailer.createTransport({
-      service: "gmail",
+      service: process.env.GOOGLE_NODEMAILER_SERVICE,
 
       auth: {
-        user: "adilev2000@gmail.com",
-        pass: "zufu zbyh zeac zptj",
+        user: process.env.GOOGLE_NODEMAILER_ID,
+        pass: process.env.GOOGLE_NODEMAILER_PASSWORD,
       },
     });
     const mailoption = {
-      from: "adilev2000@gmail.com",
+      from: process.env.GOOGLE_NODEMAILER_ID,
       to: email,
       subject: "for verification mail",
       html: `<h1>hi ${name} this is OTP form Ecommerce-Furniture <a>${otp}</a></h1>`,
@@ -121,18 +122,22 @@ let userData;
     });
   } catch (error) {
     console.log(error.message);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send("Internal Server Error");
   }
 };
 
-
- const otpLogin = async (req, res) => {
+const otpLogin = async (req, res) => {
   try {
     const storedEmail = await Otp.findOne({ Otps: req.body.otp }).sort({
       createdAt: -1,
     });
     const storedOtp = storedEmail.otp;
     const { n1, n2, n3, n4 } = req.body;
+
     const userOtp = `${n1}${n2}${n3}${n4}`;
+    console.log(`${n1}${n2}${n3}${n4}`.bgGreen.bold);
 
     if (storedOtp == userOtp) {
       await userData.save();
@@ -140,40 +145,42 @@ let userData;
         { email: userData.email },
         { is_verified: true }
       );
-      return res.render("user/login", {
+      return res.status(StatusCodes.OK).render("user/login", {
         message: "Successfull Registerd Now Login",
       });
     } else {
-      return res.render("user/otp", { message: "wrong Otp" });
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .render("user/otp", { message: "wrong Otp" });
     }
   } catch (error) {
     console.log(error.message);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send("Internal Server Error");
   }
 };
 
-
- const loadLogin = async (req, res) => {
-  console.log("calling ================");
-  
+const loadLogin = async (req, res) => {
   try {
-    res.render("user/login");
+    res.status(StatusCodes.OK).render("user/login");
   } catch (erorr) {
     console.log(erorr.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
-
- const userLogin = async (req, res) => {
-  
+const userLogin = async (req, res) => {
   try {
     const userData = await User.findOne({ email: req.body.email });
 
     if (!userData) {
-      res.render("user/login", { message: "Not a user" });
+      return res.status(StatusCodes.NOT_FOUND).render("user/login", {
+        message: "Not a user",
+      });
     }
 
     const block = userData.is_blocked;
-
     const ProductData = await Products.find();
 
     if (userData) {
@@ -183,66 +190,71 @@ let userData;
       );
 
       if (passwordMatch && !block) {
-        
         req.session.user = userData._id;
-        res.redirect("/userhome");
+        return res.status(StatusCodes.OK).redirect("/userhome");
       } else if (block) {
-        res.render("user/login", { message: "Your Account has been blocked" });
+        return res.status(StatusCodes.FORBIDDEN).render("user/login", {
+          message: "Your Account has been blocked",
+        });
       } else {
-        res.render("user/login", { message: "Incorrect Mail and Password" });
+        return res.status(StatusCodes.UNAUTHORIZED).render("user/login", {
+          message: "Incorrect Mail and Password",
+        });
       }
     } else {
-      res.render("user/login", { message: "Your Account has been blocked" });
+      return res.status(StatusCodes.FORBIDDEN).render("user/login", {
+        message: "Your Account has been blocked",
+      });
     }
   } catch (error) {
     console.log(error.message);
+    return res.status(StatusCodes.SERVER_ERROR).send("Internal Server Error");
   }
 };
 
-
- const logout = async (req, res) => {
+const logout = async (req, res) => {
   try {
     req.session.destroy((err) => {
       if (err) {
-        cosole.log("session is not destroyed");
+        console.log("session is not destroyed");
+        return res.status(StatusCodes.SERVER_ERROR).send("Logout failed");
       } else {
-        res.redirect("/");
+        return res.status(StatusCodes.OK).redirect("/");
       }
     });
   } catch (error) {
     console.log(error.message);
+    return res.status(StatusCodes.SERVER_ERROR).send("Internal Server Error");
   }
 };
 
-
- const resendOtp = async (req, res) => {
+const resendOtp = async (req, res) => {
   try {
     const newotp = generateOTP();
+    console.log(`New OTP is: ${newotp}`.bgRed.bold);
 
     verifyEmail(userData.name, userData.email, newotp);
     await Otp.updateOne({ email: userData.email }, { otp: newotp });
 
-    res.render("user/otp");
+    return res.status(StatusCodes.OK).render("user/otp");
   } catch (error) {
     console.log(error.message);
-  }
-};  
-
- const loadGoogleAuth = async (req, res) => {
-  try {
-    const ProductData = await Products.find();
-    const gUser = req.user;
-    
-    if (gUser) {
-      req.session.user = gUser._id;
-      res.redirect("/");
-    }
-  } catch (error) {
-    console.log(error.message);
+    return res.status(StatusCodes.SERVER_ERROR).send("Failed to resend OTP");
   }
 };
 
-
+const loadGoogleAuth = async (req, res) => {
+  try {
+    const gUser = req.user;
+    if (gUser) {
+      req.session.user = gUser._id;
+      return res.status(StatusCodes.OK).redirect("/");
+    }
+  } catch (error) {
+    console.log(error.message);
+    return res.status(StatusCodes.SERVER_ERROR).send("Google Auth Failed");
+  }
+};
 
 module.exports = {
   loadRegister,

@@ -141,8 +141,9 @@
                     return response.json();
                 })
                 .then(data => {
-
-                    if (data.message == "Success") {
+                        console.log("data", data.success);
+                        
+                    if (data.success ===true) {
 
                         swal.fire({
                             title: "Success",

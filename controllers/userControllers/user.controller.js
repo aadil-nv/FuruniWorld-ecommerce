@@ -8,6 +8,7 @@ const Coupon = require("../../models/couponModal");
 const Category = require("../../models/categoryModel");
 const Products = require("../../models/productModel")
 const { securedPassword } = require("../../helpers/passwordHelper");
+const StatusCodes = require("../../constants/status.constants");
 
 require("dotenv").config();
 
@@ -57,15 +58,7 @@ const loadUserProfile = async (req, res) => {
 
     if (User) {
       userData.walletHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
-      const message = req.flash("succ");
-
-      console.log("======================>>>>>>>>>>>");
-      console.log("======================>>>>>>>>>>>");
-      console.log("======================>>>>>>>>>>>");
-      console.log("orderData",orderData);
-      console.log("======================>>>>>>>>>>>");
-      console.log("======================>>>>>>>>>>>");
-      console.log("======================>>>>>>>>>>>");
+      const message = req.flash("succ")
       
       if (added) {
         return res.render("user/userprofile", {
@@ -266,25 +259,23 @@ const updateUserPassword = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ error: "User not found" });
     }
 
     const isMatch = await bcrypt.compare(oldpassword, user.password);
     if (!isMatch) {
-      return res.status(400).json({ error: "Incorrect current password" });
+      return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Incorrect current password" });
     }
 
     const hashedPassword = await securedPassword(newpassword);
 
     await User.findByIdAndUpdate(userId, { password: hashedPassword });
-    res.status(200).json({ message: "Password changed successfully" });
+    res.status(StatusCodes.OK).json({ message: "Password changed successfully" });
   } catch (error) {
     console.error("Error updating password:", error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
-
-module.exports = { updateUserPassword };
 
 
 const loadAddressPage = async (req, res) => {
@@ -298,9 +289,10 @@ const loadAddressPage = async (req, res) => {
       productcount += cart.products.length;
     }
     
-    res.render("user/address",{productcount});
+    res.status(StatusCodes.OK).render("user/address",{productcount});
   } catch (error) {
     console.log(error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -325,10 +317,11 @@ const addUserAddress = async (req, res) => {
       await newAddress.save();
       const message = "New address addedd Succesfully";
       req.flash("succ", message);
-      return res.redirect("/userprofile");
+      return res.status(StatusCodes.OK).redirect("/userprofile");
     }
   } catch (error) {
     console.log(error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -348,9 +341,10 @@ const loadEditUser = async (req, res) => {
     }
     
 
-    res.render("user/editaddress", { addressData,productcount });
+    res.status(StatusCodes.OK).render("user/editaddress", { addressData,productcount });
   } catch (error) {
     console.log(error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -374,9 +368,10 @@ const updateUserAddress = async (req, res) => {
       }
     );
 
-    res.json({ already: "Address changed SuccesFully" });
+    res.status(StatusCodes.OK).json({ already: "Address changed SuccesFully" });
   } catch (error) {
     console.log(error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -387,7 +382,7 @@ const deleteUseraddress = async (req, res) => {
 
     const deleteData = await Address.findByIdAndDelete({ _id: dltId });
 
-    res.status(200).json({ message: "deletion successfull" });
+    res.status(StatusCodes.OK).json({ message: "deletion successfull" });
   } catch (error) {
     console.log(error.message);
   }

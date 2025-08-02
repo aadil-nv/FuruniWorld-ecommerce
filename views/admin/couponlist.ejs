@@ -50,8 +50,8 @@
                     <thead>
                         <tr>
                            
-                            <th scope="col">Coupon Code</th>
                             <th scope="col">Name</th>
+                            <th scope="col">Coupon Code</th>
                             <th scope="col">Discount Amount</th>
                             <th scope="col">MIN Amount</th>
                             <th scope="col">Status</th>
@@ -114,30 +114,8 @@
 
 
 <script>
-//     function confirmDelete(couponId) {
-//     // Display a confirmation dialog using SweetAlert
-//     swal.fire({
-//         title: "Are you sure?",
-//         text: "Once deleted, you will not be able to recover this coupon!",
-//         icon: "warning",
-//         buttons: true,
-//         dangerMode: true,
-//     })
-//     .then((willDelete) => {
-//         // If the user clicks the confirm button
-//         if (willDelete) {
-//             // Call the function to delete the coupon
-//             deleteCoupon(couponId);
-//         } else {
-//             // Inform the user that the action was canceled
-//             swal.fire("Your coupon is safe!", {
-//                 icon: "info",
-//             });
-//         }
-//     });
-// }
+
 function confirmDelete(couponId) {
-    // Display a confirmation dialog using SweetAlert
     swal.fire({
         title: "Are you sure?",
         text: "Once deleted, you will not be able to recover this coupon!",
@@ -177,21 +155,16 @@ function deleteCoupon(couponId) {
         body: JSON.stringify({data})
     })
     .then(response => {
-        // Check if the response indicates success
         if (response.ok) {
-            // Show success message using SweetAlert
             swal.fire({
                 title: "Coupon deleted successfully!",
                 icon: "success",
                 button: "OK",
             })
             .then(() => {
-                // Refresh the page
                 location.reload();
             });
-            // Optionally, update the UI or perform other actions
         } else {
-            // Show error message using SweetAlert
             swal.fire("Failed to delete coupon!", {
                 icon: "error",
             });
@@ -200,7 +173,6 @@ function deleteCoupon(couponId) {
     })
     .catch(error => {
         console.error("Error:", error);
-        // Show error message using SweetAlert
         swal("Failed to delete coupon!", {
             icon: "error",
         });

@@ -1,46 +1,53 @@
-<%- include('../partials/asidenav.ejs')%>
+<%- include('../partials/asidenav.ejs') %>
 
-<section class="content-main mt-80 mb-80">
-  <div
-    class="card mx-auto card-login"
-    style="background-color: rgb(15, 194, 194)"
-  >
-    <div class="card-body">
-      <h4 class="card-title mb-4">Edit Category</h4>
-      <p id="msg" class="text-danger"></p>
-      <p id="show1" class="text-danger" style="text-align: center"></p>
+<section class="content-main mt-5 mb-5">
+  <div class="card mx-auto card-login" style="max-width: 500px; background-color: #f8f9fa; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+    <div class="card-body p-4">
+      <h4 class="card-title mb-4 text-center" style="color: #2c3e50;">Edit Category</h4>
+      <p id="msg" class="text-danger text-center mb-3"></p>
+      <p id="show1" class="text-danger text-center mb-3"></p>
 
-      <% if (typeof message !=='undefined' ){ %>
-      <h6><%=message %></h6>
+      <% if (typeof message !== 'undefined') { %>
+        <h6 class="text-success text-center mb-3"><%= message %></h6>
       <% } %>
+
       <form>
         <div class="mb-3">
+          <label for="name" class="form-label" style="color: #34495e;">Category Name</label>
           <input
             name="category"
             value="<%= category.categoryname %>"
             class="form-control"
             id="name"
-            placeholder="Category Name"
+            placeholder="Enter Category Name"
             type="text"
+            style="border-color: #ced4da;"
           />
         </div>
 
-        <div class="mb-3" style="justify-content: center; align-items: center">
+        <div class="mb-3">
+          <label for="descategory" class="form-label" style="color: #34495e;">Category Description</label>
           <input
             name="descategory"
             id="descategory"
             value="<%= category.categorydescription %>"
             class="form-control"
-            placeholder="Category Description"
+            placeholder="Enter Category Description"
             type="text"
+            style="border-color: #ced4da;"
           />
         </div>
 
-        <div class="mb-3">
+        <div class="mb-3 text-center">
           <input type="hidden" name="id" value="<%= category._id %>" />
-          <button class="btn btn-danger w-25 h-10" ><a href="#" onclick="editcat('<%= category._id %>')">Update</a></button>
-
-          <!-- <a href="#" onclick="editcat('<%= category._id %>')">Edit</a> -->
+          <button
+            type="button"
+            class="btn w-25"
+            style="background-color: #3498db; color: #fff; border-radius: 5px;"
+            onclick="editcat('<%= category._id %>')"
+          >
+            Update
+          </button>
         </div>
       </form>
     </div>
@@ -67,29 +74,42 @@
       return false;
     }
 
+    // Get original values from the input fields' initial values
+    const originalName = "<%= category.categoryname %>";
+    const originalDes = "<%= category.categorydescription %>";
+
+    // Check if values have changed
+    if (name === originalName && des === originalDes) {
+      document.getElementById("show1").innerHTML =
+        "No changes made to category name or description.";
+      return false;
+    }
+
     fetch(`/admin-category/editcategoryfetch/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, des }),
     })
-      .then((response) => {
+      .then(async (response) => {
+        const data = await response.json();
+        
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          if (data?.already || data?.error) {
+            message.innerHTML = data.already || data.error;
+          } else {
+            message.innerHTML = "Unexpected error occurred.";
+          }
+          throw new Error(data?.error || "Server Error");
         }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.already) {
-          message.innerHTML = data.already;
-        } else if (data.success) {
+
+        if (data.success) {
           window.location.href = "/admin-category/categorymanagement";
         } else {
-          message.innerHTML = "Somthing wrong";
+          message.innerHTML = "Something went wrong.";
         }
       })
-
       .catch((err) => {
-        console.log(err);
+        console.error("Error from ===============", err);
       });
   }
 </script>

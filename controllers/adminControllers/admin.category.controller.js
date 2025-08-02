@@ -14,32 +14,32 @@ const addListCategory = async (req, res) => {
 
 const blockCategory = async (req, res) => {
   try {
-    const { categoryId } = req.body; // Changed from categoryid to categoryId for consistency
-    
+    const { categoryId } = req.body;
+
     if (!categoryId) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
         message: 'Category ID is required'
       });
     }
 
-    const category = await Addcategory.findById({_id:categoryId});
-    
+    const category = await Addcategory.findById({ _id: categoryId });
+
     if (!category) {
-      return res.status(404).json({
+      return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
         message: 'Category not found'
       });
     }
 
     const newStatus = !category.categorystatus;
-    
+
     await Addcategory.updateOne(
-      { _id: categoryId }, 
+      { _id: categoryId },
       { categorystatus: newStatus }
     );
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
       success: true,
       categorystatus: newStatus,
       message: newStatus ? 'Category blocked successfully' : 'Category unblocked successfully'
@@ -47,8 +47,7 @@ const blockCategory = async (req, res) => {
 
   } catch (error) {
     console.log("Error blocking/unblocking category:", error.message);
-    
-    res.status(500).json({
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Internal Server Error'
     });
@@ -113,9 +112,12 @@ const addDetilesCategory = async (req, res) => {
       categorydescription: cateDes,
       categorystatus: false,
     });
+
     await category.save();
 
-    res.status(StatusCodes.CREATED).render("admin/addcategory", { message: "Category added successfully." });
+    res.status(StatusCodes.CREATED).render("admin/addcategory", {
+      message: "Category added successfully."
+    });
   } catch (error) {
     console.log("Error adding category details:", error.message);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
@@ -126,6 +128,7 @@ const editCategory = async (req, res) => {
   try {
     const id = req.params.id;
     const categoryid = await Addcategory.findById({ _id: id });
+
     if (categoryid) {
       res.status(StatusCodes.OK).render("admin/editcategory", { category: categoryid });
     } else {
@@ -142,26 +145,30 @@ const updateCategory = async (req, res) => {
     const existingCategory = await Addcategory.findOne({
       categoryname: req.body.category,
     });
+
     const existingDescription = await Addcategory.findOne({
       categorydescription: req.body.descategory,
     });
 
     if (existingCategory && existingCategory._id != req.body.id) {
-      res.status(StatusCodes.CONFLICT).redirect(`/admin-category/editCategory/${req.body.id}`);
-    } else if (existingDescription && existingDescription._id != req.body.id) {
-      res.status(StatusCodes.CONFLICT).redirect(`/admin-category/editCategory/${req.body.id}`);
-    } else {
-      await Addcategory.findByIdAndUpdate(
-        { _id: req.body.id },
-        {
-          $set: {
-            categoryname: req.body.category,
-            categorydescription: req.body.descategory,
-          },
-        }
-      );
-      res.status(StatusCodes.OK).redirect("/admin-category/categorymanagement");
+      return res.status(StatusCodes.CONFLICT).redirect(`/admin-category/editCategory/${req.body.id}`);
     }
+
+    if (existingDescription && existingDescription._id != req.body.id) {
+      return res.status(StatusCodes.CONFLICT).redirect(`/admin-category/editCategory/${req.body.id}`);
+    }
+
+    await Addcategory.findByIdAndUpdate(
+      { _id: req.body.id },
+      {
+        $set: {
+          categoryname: req.body.category,
+          categorydescription: req.body.descategory,
+        },
+      }
+    );
+
+    res.status(StatusCodes.OK).redirect("/admin-category/categorymanagement");
   } catch (error) {
     console.log("Error updating category:", error.message);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
@@ -178,17 +185,23 @@ const updateCategoryfetch = async (req, res) => {
 
     if (existingCategory && existingCategory._id != catId) {
       return res.status(StatusCodes.CONFLICT).json({ already: "Category name already exists." });
-    } else if (existingDescription && existingDescription._id != catId) {
-      return res.status(StatusCodes.CONFLICT).json({ already: "Category description already exists." });
-    } else {
-      await Addcategory.findByIdAndUpdate(
-        { _id: catId },
-        {
-          $set: { categoryname: name, categorydescription: des },
-        }
-      );
-      return res.status(StatusCodes.OK).json({ success: "Category updated successfully." });
     }
+
+    if (existingDescription && existingDescription._id != catId) {
+      return res.status(StatusCodes.CONFLICT).json({ already: "Category description already exists." });
+    }
+
+    await Addcategory.findByIdAndUpdate(
+      { _id: catId },
+      {
+        $set: {
+          categoryname: name,
+          categorydescription: des,
+        },
+      }
+    );
+
+    return res.status(StatusCodes.OK).json({ success: "Category updated successfully." });
   } catch (err) {
     console.log("Error updating category fetch:", err.message);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
@@ -202,5 +215,5 @@ module.exports = {
   editCategory,
   updateCategory,
   updateCategoryfetch,
-  addListCategory
+  addListCategory,
 };

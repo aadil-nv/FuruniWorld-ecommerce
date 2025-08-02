@@ -91,7 +91,7 @@ const placeOrder = async (req, res) => {
 
     } else if(paymentmethod === "Cash On Delivery") {
       if(totalDiscount > 1000){
-        return res.json({message: "failed"})
+        return res.json({message: "failed",paymentMethod:"COD"})
       }
       await newOrder.save();
 
@@ -128,7 +128,7 @@ const placeOrder = async (req, res) => {
 
       if(walletMoney <= totalDiscount) {
         console.log("Wallet Payment failed Insufficient Fund")
-        return res.json({message: "Failed"})
+        return res.json({message: "failed",paymentMethod:"Wallet" , alertMessage: "Insufficient Fund"})
       } else {
         let walletNewOrder = new order({
           userId,
