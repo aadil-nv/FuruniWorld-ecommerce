@@ -75,17 +75,16 @@ const placeOrder = async (req, res) => {
 
       razorpayInstance.orders.create(options, (err, order) => {
         if (err) {
-          console.log("founded---------", err);
           res.json({ success: false });
         } else {
           res.json({
             order: order,
             success: true,  
             order_id: order.id,
-            key_id: "rzp_test_GFUUN1I3GCgAO2",
+            key_id: process.env.RAZORPAY_ID_KEY,
             paymentMethod: paymentmethod,
             couponCode: couponCode,
-            retryOrderId: orderId
+            retryOrderId: orderId 
           });
         }
       });
@@ -200,15 +199,10 @@ const placeOrder = async (req, res) => {
 };
 
 const retryPayment = async (req, res) => {
-  console.log("retry payment is =>>>calling===");
-  console.log("retry payment is =>>>calling===");
   
   try {
     const { orderId } = req.body;
-    console.log("retry payment is =>>>calling===",orderId);
     const existingOrder = await order.findOne({_id: orderId });
-    console.log("retry payment is =>>>existingOrder===",existingOrder);
-
     if (!existingOrder) {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
@@ -233,8 +227,9 @@ const retryPayment = async (req, res) => {
           success: true,
           order: order,
           order_id: order.id,
-          key_id: "rzp_test_GFUUN1I3GCgAO2",
-          retryOrderId: existingOrder.orderId
+          key_id: process.env.RAZORPAY_ID_KEY,
+          retryOrderId: existingOrder.orderId,
+          initial_ID:orderId
         });
       }
     });
@@ -323,7 +318,6 @@ const orderCancel = async (req, res) => {
 
 const verifyOrder = async (req, res) => {
   try {
-    console.log("coming to verify order")
     const { razorpay_signature, order_id, paymentId, couponCode } = req.body;
     let key_secret = "3YCQ9l2sEZLArOQHqYYdfiLc";
     const userId = req.session.user;
@@ -362,13 +356,14 @@ const verifyOrder = async (req, res) => {
       razorpay_signature,
       key_secret
     );
+
+    
     
     if (!success) {
       await order.findByIdAndUpdate(
         { _id: cId },
         { paymentStatus: "Payment Failed" }
       );
-      console.log("--------------payment failed ----------------")
       res.status(400).json({ 
         success: false, 
         message: "Payment verification failed",
@@ -524,6 +519,103 @@ const removeCoupon = async (req, res) => {
   }
 }
 
+const retryPaymentVerification = async (req, res) => {
+  
+  try {
+    const { razorpay_signature, order_id, paymentId, couponCode,initial_ID } = req.body;
+
+
+    let key_secret = process.env.RAZORPAY_SECRET_ID;
+    const userId = req.session.user;
+    
+    const cartData = await Cart.findOne({ userId }).populate("products.productId");
+    
+    // Get order details from existing order instead of session
+    const existingOrder = await order.findOne({ _id: initial_ID });
+    if (!existingOrder) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+  
+
+    const orderedItems = cartData.products.map((product) => {
+      const totalProductAmount = product.quantity * (product.productId?.price || 0);
+      return {
+        productId: product.productId,
+        quantity: product.quantity,
+        productStatus: "pending",
+        totalProductAmount: product.totalPrice,
+      };
+    });
+    
+   
+    
+
+    var success = validatePaymentVerification(
+      { order_id: order_id, payment_id: paymentId },
+      razorpay_signature,
+      key_secret
+    );
+
+
+    if (!success) {
+      await order.findByIdAndUpdate(
+        { _id: initial_ID},
+        { paymentStatus: "Payment Failed" }
+      );
+      res.status(400).json({
+        success: false,
+        message: "Retry payment verification failed",
+        orderId: initial_ID,
+        orderData: initial_ID,
+      });
+    } else {
+      await order.findByIdAndUpdate(
+        { _id: initial_ID },
+        { paymentStatus: "Payment Successful" }
+      );
+
+      for (const item of orderedItems) {
+        const productId = item.productId;
+        const quantity = item.quantity;
+
+        await Products.findOneAndUpdate(
+          { _id: productId },
+          { $inc: { productQuantity: -quantity } }
+        );
+      }
+
+      if (couponCode) {
+        const couponData = await Coupon.findOneAndUpdate(
+          { couponCode: couponCode },
+          { $push: { usedUser: { userId: req.session.user, used: true } } },
+          { new: true }
+        );
+        const couponDeduction = await Coupon.findOne({ couponCode: couponCode });
+        const discountAmount1 = couponDeduction.discountAmount;
+        await order.findOneAndUpdate(
+          { _id: initial_ID },
+          { $set: { couponDeduction: discountAmount1 } },
+          { new: true }
+        );
+      }
+
+      await Cart.deleteOne({ userId: req.session.user });
+      res.status(200).json({
+        success: true,
+        message: "Retry payment verification successful",
+        orderData: initial_ID,
+      });
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Internal server error");
+  }
+};
+
+
 module.exports = {
   removeCoupon,
   userReturnProduct,
@@ -532,5 +624,6 @@ module.exports = {
   orderCancel,
   loadOrderPage,
   placeOrder,
-  retryPayment
+  retryPayment,
+  retryPaymentVerification
 }

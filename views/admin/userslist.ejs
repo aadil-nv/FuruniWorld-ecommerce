@@ -1,4 +1,4 @@
-<%- include('../partials/asidenav.ejs')%>
+<%- include('../partials/asidenav.ejs') %>
 
 <section class="content-main">
     <div class="content-header">
@@ -10,7 +10,13 @@
         <header class="card-header">
             <div class="row gx-3">
                 <div class="col-lg-4 col-md-6 me-auto">
-                    <input type="text" placeholder="Search..." class="form-control" />
+                    <input 
+                        type="text" 
+                        placeholder="Search by name, email, or mobile..." 
+                        class="form-control" 
+                        id="userSearchInput"
+                        onkeyup="searchUsers()"
+                    />
                 </div>
                 <div class="col-lg-2 col-6 col-md-3">
                     <select class="form-select">
@@ -29,10 +35,9 @@
                 </div>
             </div>
         </header>
-        <!-- card-header end// -->
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover" id="usersTable">
                     <thead>
                         <tr>
                             <th>#ID</th>
@@ -43,39 +48,25 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% if(user.length > 0) { %>
-                            <% let UID=1; %>
+                        <% if (user && user.length > 0) { %>
+                            <% let UID = 1; %>
                             <% user.forEach(data => { %>
                                 <tr id="user-row-<%= data._id %>">
-                                    <td><%= UID++; %></td>
+                                    <td><%= UID++ %></td>
                                     <td><b><%= data.name %></b></td>
                                     <td><%= data.email %></td>
                                     <td><%= data.mobile %></td>
-                                    <% if (data.is_blocked === false) { %>
-                                        <td class="text-end" style="align-items: center; justify-content: center; display: flex;">
-                                            <button 
-                                                type="button"
-                                                onclick="event.preventDefault(); confirmBlock('<%= data._id %>')" 
-                                                class="btn btn-md rounded font-sm user-action-btn" 
-                                                style="background-color: #3BB77E; color: white; width: 80px;"
-                                                id="btn-<%= data._id %>"
-                                            >
-                                                Block
-                                            </button>
-                                        </td>
-                                    <% } else { %>
-                                        <td class="text-end" style="align-items: center; justify-content: center; display: flex;">
-                                            <button 
-                                                type="button"
-                                                onclick="event.preventDefault(); confirmUnBlock('<%= data._id %>')" 
-                                                class="btn btn-md rounded font-sm user-action-btn" 
-                                                style="background-color: rgb(202, 59, 40); color: white; width: 80px;"
-                                                id="btn-<%= data._id %>"
-                                            >
-                                                Unblock
-                                            </button>
-                                        </td>
-                                    <% } %>
+                                    <td class="text-end" style="align-items: center; justify-content: center; display: flex;">
+                                        <button 
+                                            type="button"
+                                            onclick="confirmAction('<%= data._id %>')"
+                                            class="btn btn-md rounded font-sm user-action-btn <%= data.is_blocked ? 'btn-unblock' : 'btn-block' %>" 
+                                            id="btn-<%= data._id %>"
+                                            data-blocked="<%= data.is_blocked ? 'true' : 'false' %>"
+                                        >
+                                            <%= data.is_blocked ? 'Unblock' : 'Block' %>
+                                        </button>
+                                    </td>
                                 </tr>
                             <% }) %>
                         <% } else { %>
@@ -88,24 +79,22 @@
                     </tbody>
                 </table>
             </div>
-            <!-- table-responsive //end -->
         </div>
-        <!-- card-body end// -->
     </div>
-    <!-- card end// -->
     <div class="pagination-area mt-15 mb-50">
         <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-center">
-                <% for(let i = 1; i <= totalPages; i++) { %>
-                    <li class="page-item <% if (i == currentPage) { %>active<% } %>">
-                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                    </li>
+                <% if (typeof totalPages !== 'undefined') { %>
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
                 <% } %>
             </ul>
         </nav>
     </div>
 </section>
-<!-- content-main end// -->
 
 <footer class="main-footer font-xs">
     <div class="row pb-30 pt-15">
@@ -130,76 +119,132 @@
 <script src="/adminpublic/adminlogin/js/vendors/jquery.fullscreen.min.js"></script>
 <script src="/adminpublic/adminlogin/js/main.js?v=1.1" type="text/javascript"></script>
 
+<style>
+.user-action-btn {
+    color: white !important;
+    width: 80px;
+    border: none;
+}
+
+.btn-block {
+    background-color: #3BB77E !important;
+}
+
+.btn-unblock {
+    background-color: rgb(202, 59, 40) !important;
+}
+
+.user-action-btn:hover {
+    opacity: 0.8;
+}
+
+.user-action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
+
 <script>
-// Function to handle user blocking with fetch API
+// Function to handle user search
+function searchUsers() {
+    const input = document.getElementById('userSearchInput').value.toLowerCase();
+    const table = document.getElementById('usersTable');
+    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const name = row.cells[1].textContent.toLowerCase();
+        const email = row.cells[2].textContent.toLowerCase();
+        const mobile = row.cells[3].textContent.toLowerCase();
+
+        if (name.includes(input) || email.includes(input) || mobile.includes(input)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    }
+}
+
+// Function to handle user blocking/unblocking with fetch API
 async function blockUser(userId) {
     const button = document.getElementById(`btn-${userId}`);
     const originalText = button.textContent;
     const originalColor = button.style.backgroundColor;
-    
+
     try {
-        // Show loading state
         button.disabled = true;
         button.textContent = 'Processing...';
-        
-        const response = await fetch(`/admin-user/blockuser?id=${userId}`, {
-            method: 'POST', // Using POST method
+
+        console.log('Making request to:', `/admin-user/blockuser`);
+        console.log('Request body:', { userId });
+
+        const response = await fetch(`/admin-user/blockuser`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ userId: userId })
+            body: JSON.stringify({ userId })
         });
-        
-        // Check if response is ok
+
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+
+        // Check if response is actually JSON before parsing
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            // Try to get the response as text to see what's being returned
+            const responseText = await response.text();
+            console.error('Non-JSON response received:', responseText);
+            throw new Error('Server returned non-JSON response. Check server logs.');
+        }
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const result = await response.json();
-        
-        // Update button appearance based on response
+        console.log('Response data:', result);
+
         if (result.success) {
-            if (result.is_blocked === true) {
-                button.textContent = 'Unblock';
-                button.style.backgroundColor = 'rgb(202, 59, 40)';
-                button.setAttribute('onclick', `event.preventDefault(); confirmUnBlock('${userId}')`);
-                
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'User has been blocked successfully.',
-                    icon: 'success',
-                    confirmButtonColor: '#3BB77E',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            } else {
-                button.textContent = 'Block';
-                button.style.backgroundColor = '#3BB77E';
-                button.setAttribute('onclick', `event.preventDefault(); confirmBlock('${userId}')`);
-                
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'User has been unblocked successfully.',
-                    icon: 'success',
-                    confirmButtonColor: '#3BB77E',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            }
+            // Update button text and classes based on new status
+            button.textContent = result.is_blocked ? 'Unblock' : 'Block';
+            
+            // Remove old classes and add new ones
+            button.classList.remove('btn-block', 'btn-unblock');
+            button.classList.add(result.is_blocked ? 'btn-unblock' : 'btn-block');
+            
+            // Update the data attribute to reflect new status
+            button.setAttribute('data-blocked', result.is_blocked.toString());
+
+            Swal.fire({
+                title: 'Success!',
+                text: result.is_blocked ? 'User has been blocked successfully.' : 'User has been unblocked successfully.',
+                icon: 'success',
+                confirmButtonColor: '#3BB77E',
+                timer: 2000,
+                showConfirmButton: false
+            });
         } else {
             throw new Error(result.message || 'Operation failed');
         }
     } catch (error) {
-        console.error('Error:', error);
-        
-        // Restore original button state
+        console.error('Error details:', error);
         button.textContent = originalText;
         button.style.backgroundColor = originalColor;
+
+        let errorMessage = 'Failed to update user status. Please try again.';
         
+        // Provide more specific error messages
+        if (error.message.includes('Non-JSON response')) {
+            errorMessage = 'Server error occurred. Please check if the endpoint exists and is working properly.';
+        } else if (error.message.includes('Failed to fetch')) {
+            errorMessage = 'Network error. Please check your connection and try again.';
+        }
+
         Swal.fire({
             title: 'Error!',
-            text: error.message || 'Failed to update user status. Please try again.',
+            text: errorMessage,
             icon: 'error',
             confirmButtonColor: '#d33'
         });
@@ -208,100 +253,23 @@ async function blockUser(userId) {
     }
 }
 
-// Confirmation function for blocking user
-function confirmBlock(userId) {
-    event.preventDefault(); // Prevent any default behavior
+// Confirmation function for blocking/unblocking user
+function confirmAction(userId) {
+    event.preventDefault();
+    
+    const button = document.getElementById(`btn-${userId}`);
+    const isBlocked = button.getAttribute('data-blocked') === 'true';
     
     Swal.fire({
         title: 'Are you sure?',
-        text: "You are about to block this user!",
+        text: `You are about to ${isBlocked ? 'unblock' : 'block'} this user!`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3BB77E',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, block it!',
+        confirmButtonColor: isBlocked ? '#3BB77E' : '#db0b2e',
+        cancelButtonColor: isBlocked ? '#d33' : '#3BB77E',
+        confirmButtonText: `Yes, ${isBlocked ? 'unblock' : 'block'} it!`,
         allowOutsideClick: false,
         allowEscapeKey: false
-    }).then((result) => {
-        if (result.isConfirmed) {
-            blockUser(userId);
-        }
-    });
-    
-    return false; // Prevent any form submission or navigation
-}
-
-// Confirmation function for unblocking user
-function confirmUnBlock(userId) {
-    event.preventDefault(); // Prevent any default behavior
-    
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You are about to unblock this user!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#db0b2e',
-        cancelButtonColor: '#3BB77E',
-        confirmButtonText: 'Yes, unblock it!',
-        allowOutsideClick: false,
-        allowEscapeKey: false
-    }).then((result) => {
-        if (result.isConfirmed) {
-            blockUser(userId);
-        }
-    });
-    
-    return false; // Prevent any form submission or navigation
-}
-
-// Alternative approach using event listeners (more reliable)
-document.addEventListener('DOMContentLoaded', function() {
-    // Add event listeners to all action buttons
-    const actionButtons = document.querySelectorAll('.user-action-btn');
-    
-    actionButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const userId = this.id.replace('btn-', '');
-            const action = this.textContent.toLowerCase().trim();
-            
-            if (action === 'block') {
-                confirmBlockWithListener(userId);
-            } else if (action === 'unblock') {
-                confirmUnBlockWithListener(userId);
-            }
-        });
-    });
-});
-
-// Alternative confirmation functions using event listeners
-function confirmBlockWithListener(userId) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You are about to block this user!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3BB77E',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, block it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            blockUser(userId);
-        }
-    });
-}
-
-function confirmUnBlockWithListener(userId) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You are about to unblock this user!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#db0b2e',
-        cancelButtonColor: '#3BB77E',
-        confirmButtonText: 'Yes, unblock it!'
     }).then((result) => {
         if (result.isConfirmed) {
             blockUser(userId);

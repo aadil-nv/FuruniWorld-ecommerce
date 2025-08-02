@@ -14,6 +14,7 @@ order_route.post("/verifycoupon",userAuth.isLogin,userAuth.isUserBlock,orderCont
 order_route.post("/productreturn",userAuth.isLogin,userAuth.isUserBlock,orderController.userReturnProduct)
 order_route.post("/removecoupon",userAuth.isLogin,userAuth.isUserBlock,orderController.removeCoupon)
 order_route.post("/retryPayment",userAuth.isLogin,userAuth.isUserBlock,orderController.retryPayment)
+order_route.post("/retrypaymentverification",userAuth.isLogin,userAuth.isUserBlock,orderController.retryPaymentVerification)
 
 
 module.exports=order_route

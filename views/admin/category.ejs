@@ -1,182 +1,273 @@
-    <%- include('../partials/asidenav.ejs')%>
+<%- include('../partials/asidenav.ejs')%>
 
-    <section class="content-main" >
-        <div class="content-header">
-            <div>
-                <h2 class="content-title card-title">Category Lists</h2>
-                <!-- <p>Lorem ipsum dolor sit amet.</p> -->
-            </div>
-            <div>
-
-
-                <a href="/admin-category/addcategory" class="btn btn-danger btn-sm rounded">Add Category +</a>
-
-            </div>
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Category Lists</h2>
+            <!-- <p>Lorem ipsum dolor sit amet.</p> -->
         </div>
-        <div class="card mb-4">
-            <header class="card-header">
-                <div class="row gx-3">
-                    <div class="col-lg-4 col-md-6 me-auto">
-                        <input type="text" placeholder="Search..." class="form-control" />
-                    </div>
-                    <div class="col-lg-2 col-6 col-md-3">
-                        <select class="form-select">
-                            <option>Status</option>
-                            <option>Active</option>
-                            <option>Disabled</option>
-                            <option>Show all</option>
-                        </select>
-                    </div>
-                    <div class="col-lg-2 col-6 col-md-3">
-                        <select class="form-select">
-                            <option>Show 20</option>
-                            <option>Show 30</option>
-                            <option>Show 40</option>
-                        </select>
-                    </div>
-                </div>
-            </header>
-            <!-- card-header end// -->
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" >
-                    <thead>
-                        <tr>
-                            <th  >UID</th>
-                            <th   scope=" col">category Name</th>
-                        <th scope="col">Category Discription</th>
-
-                        <th scope="col" >Edit</th>
-                        <th   scope="col" >Delete</th>
-                        </tr>
-                        </thead>
-                        <tbody  >
-                            <% if(category.length > 0) { %>
-                                <% let UID=1;%>
-                                    <% category.forEach (data=>{ %>
-                                        <tr >
-                                             <td >
-                                                <%= UID++ %>
-                                            </td>
-                                            <td   ><b>
-                                                    <%= data.categoryname %>
-                                                </b></td>
-                                            <td  >
-                                                <%= data.categorydescription %>
-                                            </td  >
-
-
-                                            <td >
-
-                                                
-                                                    <a href="/admin-category/editCategory/<%= data._id %>" class="btn btn-sm font-sm rounded btn-brand"> <i class="material-icons md-edit"></i><button class="btn btn-sm rounded font-sm"   style=" align-items: center; justify-content: center; width: 15px; height: 22px; color: white;" >Edit</button> </a>
-
-                                                </button>
-                                            </td  >
-                                            <%if (data.categorystatus===false){ %>
-                                                <td >
-                                                  
-                                                    
-                                                        
-                                                        <a  onclick="confirmBlockCategory('<%= data._id %>')" ><button  class="btn btn-sm rounded font-sm "  style="background-color: #3BB77E;  align-items: center; justify-content: center;  color: white; width: 68px ;">Block</button></a>
-
-                                                </td>
-                                                <%}else{%>
-                                                    <td >
-                                                    
-                                                        <a  onclick="confirmUnBlockCategory('<%= data._id %>')"><button  class="btn btn-sm rounded font-sm "  style="background-color: #be2222;  align-items: center; justify-content: center; color: white; ">unBlock</button></a>
-
-
-                                                    </td>
-                                                    <% } %>
-                                                        <% })%>
-                                                            <% }else{ %>
-                                              <tr>
-                                                 <td colspan="3" class="text-center">
-                                                     <p class="mt-3">No users</p>
-                                                 </td>px
-                                               </tr>
-                                        <% } %>
-                                 </tr>
-
-                        </tbody>
-                    </table>
-                </div>
-                <!-- table-responsive //end -->
-            </div>
-            <!-- card-body end// -->
+        <div>
+            <a href="/admin-category/addcategory" class="btn btn-danger btn-sm rounded">Add Category +</a>
         </div>
-        <!-- card end// -->
-        <div class="pagination-area mt-15 mb-50">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-start">
-                    <% for(let i = 1; i <= totalPages; i++) { %>
-                        <li class="page-item <% if (i == currentPage) { %>active<% } %>">
-                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                        </li>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <input type="text" placeholder="Search..." class="form-control" />
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select">
+                        <option>Status</option>
+                        <option>Active</option>
+                        <option>Disabled</option>
+                        <option>Show all</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select">
+                        <option>Show 20</option>
+                        <option>Show 30</option>
+                        <option>Show 40</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+        <!-- card-header end// -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>UID</th>
+                        <th scope="col">Category Name</th>
+                        <th scope="col">Category Description</th>
+                        <th scope="col">Edit</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <% if(category.length > 0) { %>
+                            <% let UID=1;%>
+                                <% category.forEach (data=>{ %>
+                                    <tr id="category-row-<%= data._id %>">
+                                         <td>
+                                            <%= UID++ %>
+                                        </td>
+                                        <td><b>
+                                                <%= data.categoryname %>
+                                            </b></td>
+                                        <td>
+                                            <%= data.categorydescription %>
+                                        </td>
+
+                                        <td>
+                                            <a href="/admin-category/editCategory/<%= data._id %>" class="btn btn-sm font-sm rounded btn-brand">
+                                                <i class="material-icons md-edit"></i>
+                                                <span style="color: white;">Edit</span>
+                                            </a>
+                                        </td>
+
+                                        <td>
+                                            <button 
+                                                type="button"
+                                                onclick="confirmCategoryAction('<%= data._id %>')"
+                                                class="btn btn-sm rounded font-sm category-action-btn <%= data.categorystatus ? 'btn-unblock' : 'btn-block' %>"
+                                                id="btn-<%= data._id %>"
+                                                data-blocked="<%= data.categorystatus ? 'true' : 'false' %>"
+                                            >
+                                                <%= data.categorystatus ? 'Unblock' : 'Block' %>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% })%>
+                            <% }else{ %>
+                          <tr>
+                             <td colspan="5" class="text-center">
+                                 <p class="mt-3">No categories</p>
+                             </td>
+                           </tr>
                     <% } %>
-                </ul>
-            </nav>
-        </div>
-    </section>
-    <!-- content-main end// -->
-    <footer class="main-footer font-xs">
-        <div class="row pb-30 pt-15">
-            <div class="col-sm-6">
-                <script>
-                    document.write(new Date().getFullYear());
-                </script>
-                &copy; Nest - HTML Ecommerce Template .
+                    </tbody>
+                </table>
             </div>
-            <div class="col-sm-6">
-                <div class="text-sm-end">All rights reserved</div>
-            </div>
+            <!-- table-responsive //end -->
         </div>
-    </footer>
-    </main>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-    <script src="path/to/sweetalert.min.js"></script>
+        <!-- card-body end// -->
+    </div>
+    <!-- card end// -->
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <% if (i == currentPage) { %>active<% } %>">
+                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+</section>
+<!-- content-main end// -->
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>
+                document.write(new Date().getFullYear());
+            </script>
+            &copy; Nest - HTML Ecommerce Template .
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">All rights reserved</div>
+        </div>
+    </div>
+</footer>
+</main>
+
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/adminpublic/adminlogin/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="/adminpublic/adminlogin/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="/adminpublic/adminlogin/js/vendors/select2.min.js"></script>
-    <script src="/adminpublic/adminlogin/js/vendors/perfect-scrollbar.js"></script>
-    <script src="/adminpublic/adminlogin/js/vendors/jquery.fullscreen.min.js"></script>
-    <!-- Main Script -->
-    <script src="/adminpublic/adminlogin/js/main.js?v=1.1" type="text/javascript"></script>
-  
-    <script>
-        function confirmBlockCategory(categoryId) {
+<script src="/adminpublic/adminlogin/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/adminpublic/adminlogin/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/adminpublic/adminlogin/js/vendors/select2.min.js"></script>
+<script src="/adminpublic/adminlogin/js/vendors/perfect-scrollbar.js"></script>
+<script src="/adminpublic/adminlogin/js/vendors/jquery.fullscreen.min.js"></script>
+<!-- Main Script -->
+<script src="/adminpublic/adminlogin/js/main.js?v=1.1" type="text/javascript"></script>
+
+<style>
+.category-action-btn {
+    color: white !important;
+    width: 68px;
+    border: none;
+}
+
+.btn-block {
+    background-color: #3BB77E !important;
+}
+
+.btn-unblock {
+    background-color: #be2222 !important;
+}
+
+.category-action-btn:hover {
+    opacity: 0.8;
+}
+
+.category-action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
+
+<script>
+// Function to handle category blocking/unblocking with fetch API
+async function blockCategory(categoryId) {
+    const button = document.getElementById(`btn-${categoryId}`);
+    const originalText = button.textContent;
+    const originalClasses = button.className;
+
+    try {
+        button.disabled = true;
+        button.textContent = 'Processing...';
+
+        console.log('Making request to:', `/admin-category/adminBlockcategory`);
+        console.log('Request body:', { categoryId });
+
+        const response = await fetch(`/admin-category/adminBlockcategory`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ categoryId })
+        });
+
+        console.log('Response status:', response.status);
+
+        // Check if response is actually JSON before parsing
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            // Try to get the response as text to see what's being returned
+            const responseText = await response.text();
+            console.error('Non-JSON response received:', responseText);
+            throw new Error('Server returned non-JSON response. Check server logs.');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Response data:', result);
+
+        if (result.success) {
+            // Update button text and classes based on new status
+            button.textContent = result.categorystatus ? 'Unblock' : 'Block';
+            
+            // Remove old classes and add new ones
+            button.classList.remove('btn-block', 'btn-unblock');
+            button.classList.add(result.categorystatus ? 'btn-unblock' : 'btn-block');
+            
+            // Update the data attribute to reflect new status
+            button.setAttribute('data-blocked', result.categorystatus.toString());
+
+            Swal.fire({
+                title: 'Success!',
+                text: result.categorystatus ? 'Category has been blocked successfully.' : 'Category has been unblocked successfully.',
+                icon: 'success',
+                confirmButtonColor: '#3BB77E',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            throw new Error(result.message || 'Operation failed');
+        }
+    } catch (error) {
+        console.error('Error details:', error);
+        button.textContent = originalText;
+        button.className = originalClasses;
+
+        let errorMessage = 'Failed to update category status. Please try again.';
+        
+        // Provide more specific error messages
+        if (error.message.includes('Non-JSON response')) {
+            errorMessage = 'Server error occurred. Please check if the endpoint exists and is working properly.';
+        } else if (error.message.includes('Failed to fetch')) {
+            errorMessage = 'Network error. Please check your connection and try again.';
+        }
+
+        Swal.fire({
+            title: 'Error!',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonColor: '#d33'
+        });
+    } finally {
+        button.disabled = false;
+    }
+}
+
+// Confirmation function for blocking/unblocking category
+function confirmCategoryAction(categoryId) {
+    event.preventDefault();
+    
+    const button = document.getElementById(`btn-${categoryId}`);
+    const isBlocked = button.getAttribute('data-blocked') === 'true';
+    
     Swal.fire({
         title: 'Are you sure?',
-        text: "You are about to Block this category!",
+        text: `You are about to ${isBlocked ? 'unblock' : 'block'} this category!`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3BB77E',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, block it!'
+        confirmButtonColor: isBlocked ? '#3BB77E' : '#be2222',
+        cancelButtonColor: isBlocked ? '#d33' : '#3BB77E',
+        confirmButtonText: `Yes, ${isBlocked ? 'unblock' : 'block'} it!`,
+        allowOutsideClick: false,
+        allowEscapeKey: false
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = "/admin-category/adminBlockcategory/" + categoryId;
+            blockCategory(categoryId);
         }
     });
 }
-        function confirmUnBlockCategory(categoryId) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You are about to unBlock this category!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#db0b2e',
-        cancelButtonColor: '#3BB77E',
-        confirmButtonText: 'Yes, unBlock it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = "/admin-category/adminBlockcategory/" + categoryId;
-        }
-    });
-}
-
-    </script>
-
-   
+</script>

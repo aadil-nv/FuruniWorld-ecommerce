@@ -9,7 +9,6 @@ const colors = require("colors");
 
 const connectDB = require("./config/db"); // ✅ Import DB connection
 
-// Routes
 const PORT = process.env.PORT || 7777;
 const userRoute = require("./routes/userRoutes/user.route");
 const adminRoute = require("./routes/adminRoutes/admin.route");

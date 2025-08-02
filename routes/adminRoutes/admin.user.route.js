@@ -7,7 +7,7 @@ const adminAuth = require("../../middleware/adminAuth");
 
 
 adminUser_route.get('/userslist',adminAuth.isLogin,adminUserController.adminUsersList)
-adminUser_route.get('/blockuser',adminAuth.isLogin,adminUserController.blockUser)
+adminUser_route.post('/blockuser',adminAuth.isLogin,adminUserController.blockUser)
 
 
 module.exports =adminUser_route

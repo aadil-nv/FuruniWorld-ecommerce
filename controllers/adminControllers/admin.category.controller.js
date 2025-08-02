@@ -14,17 +14,44 @@ const addListCategory = async (req, res) => {
 
 const blockCategory = async (req, res) => {
   try {
-    const categoryid = req.params.id;
-    const cid = await Addcategory.findById(categoryid);
-    if (cid.categorystatus == false) {
-      await Addcategory.updateOne({ _id: cid }, { categorystatus: true });
-    } else {
-      await Addcategory.updateOne({ _id: cid }, { categorystatus: false });
+    const { categoryId } = req.body; // Changed from categoryid to categoryId for consistency
+    
+    if (!categoryId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Category ID is required'
+      });
     }
-    res.status(StatusCodes.OK).redirect("/admin-category/categorymanagement");
+
+    const category = await Addcategory.findById({_id:categoryId});
+    
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: 'Category not found'
+      });
+    }
+
+    const newStatus = !category.categorystatus;
+    
+    await Addcategory.updateOne(
+      { _id: categoryId }, 
+      { categorystatus: newStatus }
+    );
+
+    res.status(200).json({
+      success: true,
+      categorystatus: newStatus,
+      message: newStatus ? 'Category blocked successfully' : 'Category unblocked successfully'
+    });
+
   } catch (error) {
     console.log("Error blocking/unblocking category:", error.message);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error'
+    });
   }
 };
 

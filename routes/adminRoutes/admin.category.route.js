@@ -5,7 +5,7 @@ const adminAuth = require("../../middleware/adminAuth");
 
 
 adminCategory_route.get('/addcategory',adminAuth.isLogin,adminCategoryController.addListCategory)
-adminCategory_route.get('/adminBlockcategory/:id',adminAuth.isLogin,adminCategoryController.blockCategory);
+adminCategory_route.post('/adminBlockcategory',adminAuth.isLogin,adminCategoryController.blockCategory);
 adminCategory_route.get('/categorymanagement',adminAuth.isLogin,adminCategoryController.categoryManage)
 adminCategory_route.post('/addcategory',adminAuth.isLogin,adminCategoryController.addDetilesCategory)
 adminCategory_route.get('/editCategory/:id',adminAuth.isLogin,adminCategoryController.editCategory)
