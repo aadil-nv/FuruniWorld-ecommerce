@@ -1,3 +1,5 @@
+const StatusCodes = require("../constants/status.constants");
+
 const isLogin = async (req, res, next) => {
     try {
         if (req.session && req.session.admin) {            
@@ -7,7 +9,7 @@ const isLogin = async (req, res, next) => {
         }
     } catch (error) {
         console.error("isLogin middleware error:", error.message);
-        res.status(500).send("Internal Server Error");
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
     }
 };
 
@@ -20,7 +22,7 @@ const isLogout = async (req, res, next) => {
         }
     } catch (error) {
         console.error("isLogout middleware error:", error.message);
-        res.status(500).send("Internal Server Error");
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
     }
 };
 

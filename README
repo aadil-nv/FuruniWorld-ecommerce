@@ -5,7 +5,7 @@ FurniWorld is a full-featured e-commerce web application designed for a smooth a
 ## 🌐 Tech Stack
 
 ### Frontend
-- React.js / Next.js
+- EJS
 - Tailwind CSS
 - Redux / Context API
 

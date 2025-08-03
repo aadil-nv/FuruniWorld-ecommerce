@@ -4,11 +4,9 @@ const Products = require("../models/productModel");
 const isLogin = async (req, res, next) => {
     try {
         if (req.session.user) {
-            console.log("session user is --> ", req.session.user);
             res.locals.customer = true;
             return next();
         } else {
-            console.log("=============user not found=============");
             
             res.locals.customer = false;
             const ProductData = await Products.find().populate('offerId');
@@ -20,15 +18,11 @@ const isLogin = async (req, res, next) => {
     }
 };
 
-const  isLogout = async (req, res, next) => {
-    console.log("Logout id calling");
-    
+const  isLogout = async (req, res, next) => {    
     try {
         if (!req.session.user) {
             return next();
-        } else {
-            console.log("logout user has inside ==>");
-            
+        } else {            
             return res.redirect('/userhome');
         }
     } catch (error) {

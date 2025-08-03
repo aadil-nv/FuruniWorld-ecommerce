@@ -1,10 +1,7 @@
-
 const StatusCodes = require("../../constants/status.constants");
 const Cart = require("../../models/cartModel");
 const Wishlist = require("../../models/wishlistModel");
 require("dotenv").config();
-
-
 
 const loadWishliist = async (req, res) => {
   try {
@@ -12,17 +9,15 @@ const loadWishliist = async (req, res) => {
     const wishlistData = await Wishlist.find({ userId }).populate(
       "products.productId"
     );
-    const user=req.session.user
+    const user = req.session.user;
     const cartData = await Cart.find({ userId: user });
 
-    
     let productcount = 0;
     for (const cart of cartData) {
       productcount += cart.products.length;
     }
-    
 
-    res.render("user/wishlist", { wishlistData ,productcount});
+    res.render("user/wishlist", { wishlistData, productcount });
   } catch (error) {
     console.log(error.message);
     res
@@ -75,7 +70,9 @@ const removeWishlistProduct = async (req, res) => {
 
     const wishlist = await Wishlist.findOne({ userId });
     if (!wishlist) {
-      return res.status(StatusCodes.NOT_FOUND).json({ error: "Wishlist not found" });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ error: "Wishlist not found" });
     }
     wishlist.products = wishlist.products.filter(
       (product) => product.productId.toString() !== productId
@@ -93,9 +90,8 @@ const removeWishlistProduct = async (req, res) => {
   }
 };
 
-
-module.exports ={
-    loadWishliist,
-    addProductInWishlist,
-    removeWishlistProduct
-}
+module.exports = {
+  loadWishliist,
+  addProductInWishlist,
+  removeWishlistProduct,
+};

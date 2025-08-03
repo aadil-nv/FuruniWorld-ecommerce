@@ -1,7 +1,5 @@
-const { callbackPromise } = require("nodemailer/lib/shared");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
-const mongoose = require("mongoose");
 const User = require("../models/userModel");
 require("dotenv").config();
 
@@ -11,7 +9,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECERET,
-      callbackURL: "https://aadil.store/auth/google/callback",
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
       passReqToCallback: true,
     },
     async function (request, accessToken, refreshToken, profile, cb) {

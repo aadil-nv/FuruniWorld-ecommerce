@@ -3,9 +3,6 @@ const orderController = require("../../controllers/userControllers/order.control
 const userAuth = require("../../middleware/userAuth");
 const order_route = express();
 
-
-
-
 order_route.post('/orderpage',userAuth.isLogin,userAuth.isUserBlock,orderController.placeOrder)
 order_route.get('/orders/:id',userAuth.isLogin,userAuth.isUserBlock,orderController.loadOrderPage)
 order_route.post('/ordersone',userAuth.isLogin,userAuth.isUserBlock,orderController.orderCancel)

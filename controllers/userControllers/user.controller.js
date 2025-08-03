@@ -6,22 +6,15 @@ const Cart = require("../../models/cartModel");
 const order = require("../../models/orderModal");
 const Coupon = require("../../models/couponModal");
 const Category = require("../../models/categoryModel");
-const Products = require("../../models/productModel")
+const Products = require("../../models/productModel");
 const { securedPassword } = require("../../helpers/passwordHelper");
 const StatusCodes = require("../../constants/status.constants");
-
 require("dotenv").config();
-
-
-
-
-
 let userData;
-
 
 const home = async (req, res) => {
   try {
-    const user=req.session.user
+    const user = req.session.user;
     const ProductData = await Products.find().populate("offerId");
     const cartData = await Cart.find({ userId: user });
 
@@ -31,25 +24,25 @@ const home = async (req, res) => {
       productcount += cart.products.length;
     }
 
-    res.render("user/index", { ProductData, productcount});
+    res.render("user/index", { ProductData, productcount });
   } catch (erorr) {
-    console.log("Error from home",erorr.message);
+    console.log("Error from home", erorr.message);
   }
 };
 
-
 const loadUserProfile = async (req, res) => {
   try {
-    const userData = await User.findOne({ _id: req.session.user })
-    const addressData = await Address.find({ userId: req.session.user }).sort({_id:-1});
+    const userData = await User.findOne({ _id: req.session.user });
+    const addressData = await Address.find({ userId: req.session.user }).sort({
+      _id: -1,
+    });
     const orderData = await order
       .find({ userId: req.session.user })
-      .populate("orderedItem.productId").sort({_id:-1})
-    const couponData = await Coupon.find().sort({_id:-1})
-    const user=req.session.user
+      .populate("orderedItem.productId")
+      .sort({ _id: -1 });
+    const couponData = await Coupon.find().sort({ _id: -1 });
+    const user = req.session.user;
     const cartData = await Cart.find({ userId: user });
-
-    // Calculate total count of products in all carts
     let productcount = 0;
     for (const cart of cartData) {
       productcount += cart.products.length;
@@ -57,9 +50,11 @@ const loadUserProfile = async (req, res) => {
     let added = req.query.msg;
 
     if (User) {
-      userData.walletHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
-      const message = req.flash("succ")
-      
+      userData.walletHistory.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
+      const message = req.flash("succ");
+
       if (added) {
         return res.render("user/userprofile", {
           userData,
@@ -68,7 +63,7 @@ const loadUserProfile = async (req, res) => {
           added,
           orderData,
           couponData,
-          productcount
+          productcount,
         });
       } else {
         return res.render("user/userprofile", {
@@ -77,15 +72,14 @@ const loadUserProfile = async (req, res) => {
           message,
           orderData,
           couponData,
-          productcount
+          productcount,
         });
       }
     }
   } catch (error) {
-    console.log("Error from loadUserProfile",error.message);
+    console.log("Error from loadUserProfile", error.message);
   }
 };
-
 
 const resendOtp = async (req, res) => {
   try {
@@ -102,8 +96,8 @@ const resendOtp = async (req, res) => {
 
 const backToUserHome = async (req, res) => {
   try {
-    const user=req.session.user
-    const ProductData = await Products.find().populate('offerId')
+    const user = req.session.user;
+    const ProductData = await Products.find().populate("offerId");
     const cartData = await Cart.find({ userId: user });
 
     // Calculate total count of products in all carts
@@ -112,31 +106,32 @@ const backToUserHome = async (req, res) => {
       productcount += cart.products.length;
     }
 
-    res.render("user/index", { ProductData, User: req.session.user ,productcount});
+    res.render("user/index", {
+      ProductData,
+      User: req.session.user,
+      productcount,
+    });
   } catch (error) {
     console.log(error.message);
   }
 };
 
-
-
-const loadShopPage= async(req, res)=> {
+const loadShopPage = async (req, res) => {
   try {
     const productsPerPage = 12;
-    const user=req.session.user
+    const user = req.session.user;
     const cartData = await Cart.find({ userId: user });
     let currentPage = parseInt(req.query.page) || 1;
 
     const totalProducts = await Products.countDocuments();
 
-
     const totalPages = Math.ceil(totalProducts / productsPerPage);
-    const categoryData = await Category.find()
+    const categoryData = await Category.find();
 
     if (currentPage < 1) {
-        currentPage = 1;
+      currentPage = 1;
     } else if (currentPage > totalPages) {
-        currentPage = totalPages;
+      currentPage = totalPages;
     }
 
     const startIndex = (currentPage - 1) * productsPerPage;
@@ -147,54 +142,58 @@ const loadShopPage= async(req, res)=> {
       productcount += cart.products.length;
     }
 
-    const productData = await Products.find().populate("offerId").skip(startIndex).limit(productsPerPage);
+    const productData = await Products.find()
+      .populate("offerId")
+      .skip(startIndex)
+      .limit(productsPerPage);
 
-   
-    res.render("user/shop", { User, productData, categoryData, currentPage, totalPages ,productcount});
-} catch (error) {
+    res.render("user/shop", {
+      User,
+      productData,
+      categoryData,
+      currentPage,
+      totalPages,
+      productcount,
+    });
+  } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
-}
-}
-
-
+  }
+};
 
 const loadAboutPage = async (req, res) => {
   try {
-    const user=req.session.user
+    const user = req.session.user;
     const cartData = await Cart.find({ userId: user });
 
-    
     let productcount = 0;
     for (const cart of cartData) {
       productcount += cart.products.length;
     }
-    res.render("user/about", { User ,productcount});
+    res.render("user/about", { User, productcount });
   } catch (error) {
     console.log(error.message);
   }
 };
-
 
 const loadContactPage = async (req, res) => {
   try {
-    const user=req.session.user
+    const user = req.session.user;
     const cartData = await Cart.find({ userId: user });
 
     let productcount = 0;
     for (const cart of cartData) {
       productcount += cart.products.length;
     }
-    res.render("user/contact", { User ,productcount});
+    res.render("user/contact", { User, productcount });
   } catch (error) {
     console.log(error.message);
   }
 };
 
-
 const editUseprofile = async (req, res) => {
   try {
-    const user=req.session.user
+    const user = req.session.user;
     const userData = await User.findOne({ _id: req.session.user });
     const cartData = await Cart.find({ userId: user });
 
@@ -202,7 +201,7 @@ const editUseprofile = async (req, res) => {
     for (const cart of cartData) {
       productcount += cart.products.length;
     }
-    res.render("user/edituserdetiles", { userData ,productcount });
+    res.render("user/edituserdetiles", { userData, productcount });
   } catch (error) {
     console.log(error.message);
   }
@@ -220,11 +219,9 @@ const updateUserProfile = async (req, res) => {
       updates.mobile = req.body.usermobile;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      updates,
-      { new: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+    });
 
     if (!updatedUser) {
       return res.status(404).json({
@@ -248,10 +245,6 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-
-
-
-
 const updateUserPassword = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -259,43 +252,48 @@ const updateUserPassword = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(StatusCodes.NOT_FOUND).json({ error: "User not found" });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ error: "User not found" });
     }
 
     const isMatch = await bcrypt.compare(oldpassword, user.password);
     if (!isMatch) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Incorrect current password" });
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ error: "Incorrect current password" });
     }
 
     const hashedPassword = await securedPassword(newpassword);
 
     await User.findByIdAndUpdate(userId, { password: hashedPassword });
-    res.status(StatusCodes.OK).json({ message: "Password changed successfully" });
+    res
+      .status(StatusCodes.OK)
+      .json({ message: "Password changed successfully" });
   } catch (error) {
     console.error("Error updating password:", error.message);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: "Internal server error" });
   }
 };
 
-
 const loadAddressPage = async (req, res) => {
   try {
-    const user=req.session.user
+    const user = req.session.user;
     const cartData = await Cart.find({ userId: user });
 
-    
     let productcount = 0;
     for (const cart of cartData) {
       productcount += cart.products.length;
     }
-    
-    res.status(StatusCodes.OK).render("user/address",{productcount});
+
+    res.status(StatusCodes.OK).render("user/address", { productcount });
   } catch (error) {
     console.log(error.message);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
-
 
 const addUserAddress = async (req, res) => {
   try {
@@ -325,29 +323,27 @@ const addUserAddress = async (req, res) => {
   }
 };
 
-
 const loadEditUser = async (req, res) => {
   try {
     const addressId = req.params.id;
 
     const addressData = await Address.findOne({ _id: addressId });
-    const user=req.session.user
+    const user = req.session.user;
     const cartData = await Cart.find({ userId: user });
 
-    
     let productcount = 0;
     for (const cart of cartData) {
       productcount += cart.products.length;
     }
-    
 
-    res.status(StatusCodes.OK).render("user/editaddress", { addressData,productcount });
+    res
+      .status(StatusCodes.OK)
+      .render("user/editaddress", { addressData, productcount });
   } catch (error) {
     console.log(error.message);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
-
 
 const updateUserAddress = async (req, res) => {
   try {
@@ -375,7 +371,6 @@ const updateUserAddress = async (req, res) => {
   }
 };
 
-
 const deleteUseraddress = async (req, res) => {
   try {
     const dltId = req.params.id;
@@ -387,8 +382,6 @@ const deleteUseraddress = async (req, res) => {
     console.log(error.message);
   }
 };
-
-
 
 module.exports = {
   loadUserProfile,
@@ -406,7 +399,4 @@ module.exports = {
   loadEditUser,
   updateUserAddress,
   deleteUseraddress,
-
 };
-
-// ------------------------------End------------------------------------

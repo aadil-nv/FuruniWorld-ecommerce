@@ -1,6 +1,7 @@
 const Products = require("../../models/productModel");
 const Cart = require("../../models/cartModel");
 const Category = require("../../models/categoryModel");
+const StatusCodes = require("../../constants/status.constants");
 require("dotenv").config();
 
 
@@ -34,9 +35,10 @@ const sortByPopularity = async (req, res) => {
       productcount += cart.products.length;
     }
   
-    res.render("user/shop", { productData,categoryData ,currentPage, totalPages,productcount });
+    res.status(StatusCodes.OK).render("user/shop", { productData,categoryData ,currentPage, totalPages,productcount });
   } catch (error) {
     console.log(error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -69,6 +71,7 @@ const sortByPriceLowToHigh = async (req, res) => {
     res.render("user/shop", { productData ,categoryData,currentPage, totalPages,productcount});
   } catch (error) {
     console.log(error.message);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -97,9 +100,10 @@ const sortByPriceHighToLow = async (req, res) => {
     for (const cart of cartData) {
       productcount += cart.products.length;
     }
-    res.render("user/shop", { productData, categoryData,currentPage, totalPages,productcount});
+    res.status(StatusCodes.OK).render("user/shop", { productData, categoryData,currentPage, totalPages,productcount});
   } catch (error) {
     console.log(error.message);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -130,6 +134,7 @@ const sortByAtoZ = async (req, res) => {
     res.render("user/shop", { productData, categoryData,currentPage, totalPages,productcount});
   } catch (error) {
     console.log(error.message);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -160,6 +165,7 @@ const sortByZtoA = async (req, res) => {
     res.render("user/shop", { productData,categoryData,currentPage, totalPages,productcount });
   } catch (error) {
     console.log(error.message);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -175,6 +181,7 @@ const userSearch= async (req,res)=>{
    res.json({result :matchingProducts})
   } catch (error) {
     console.log(error.message)
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 }
 
@@ -186,6 +193,7 @@ const searchCategoryName= async (req,res)=>{
     res.json({result :productData})
   } catch (error) {
     console.log(error.message)
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 }
 

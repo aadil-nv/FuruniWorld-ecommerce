@@ -2,18 +2,16 @@ const Products = require("../../models/productModel");
 const Cart = require("../../models/cartModel");
 const Address = require("../../models/addressModel");
 const User = require("../../models/userModel");
+const StatusCodes = require("../../constants/status.constants");
 
 require("dotenv").config();
-
-
 
 const loadProductTab = async (req, res) => {
   try {
     const productId = req.params.id;
-    const user=req.session.user
+    const user = req.session.user;
     const cartData = await Cart.find({ userId: user });
 
-    
     let productcount = 0;
     for (const cart of cartData) {
       productcount += cart.products.length;
@@ -21,7 +19,10 @@ const loadProductTab = async (req, res) => {
     const savedData = await Products.findById(productId).populate("offerId");
 
     if (savedData) {
-      return res.render("user/producttab", { savedData: savedData ,productcount});
+      return res.render("user/producttab", {
+        savedData: savedData,
+        productcount,
+      });
     }
     res.redirect("index");
   } catch (error) {
@@ -29,42 +30,59 @@ const loadProductTab = async (req, res) => {
   }
 };
 const addProductInCart = async (req, res) => {
-   try {
+  try {
     const productId = req.params.id;
     const userId = req.session.user;
 
-    const existingProduct = await Cart.findOne({userId: userId,"products.productId": productId,});
+    const existingProduct = await Cart.findOne({
+      userId: userId,
+      "products.productId": productId,
+    });
     const productData2 = await Products.findById(productId).populate("offerId");
 
     if (productData2.productquadity === 0) {
-      return res.status(400).json({ message: "Product is out of stock" });
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "Product is out of stock" });
     }
 
     if (existingProduct) {
-      return res.status(400).json({ message: "Product already in cart" });
+      return res
+        .status(StatusCodes)
+        .json({ message: "Product already in cart" });
     }
 
-    const productData = await Products.findById(productId).populate("offerId")
+    const productData = await Products.findById(productId).populate("offerId");
     let totalPrice = productData.productprice;
-    
+
     if (productData.offerId) {
       const offerPercentage = productData.offerId.percentage;
-      totalPrice = totalPrice * (100 - offerPercentage) / 100;
+      totalPrice = (totalPrice * (100 - offerPercentage)) / 100;
     }
-    
+
     const add = await Cart.findOneAndUpdate(
       { userId: req.session.user },
-      {$addToSet: {products: {productId: productId,quantity: 1,totalPrice: totalPrice,},},
-      $inc: { total: totalPrice },
+      {
+        $addToSet: {
+          products: {
+            productId: productId,
+            quantity: 1,
+            totalPrice: totalPrice,
+          },
+        },
+        $inc: { total: totalPrice },
       },
-      { new: true, upsert: true });
+      { new: true, upsert: true }
+    );
 
-      console.log("###################################################");
-      
-    res.status(200).json({ message: "Product added to cart successfully" });
+    res
+      .status(StatusCodes.OK)
+      .json({ message: "Product added to cart successfully" });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ message: "Internal server error" });
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: "Internal server error" });
   }
 };
 const loadtCheckoutPage = async (req, res) => {
@@ -72,7 +90,12 @@ const loadtCheckoutPage = async (req, res) => {
     const userId = req.session.user;
 
     const addressData = await Address.find({ userId: userId });
-    const cartDetiles = await Cart.find({ userId: userId }).populate("products.productId").populate({path:'products.productId',populate:{path:"offerId",model:"offer"}});
+    const cartDetiles = await Cart.find({ userId: userId })
+      .populate("products.productId")
+      .populate({
+        path: "products.productId",
+        populate: { path: "offerId", model: "offer" },
+      });
 
     let total = 0;
 
@@ -82,7 +105,8 @@ const loadtCheckoutPage = async (req, res) => {
 
         if (item.productId.offerId) {
           const offerPercentage = item.productId.offerId.percentage;
-          const discountedPrice = productTotal * (100 - offerPercentage) / 100;
+          const discountedPrice =
+            (productTotal * (100 - offerPercentage)) / 100;
           productTotal = discountedPrice;
         }
 
@@ -90,20 +114,27 @@ const loadtCheckoutPage = async (req, res) => {
       }
     }
 
-    const user=req.session.user
+    const user = req.session.user;
     const cartData = await Cart.find({ userId: user });
 
-    
     let productcount = 0;
     for (const cart of cartData) {
       productcount += cart.products.length;
     }
 
-    
-
-    res.render("user/checkout", { addressData, cartDetiles, total,productcount });
+    res
+      .status(StatusCodes.OK)
+      .render("user/checkout", {
+        addressData,
+        cartDetiles,
+        total,
+        productcount,
+      });
   } catch (error) {
     console.error(error.message);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: "Internal server error" });
   }
 };
 const editUseraddressInCheckout = async (req, res) => {
@@ -152,13 +183,8 @@ const updatecartAddress = async (req, res) => {
 };
 
 const addCheckoutAddress = async (req, res) => {
-  console.log("addcheck out is caling ....................................");
-  console.log("addcheck out is caling ....................................");
-  
   try {
     const userData = await User.findOne({ _id: req.session.user });
-    console.log("addcheck out is caling ....................req.session.user ",req.session.user );
-
     if (userData) {
       const newAddress = new Address({
         name: req.body.username,
@@ -181,47 +207,43 @@ const addCheckoutAddress = async (req, res) => {
     console.log(error.message);
   }
 };
-const proceedToCheckout= async (req,res)=>{
-    try {
-  
-      const user = req.session.user;
-  
-      const cartDetiles = await Cart.findOne({ userId: user }).populate("products.productId");
-  
-     
-      let message = "";
-      if (!cartDetiles    ) {
-        message = "Please ad Products in cart"
-        return res.send(message)
-        
-      }
-  
-     
-      for (let i = 0; i < cartDetiles.products.length; i++) {
-        const product = cartDetiles.products[i];
-        if (product.productId.productquadity === 0) {
-          
-          message = "Please remove out-of-stock items from the cart.";
-        }
-      }
-      
-      if (cartDetiles.products.length===0) {
-        message = "Please ad Products in cart";
-      }
-  
-      res.send(message || "Proceed to checkout");
-    } catch (error) {
-      console.log(error.message)
-    }
-  }
-  
+const proceedToCheckout = async (req, res) => {
+  try {
+    const user = req.session.user;
 
-  module.exports ={
-    loadProductTab,
-    addProductInCart,
-    loadtCheckoutPage,
-    editUseraddressInCheckout,
-    updatecartAddress,
-    addCheckoutAddress,
-    proceedToCheckout
+    const cartDetiles = await Cart.findOne({ userId: user }).populate(
+      "products.productId"
+    );
+
+    let message = "";
+    if (!cartDetiles) {
+      message = "Please ad Products in cart";
+      return res.send(message);
+    }
+
+    for (let i = 0; i < cartDetiles.products.length; i++) {
+      const product = cartDetiles.products[i];
+      if (product.productId.productquadity === 0) {
+        message = "Please remove out-of-stock items from the cart.";
+      }
+    }
+
+    if (cartDetiles.products.length === 0) {
+      message = "Please ad Products in cart";
+    }
+
+    res.send(message || "Proceed to checkout");
+  } catch (error) {
+    console.log(error.message);
   }
+};
+
+module.exports = {
+  loadProductTab,
+  addProductInCart,
+  loadtCheckoutPage,
+  editUseraddressInCheckout,
+  updatecartAddress,
+  addCheckoutAddress,
+  proceedToCheckout,
+};
