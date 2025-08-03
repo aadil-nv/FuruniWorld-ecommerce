@@ -8,6 +8,7 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 require("dotenv").config();
 var {validatePaymentVerification,} = require("razorpay/dist/utils/razorpay-utils");
+const StatusCodes = require("../../constants/status.constants");
 
 const placeOrder = async (req, res) => {
   try {
@@ -239,9 +240,11 @@ const retryPayment = async (req, res) => {
   }
 };
 
-const loadOrderPage = async (req, res) => {
+const   loadOrderPage = async (req, res) => {
   try {
     const orderId = req.params.id;
+    console.log("orderId from loadOrderPage", orderId);
+    
 
     const orderData = await order
       .find({ _id: orderId })
@@ -249,6 +252,8 @@ const loadOrderPage = async (req, res) => {
       .populate("deliveryAddress")
       .populate("userId")
 
+      console.log("orderData from loadOrderPage", orderData);
+      
     const user = req.session.user
     const cartData = await Cart.find({ userId: user });
     
@@ -257,6 +262,7 @@ const loadOrderPage = async (req, res) => {
       productcount += cart.products.length;
     }
 
+    
     res.render("user/orders", { orderData, productcount });
   } catch (error) {
     console.log(error.message);
@@ -310,7 +316,7 @@ const orderCancel = async (req, res) => {
       { $inc: { productquadity: +quantity } }
     );
 
-    res.status(200).json({ message: "deletion successful" });
+    res.status(StatusCodes.OK).json({ message: "deletion successful" });
   } catch (error) {
     console.log(error.message);
   }
@@ -610,7 +616,7 @@ const retryPaymentVerification = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error.message);
+    console.log("error from retryPaymentVerification",error.message);
     res.status(500).send("Internal server error");
   }
 };
