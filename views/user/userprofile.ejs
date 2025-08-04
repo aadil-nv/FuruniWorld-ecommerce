@@ -1151,14 +1151,6 @@
 </script>
 <script>
     function handlePayNow(orderId, orderIdStr, productId) {
-        console.log("====================================");
-        console.log("====================================");
-        console.log("orderId",orderId );
-        console.log("orderIdStr",orderIdStr );
-        console.log("productId",productId );
-        console.log("====================================");
-        console.log("====================================");
-        
         const couponCode = ''; // Assuming no coupon for retry, adjust if needed
         fetch('/order/retryPayment', {
             method: 'POST',
@@ -1172,7 +1164,6 @@
             console.log("calling user profile to veriyorder funtion =>>>",data);
             
             if (data.success ===true) {
-                console.log("is sucesssssssssssssssssssssssssssssss");
                 
                 const options = {
                     "key": data.key_id,
@@ -1183,7 +1174,6 @@
                     "image": "/user/icon/estoreLogo.png",
                     "order_id": data.order.id,
                     "handler": function (response) {
-                        console.log("responseeeeeeeeeeeeeeeeeeee",response);
                         
                         fetch('/order/retrypaymentverification', {
                             method: 'POST',
@@ -1201,7 +1191,6 @@
                         })
                         .then(response => response.json())
                         .then(data => {
-                            console.log("data is ===>>>",data);
                             
                             if (data.success) {
                                 Swal.fire({

@@ -10,25 +10,37 @@ const loadProductTab = async (req, res) => {
   try {
     const productId = req.params.id;
     const user = req.session.user;
-    const cartData = await Cart.find({ userId: user });
 
+    const cartData = await Cart.find({ userId: user });
     let productcount = 0;
     for (const cart of cartData) {
       productcount += cart.products.length;
     }
+
+    // Find the selected product
     const savedData = await Products.findById(productId).populate("offerId");
 
     if (savedData) {
+      // Find related products (same category, excluding current product)
+      const relatedProducts = await Products.find({
+        categoryId: savedData.categoryId,
+        _id: { $ne: productId },
+        isListed: true
+      }).populate("offerId").limit(4); // limit to 4 related products
+
       return res.render("user/producttab", {
         savedData: savedData,
         productcount,
+        relatedProducts,
       });
     }
+
     res.redirect("index");
   } catch (error) {
     console.log(error.message);
   }
 };
+
 const addProductInCart = async (req, res) => {
   try {
     const productId = req.params.id;
