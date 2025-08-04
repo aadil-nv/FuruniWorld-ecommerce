@@ -173,6 +173,9 @@ const loadAboutPage = async (req, res) => {
     res.render("user/about", { User, productcount });
   } catch (error) {
     console.log(error.message);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send("Internal Server Error");
   }
 };
 
@@ -380,6 +383,7 @@ const deleteUseraddress = async (req, res) => {
     res.status(StatusCodes.OK).json({ message: "deletion successfull" });
   } catch (error) {
     console.log(error.message);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 

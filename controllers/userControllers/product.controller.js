@@ -16,17 +16,16 @@ const loadProductTab = async (req, res) => {
     for (const cart of cartData) {
       productcount += cart.products.length;
     }
-
-    // Find the selected product
     const savedData = await Products.findById(productId).populate("offerId");
 
     if (savedData) {
-      // Find related products (same category, excluding current product)
       const relatedProducts = await Products.find({
         categoryId: savedData.categoryId,
         _id: { $ne: productId },
-        isListed: true
-      }).populate("offerId").limit(4); // limit to 4 related products
+        isListed: true,
+      })
+        .populate("offerId")
+        .limit(4);
 
       return res.render("user/producttab", {
         savedData: savedData,
@@ -38,6 +37,7 @@ const loadProductTab = async (req, res) => {
     res.redirect("index");
   } catch (error) {
     console.log(error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -60,7 +60,7 @@ const addProductInCart = async (req, res) => {
 
     if (existingProduct) {
       return res
-        .status(StatusCodes)
+        .status(StatusCodes.BAD_REQUEST)
         .json({ message: "Product already in cart" });
     }
 
@@ -134,14 +134,12 @@ const loadtCheckoutPage = async (req, res) => {
       productcount += cart.products.length;
     }
 
-    res
-      .status(StatusCodes.OK)
-      .render("user/checkout", {
-        addressData,
-        cartDetiles,
-        total,
-        productcount,
-      });
+    res.status(StatusCodes.OK).render("user/checkout", {
+      addressData,
+      cartDetiles,
+      total,
+      productcount,
+    });
   } catch (error) {
     console.error(error.message);
     res

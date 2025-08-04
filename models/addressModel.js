@@ -1,7 +1,6 @@
     const { ObjectId } = require('mongodb');
 const mongoose = require('mongoose');
 
-// Define schema for address
 const addressSchema = new mongoose.Schema({
     name: {
         type: String,

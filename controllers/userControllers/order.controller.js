@@ -191,11 +191,10 @@ const placeOrder = async (req, res) => {
         return res.json({walletNewOrder, paymentmethod})
       }
     }
-
   } catch (error) {
     console.log("error : ", error);
     console.error(error.message);
-    res.status(500).send("Internal server error");
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal server error");
   }
 };
 
@@ -205,7 +204,7 @@ const retryPayment = async (req, res) => {
     const { orderId } = req.body;
     const existingOrder = await order.findOne({_id: orderId });
     if (!existingOrder) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: "Order not found" });
     }
 
     const options = {
@@ -236,15 +235,13 @@ const retryPayment = async (req, res) => {
     });
   } catch (error) {
     console.error("Retry payment error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error" });
   }
 };
 
 const   loadOrderPage = async (req, res) => {
   try {
-    const orderId = req.params.id;
-    console.log("orderId from loadOrderPage", orderId);
-    
+    const orderId = req.params.id;    
 
     const orderData = await order
       .find({ _id: orderId })
@@ -252,7 +249,6 @@ const   loadOrderPage = async (req, res) => {
       .populate("deliveryAddress")
       .populate("userId")
 
-      console.log("orderData from loadOrderPage", orderData);
       
     const user = req.session.user
     const cartData = await Cart.find({ userId: user });
@@ -266,6 +262,7 @@ const   loadOrderPage = async (req, res) => {
     res.render("user/orders", { orderData, productcount });
   } catch (error) {
     console.log(error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -319,13 +316,14 @@ const orderCancel = async (req, res) => {
     res.status(StatusCodes.OK).json({ message: "deletion successful" });
   } catch (error) {
     console.log(error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" }); 
   }
 };
 
 const verifyOrder = async (req, res) => {
   try {
     const { razorpay_signature, order_id, paymentId, couponCode } = req.body;
-    let key_secret = "3YCQ9l2sEZLArOQHqYYdfiLc";
+    let key_secret = process.env.RAZORPAY_SECRET_ID;
     const userId = req.session.user;
     const cartData = await Cart.findOne({ userId }).populate("products.productId");
 
@@ -370,7 +368,7 @@ const verifyOrder = async (req, res) => {
         { _id: cId },
         { paymentStatus: "Payment Failed" }
       );
-      res.status(400).json({ 
+      res.status(StatusCodes.BAD_REQUEST).json({ 
         success: false, 
         message: "Payment verification failed",
         orderId: curentData.orderId,
@@ -408,7 +406,7 @@ const verifyOrder = async (req, res) => {
       }
 
       await Cart.deleteOne({ userId: req.session.user });
-      res.status(200).json({
+      res.status(StatusCodes.OK).json({
         success: true,
         message: "Payment verification successful",
         curentData: curentData._id,
@@ -416,7 +414,7 @@ const verifyOrder = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    res.status(500).send("Internal server error");
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal server error");
   }
 };
 
@@ -453,7 +451,7 @@ const verifyCoupon = async (req, res) => {
       return res.json({ message: "Coupon already used" });
     } else {
       let sumTotal = total - couponData.discountAmount;
-      return res.status(200).json({
+      return res.status(StatusCodes.OK).json({
         message: "coupon added Successfully", 
         total: sumTotal,
         couponDiscount: couponDiscount
@@ -461,7 +459,7 @@ const verifyCoupon = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
   }
 };
 
@@ -505,6 +503,7 @@ const userReturnProduct = async (req, res) => {
     res.json({message: "Return requested Successfully"})
   } catch (error) {
     console.log(error.message)
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
   }
 }
 
@@ -516,12 +515,13 @@ const removeCoupon = async (req, res) => {
     const couponData = await Coupon.findOne({couponCode: couponCode})
 
     if (!couponData) {
-      return res.status(404).json({ message: "Coupon not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: "Coupon not found" });
     }
    
     res.json({message: "founded"})
   } catch (error) {
     console.log(error.message)
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
   }
 }
 
@@ -536,10 +536,9 @@ const retryPaymentVerification = async (req, res) => {
     
     const cartData = await Cart.findOne({ userId }).populate("products.productId");
     
-    // Get order details from existing order instead of session
     const existingOrder = await order.findOne({ _id: initial_ID });
     if (!existingOrder) {
-      return res.status(404).json({
+      return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
         message: "Order not found",
       });
@@ -571,7 +570,7 @@ const retryPaymentVerification = async (req, res) => {
         { _id: initial_ID},
         { paymentStatus: "Payment Failed" }
       );
-      res.status(400).json({
+      res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
         message: "Retry payment verification failed",
         orderId: initial_ID,
@@ -609,7 +608,7 @@ const retryPaymentVerification = async (req, res) => {
       }
 
       await Cart.deleteOne({ userId: req.session.user });
-      res.status(200).json({
+      res.status(StatusCodes.OK).json({
         success: true,
         message: "Retry payment verification successful",
         orderData: initial_ID,
@@ -617,7 +616,7 @@ const retryPaymentVerification = async (req, res) => {
     }
   } catch (error) {
     console.log("error from retryPaymentVerification",error.message);
-    res.status(500).send("Internal server error");
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal server error");
   }
 };
 
