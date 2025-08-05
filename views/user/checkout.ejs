@@ -883,6 +883,15 @@
                 })
                 .then(data => {
                     console.log("MAINNNNNNNNNN", data);
+                    if (data.success === false && data.message) {
+                            Swal.fire({
+                                title: 'Order Failed',
+                                text: data.message,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                            return;
+                        }
 
                     if (data.message === "failed" && data.paymentMethod === "COD") {
                         Swal.fire({

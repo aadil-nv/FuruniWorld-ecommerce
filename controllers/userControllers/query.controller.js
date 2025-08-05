@@ -169,21 +169,23 @@ const sortByZtoA = async (req, res) => {
   }
 };
 
-const userSearch= async (req,res)=>{
+const userSearch = async (req, res) => {
   try {
-  const productData= await Products.find().populate("offerId");
-  const{search}=req.body
+    const { search } = req.body;
 
-  const matchingProducts = productData.filter(product =>
-    product.productname.toLowerCase().includes(search.toLowerCase())
-);
+    const productData = await Products.find({ isListed: true }).populate("offerId");
 
-   res.json({result :matchingProducts})
+    const matchingProducts = productData.filter(product =>
+      product.productname.toLowerCase().includes(search.toLowerCase())
+    );
+
+    res.json({ result: matchingProducts });
   } catch (error) {
-    console.log(error.message)
+    console.log(error.message);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
-}
+};
+
 
 const searchCategoryName= async (req,res)=>{
   try {

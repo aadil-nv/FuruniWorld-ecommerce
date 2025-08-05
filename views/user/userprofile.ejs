@@ -510,6 +510,7 @@
     .textorderstatus {
         color: black;
     }
+    
 </style>
 
 <div class="my-account-wrapper pb-30 pt-30">
@@ -856,6 +857,9 @@
 </div>
 
 <!-- Wallet History Modal -->
+<!-- Wallet History Modal -->
+<!-- Wallet History Modal -->
+<!-- Wallet History Modal -->
 <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -863,35 +867,52 @@
                 <h5 class="modal-title">Wallet History</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Reason</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% userData.walletHistory.forEach(item => { %>
+            <div class="myaccount-table table-responsive text-center">
+                <table class="table table-striped">
+                    <thead>
                         <tr>
-                            <td><%= item.date.toDateString() %></td>
-                            <td><%= item.description %></td>
-                            <td><%= item.amount %></td>
-                            <td><%= item.status %></td>
+                            <th>Date</th>
+                            <th>Reason</th>
+                            <th>Amount</th>
+                            <th>Status</th>
                         </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody id="wallet-history-container">
+                        <% userData.walletHistory.forEach((item, index) => { %>
+                            <tr class="wallet-history-item" data-index="<%= index %>">
+                                <td><%= item.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></td>
+                                <td><%= item.description %></td>
+                                
+                                        <td class="<%= item.status.toLowerCase() === 'credit' ? 'green' : 'text-danger' %>">
+                                            <%= item.status.toLowerCase() === 'credit' ? '+' : '-' %>₹<%= item.amount %>
+                                        </td>
+                                <td>
+                                    <span class="status <%= item.status.toLowerCase() === 'credit' ? 'active' : 'expired' %>">
+                                        <%= item.status %>
+                                    </span>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
             <div class="pagination-container m-3">
                 <div class="pagination-info">
-                    <span>Showing 1-<%= userData.walletHistory.length %> of <%= userData.walletHistory.length %> entries</span>
+                    <span id="wallet-showing-info">Showing 1-<%= Math.min(10, userData.walletHistory.length) %> of <%= userData.walletHistory.length %> entries</span>
+                </div>
+                <div class="pagination-controls">
+                    <button id="wallet-prev-btn" class="pagination-btn" onclick="changeWalletPage(-1)">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <div id="wallet-page-numbers" class="page-numbers"></div>
+                    <button id="wallet-next-btn" class="pagination-btn" onclick="changeWalletPage(1)">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 <script>
     // Error message auto-hide
     function hideErrorMessages() {
@@ -1286,5 +1307,84 @@
             });
         });
     }
+
+
+
+    // Wallet history pagination
+let walletCurrentPage = 1;
+const walletItemsPerPage = 5;
+const totalWalletItems = "<%= userData.walletHistory.length %>";
+const totalWalletPages = Math.ceil(totalWalletItems / walletItemsPerPage);
+
+function showWalletPage(page) {
+    const walletItems = document.querySelectorAll('.wallet-history-item');
+    const startIndex = (page - 1) * walletItemsPerPage;
+    const endIndex = startIndex + walletItemsPerPage;
+
+    walletItems.forEach((item, index) => {
+        item.style.display = (index >= startIndex && index < endIndex) ? 'table-row' : 'none';
+    });
+
+    const showingStart = startIndex + 1;
+    const showingEnd = Math.min(endIndex, totalWalletItems);
+    document.getElementById('wallet-showing-info').textContent = 
+        `Showing ${showingStart}-${showingEnd} of ${totalWalletItems} entries`;
+
+    document.getElementById('wallet-prev-btn').disabled = page === 1;
+    document.getElementById('wallet-next-btn').disabled = page === totalWalletPages;
+
+    walletCurrentPage = page;
+    updateWalletPageNumbers();
+}
+
+function changeWalletPage(direction) {
+    const newPage = walletCurrentPage + direction;
+    if (newPage >= 1 && newPage <= totalWalletPages) {
+        showWalletPage(newPage);
+    }
+}
+
+function goToWalletPage(page) {
+    if (page >= 1 && page <= totalWalletPages) {
+        showWalletPage(page);
+    }
+}
+
+function renderWalletPageNumbers() {
+    const pageNumbersContainer = document.getElementById('wallet-page-numbers');
+    pageNumbersContainer.innerHTML = '';
+
+    for (let i = 1; i <= totalWalletPages; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.className = 'page-number';
+        pageButton.textContent = i;
+        pageButton.onclick = () => goToWalletPage(i);
+        pageNumbersContainer.appendChild(pageButton);
+    }
+}
+
+function updateWalletPageNumbers() {
+    const pageButtons = document.querySelectorAll('#wallet-page-numbers .page-number');
+    pageButtons.forEach((button, index) => {
+        button.classList.toggle('active', index + 1 === walletCurrentPage);
+    });
+}
+
+// Update initialization in DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    hideErrorMessages();
+    if (totalItems > 0) {
+        showPage(1);
+        renderPageNumbers();
+    }
+    if (totalOrderItems > 0) {
+        showOrderPage(1);
+        renderOrderPageNumbers();
+    }
+    if (totalWalletItems > 0) {
+        showWalletPage(1);
+        renderWalletPageNumbers();
+    }
+});
 </script>   
 <%- include('../partials/mainfooter.ejs') %>
