@@ -885,8 +885,9 @@
                                 <td><%= item.description %></td>
                                 
                                         <td class="<%= item.status.toLowerCase() === 'credit' ? 'green' : 'text-danger' %>">
-                                            <%= item.status.toLowerCase() === 'credit' ? '+' : '-' %>₹<%= item.amount %>
-                                        </td>
+                                                <%= item.status.toLowerCase() === 'credit' ? '+' : '-' %>₹<%= Number(item.amount).toFixed(2) %>
+                                            </td>
+
                                 <td>
                                     <span class="status <%= item.status.toLowerCase() === 'credit' ? 'active' : 'expired' %>">
                                         <%= item.status %>
