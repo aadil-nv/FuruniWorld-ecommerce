@@ -249,29 +249,42 @@ const updateUserProfile = async (req, res) => {
 };
 
 const updateUserPassword = async (req, res) => {
+  console.log("update user password calling ===========>>");
+
+  
+  
   try {
     const userId = req.params.id;
     const { oldpassword, newpassword } = req.body;
+      console.log("111111111111111111111111111111111111111",oldpassword);
+  console.log("22222222222222222222222222222222222222",newpassword);
+ 
 
     const user = await User.findById(userId);
+     console.log("33333333333333333333333333333333333333",user);
+ 
     if (!user) {
+      console.log("44444444444444444444444444444444444444444");
       return res
         .status(StatusCodes.NOT_FOUND)
         .json({ error: "User not found" });
     }
 
+
     const isMatch = await bcrypt.compare(oldpassword, user.password);
+      console.log("55555555555555555555555555555555555555555",isMatch);
+
     if (!isMatch) {
+      console.log("666666666666666666666666666666666666666666666");
       return res
-        .status(StatusCodes.UNAUTHORIZED)
         .json({ error: "Incorrect current password" });
     }
-
-    const hashedPassword = await securedPassword(newpassword);
+      
+      const hashedPassword = await securedPassword(newpassword);
+      console.log("77777777777777777777777777777777777777777777",hashedPassword);
 
     await User.findByIdAndUpdate(userId, { password: hashedPassword });
     res
-      .status(StatusCodes.OK)
       .json({ message: "Password changed successfully" });
   } catch (error) {
     console.error("Error updating password:", error.message);

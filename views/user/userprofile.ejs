@@ -981,16 +981,21 @@
             body: JSON.stringify({ oldpassword: oldPassword, newpassword: newPassword })
         })
             .then(response => {
+                console.log("responseeeeeeeeeeeeeeee",response);
+                
                 if (!response.ok) throw new Error("Network response was not ok");
                 return response.json();
             })
             .then(data => {
-                if (data.already) {
-                    message.textContent = data.already;
+                console.log("dataaaaaaaaaaaaaaaaa",data);
+                if(data.error){
+                    message.textContent = data.error
+                }
+                
+                if (data.message) {
+                    message.textContent = data.message;
                 } else if (data.success) {
                     window.location.href = "/userprofile";
-                } else {
-                    message.textContent = "Something went wrong";
                 }
             })
             .catch(err => console.error(err));
