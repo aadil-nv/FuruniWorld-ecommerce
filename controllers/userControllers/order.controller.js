@@ -15,6 +15,8 @@ const { log } = require("console");
 const placeOrder = async (req, res) => {
   try {
     const { activeAddressId, paymentmethod, totalDiscount, couponCode, retryOrderId } = req.body;
+    console.log("coupon code is ===>", couponCode);
+    
     const userId = req.session.user;
 
     const generateRandomOrderId = (length) => {
@@ -83,7 +85,11 @@ const placeOrder = async (req, res) => {
         productPrice = Math.round(productPrice - (productPrice * offerPercentage) / 100);
       }
 
+      
+
       const totalProductAmount = productPrice * cartItem.quantity;
+      
+      
 
       orderedItems.push({
         productId: product._id,
@@ -308,18 +314,19 @@ const orderCancel = async (req, res) => {
   try {
     const { productId, orderId } = req.body;
     const userId = req.session.user;
-    
-    const orderData = await order.findOne({_id: orderId})
+
+    const orderData = await order.findOne({ _id: orderId })
       .populate("orderedItem.productId")
       .populate("deliveryAddress")
-      .populate("userId")
-    
-    const paymentMethod = orderData.paymentMethod
-    const paymentStatus = orderData.paymentStatus
+      .populate("userId");
+
+    const paymentMethod = orderData.paymentMethod;
+    const paymentStatus = orderData.paymentStatus;
 
     let quantity = 0;
     let productAmount = 0;
-    
+
+    // Find the cancelled product details
     for (const item of orderData.orderedItem) {
       if (item.productId._id.toString() === productId) {
         quantity = item.quantity;
@@ -328,40 +335,70 @@ const orderCancel = async (req, res) => {
       }
     }
 
+    // Cancel the product in the order
     await order.findOneAndUpdate(
       { _id: orderId, "orderedItem.productId": productId },
       { $set: { "orderedItem.$.productStatus": "Order Cancelled" } }
     );
-    if(paymentStatus!== "pending"){
 
-    
+    // Check how many active products are left
+    const updatedOrder = await order.findById(orderId);
+    const activeItems = updatedOrder.orderedItem.filter(item => item.productStatus !== "Order Cancelled");
 
-    if(paymentMethod === "Wallet" || paymentMethod === "RazorPay" || paymentMethod === "Cash On Delivery") {
-      await User.findByIdAndUpdate(userId, {
-        $inc: { wallet: productAmount }, 
-        $push: {
-          walletHistory: {
-            amount: productAmount,
-            description: `Refund of ORDERID:${orderId}`,
-            date: new Date(),
-            status: "credit"
+    // If no items left, remove couponDeduction and refund it to user
+    let refundAmount = productAmount;
+
+    if (paymentStatus !== "pending") {
+      if (paymentMethod === "Wallet" || paymentMethod === "RazorPay" || paymentMethod === "Cash On Delivery") {
+
+        if (activeItems.length === 0 && updatedOrder.couponDeduction > 0) {
+          // Add coupon deduction to refund
+          refundAmount -= updatedOrder.couponDeduction;
+
+          // Remove coupon deduction from order
+          await order.findByIdAndUpdate(orderId, {
+            $set: { couponDeduction: 0 }
+          });
+
+          // Remove user from coupon usedUser
+          const coupon = await Coupon.findOne({ "usedUser.userId": userId });
+          if (coupon) {
+            await Coupon.updateOne(
+              { _id: coupon._id },
+              { $pull: { usedUser: { userId } } }
+            );
           }
         }
-      }, { new: true });
-    }
-  }
 
-    await Products.findOneAndUpdate(
-      { _id: productId },
-      { $inc: { productquadity: +quantity } }
+        // Refund to wallet
+        await User.findByIdAndUpdate(userId, {
+          $inc: { wallet: refundAmount },
+          $push: {
+            walletHistory: {
+              amount: refundAmount,
+              description: `Refund of ORDERID:${orderId}`,
+              date: new Date(),
+              status: "credit"
+            }
+          }
+        });
+      }
+    }
+
+    // Restore product quantity
+    await Products.findByIdAndUpdate(
+      productId,
+      { $inc: { productquadity: quantity } }
     );
 
-    res.status(StatusCodes.OK).json({ message: "deletion successful" });
+    res.status(StatusCodes.OK).json({ message: "Order cancelled and refund processed." });
+
   } catch (error) {
     console.log(error.message);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" }); 
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
   }
 };
+
 
 const verifyOrder = async (req, res) => {
   try {
