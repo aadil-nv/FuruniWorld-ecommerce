@@ -99,7 +99,7 @@ const addNewProduct = async (req, res) => {
 
       await product.save();
 
-      res.status(StatusCodes.OK).redirect("/admin-product/productlist");
+      res.redirect("/admin-product/productlist");
     });
   } catch (err) {
     console.log("Error saving product:", err);
@@ -121,7 +121,7 @@ const productList = async (req, res) => {
 
     const count = await Products.countDocuments();
 
-    res.status(StatusCodes.OK).render("admin/productlist", {
+    res.render("admin/productlist", {
       product,
       currentPage: page,
       totalPages: Math.ceil(count / perPage),
@@ -141,9 +141,7 @@ const editProductDetiles = async (req, res) => {
     const brand = await Brands.find();
     const categoryid = await Addcategory.findById({ _id: id });
 
-    res
-      .status(StatusCodes.OK)
-      .render("admin/editproductdetiles", { product, category, brand });
+    res.render("admin/editproductdetiles", { product, category, brand });
   } catch (error) {
     console.log(error.message);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
@@ -151,6 +149,8 @@ const editProductDetiles = async (req, res) => {
 };
 
 const updateProductsFetch = async (req, res) => {
+  console.log("caling updateProductsFetch============================");
+  
   try {
     const productId = req.params.id;
     const { name, des, price, quandity, category, photos } = req.body;
@@ -207,20 +207,26 @@ const updateProductsFetch = async (req, res) => {
           .toBuffer();
         const filename = `cropped_${req.files[i].originalname}`;
         imageUrls.push(filename);
+        console.log("imageUrls", imageUrls);
+        console.log("22222222222222222222222222222222222222222");
+        
+        
 
         await sharp(imageBuffer).toFile(
-          path.join(__dirname, `../public/uploads/${filename}`)
+          path.join(__dirname, `../../public/uploads/${filename}`)
         );
       }
+      console.log("h3333333333333333333333333");
+      
       await Products.findByIdAndUpdate(productId, {
         $push: { productimage: { $each: imageUrls } },
       });
     }
-
-    res.status(StatusCodes.OK).redirect("/admin-product/productlist");
+    console.log("hitiing ============ddddddddddddddddddddddddddddd===>", );
+    
+    res.redirect("/admin-product/productlist");
   } catch (error) {
     console.log(error.message);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -234,10 +240,9 @@ const listProduct = async (req, res) => {
     } else {
       await Products.updateOne({ _id: id }, { isListed: true });
     }
-    res.status(StatusCodes.OK).redirect("/admin-product/productlist");
+    res.redirect("/admin-product/productlist");
   } catch (error) {
     console.log(error.message);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -251,12 +256,9 @@ const deleteProductImage = async (req, res) => {
     const result = await Products.findByIdAndUpdate(productId, {
       $pull: { productimage: name },
     });
-    res
-      .status(StatusCodes.OK)
-      .redirect(`/admin-product/editproductdetiles/${productId}`);
+    res.redirect(`/admin-product/editproductdetiles/${productId}`);
   } catch (error) {
     console.log(error.message);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 

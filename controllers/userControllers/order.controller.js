@@ -6,9 +6,11 @@ const order = require("../../models/orderModal");
 const Coupon = require("../../models/couponModal");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
+const Offer = require("../../models/offerModal");
 require("dotenv").config();
 var {validatePaymentVerification,} = require("razorpay/dist/utils/razorpay-utils");
 const StatusCodes = require("../../constants/status.constants");
+const { log } = require("console");
 
 const placeOrder = async (req, res) => {
   try {
@@ -30,14 +32,11 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Cart is empty." });
     }
 
-    // Check for out-of-stock or insufficient quantity
     const outOfStock = cartData.products.find(
       (item) => !item.productId || item.productId.productquadity <= 0 || item.quantity > item.productId.productquadity
     );
 
     if (outOfStock) {
-      console.log("outOfStock is calling============>", outOfStock);
-      
       return res.json({
         success: false,
         message: `Product "${outOfStock.productId?.productname || 'Unknown'}" is out of stock or has insufficient quantity.`,
@@ -46,20 +45,55 @@ const placeOrder = async (req, res) => {
 
     const currentAddress = await Address.findById(activeAddressId);
 
-    const orderedItems = cartData.products.map((product) => {
-      const totalProductAmount = product.quantity * (product.productId?.productprice || 0);
-      return {
-        productId: product.productId,
-        quantity: product.quantity,
+    const orderedItems = [];
+
+    // ✅ Loop and calculate offer-adjusted prices
+    for (const cartItem of cartData.products) {
+      const product = cartItem.productId;
+      let productPrice = product.productprice;
+      let offerPercentage = 0;
+
+      // Check for product-wise offer
+      if (product.offerId) {
+        const offer = await Offer.findOne({
+          _id: product.offerId,
+          status: "active",
+          expiryDate: { $gte: new Date() }
+        });
+        if (offer) {
+          offerPercentage = offer.percentage;
+        }
+      }
+
+      // If no product-wise offer, check for category-wise offer
+      if (offerPercentage === 0) {
+        const categoryOffer = await Offer.findOne({
+          offerType: "category",
+          offerTypeName: product.categoryId,
+          status: "active",
+          expiryDate: { $gte: new Date() }
+        });
+        if (categoryOffer) {
+          offerPercentage = categoryOffer.percentage;
+        }
+      }
+
+      // Apply discount if available
+      if (offerPercentage > 0) {
+        productPrice = Math.round(productPrice - (productPrice * offerPercentage) / 100);
+      }
+
+      const totalProductAmount = productPrice * cartItem.quantity;
+
+      orderedItems.push({
+        productId: product._id,
+        quantity: cartItem.quantity,
         productStatus: "pending",
-        totalProductAmount: totalProductAmount,
-      };
-    });
+        totalProductAmount
+      });
+    }
 
-    const orderAmount = orderedItems.reduce(
-      (total, item) => total + item.totalProductAmount, 0
-    );
-
+    const orderAmount = orderedItems.reduce((total, item) => total + item.totalProductAmount, 0);
     const orderId = retryOrderId || "order_" + generateRandomOrderId(9);
 
     const baseOrderData = {
@@ -75,6 +109,7 @@ const placeOrder = async (req, res) => {
       paymentMethod: paymentmethod,
     };
 
+    // ✅ RazorPay Payment
     if (paymentmethod === "RazorPay") {
       const options = {
         amount: totalDiscount * 100,
@@ -98,12 +133,13 @@ const placeOrder = async (req, res) => {
             order_id: order.id,
             key_id: process.env.RAZORPAY_ID_KEY,
             paymentMethod: paymentmethod,
-            couponCode: couponCode,
+            couponCode,
             retryOrderId: orderId,
           });
         }
       });
 
+    // ✅ COD
     } else if (paymentmethod === "Cash On Delivery") {
       if (totalDiscount > 1000) {
         return res.json({ message: "failed", paymentMethod: "COD" });
@@ -135,6 +171,7 @@ const placeOrder = async (req, res) => {
       await Cart.deleteOne({ userId });
       return res.json({ newOrder, paymentmethod });
 
+    // ✅ Wallet
     } else if (paymentmethod === "Wallet") {
       const WalletUserData = await User.findById(userId);
       const walletMoney = WalletUserData.wallet;
@@ -196,6 +233,7 @@ const placeOrder = async (req, res) => {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal server error");
   }
 };
+
 
 
 const retryPayment = async (req, res) => {
@@ -277,6 +315,7 @@ const orderCancel = async (req, res) => {
       .populate("userId")
     
     const paymentMethod = orderData.paymentMethod
+    const paymentStatus = orderData.paymentStatus
 
     let quantity = 0;
     let productAmount = 0;
@@ -293,8 +332,11 @@ const orderCancel = async (req, res) => {
       { _id: orderId, "orderedItem.productId": productId },
       { $set: { "orderedItem.$.productStatus": "Order Cancelled" } }
     );
+    if(paymentStatus!== "pending"){
 
-    if(paymentMethod === "Wallet" || paymentMethod === "RazorPay") {
+    
+
+    if(paymentMethod === "Wallet" || paymentMethod === "RazorPay" || paymentMethod === "Cash On Delivery") {
       await User.findByIdAndUpdate(userId, {
         $inc: { wallet: productAmount }, 
         $push: {
@@ -307,6 +349,7 @@ const orderCancel = async (req, res) => {
         }
       }, { new: true });
     }
+  }
 
     await Products.findOneAndUpdate(
       { _id: productId },

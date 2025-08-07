@@ -119,12 +119,13 @@
                                                 <%= item.paymentMethod %>
                                             </span></td>
 
+
                                         <td class="text-end">
-                                            <% let totalAmount=0; %>
-                                                <% item.orderedItem.forEach(product=> { %>
-                                                    <% totalAmount +=product.totalProductAmount; %>
-                                                        <% }) %>
-                                                            Rs.<%= totalAmount %>/-
+                                            <!-- <% let totalAmount=0; %> -->
+                                                <!-- <% item.orderedItem.forEach(product=> { %> -->
+                                                    <!-- <% totalAmount +=product.totalProductAmount; %> -->
+                                                        <!-- <% }) %> -->
+                                                            Rs.<%= item.orderAmount %>/-
                                         </td>
 
                                     </tr>
@@ -161,7 +162,7 @@
                 <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h6>Total products :Rs.<%= totalCouponDeduction %>/-</h6>
+                            <h6>Total Overallsales :Rs.<%= overallRevenue %>/-</h6>
                         </div>
                     </div>
                 </div>

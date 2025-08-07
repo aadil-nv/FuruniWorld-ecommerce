@@ -229,7 +229,7 @@
             if (!quantity.trim()) {
                 errorQuantity.innerHTML = "Quantity should not be empty";
                 return false;
-            } else if (isNaN(quantity) || Number(quantity) <= 0) {
+            } else if (isNaN(quantity) || Number(quantity) < 0) {
                 errorQuantity.innerHTML = "Quantity should be a positive number";
                 return false;
             } else {

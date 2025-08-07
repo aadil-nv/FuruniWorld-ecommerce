@@ -9,6 +9,8 @@ const Category = require("../../models/categoryModel");
 const Brands = require("../../models/brandsModel");
 const puppeteer = require("puppeteer");
 const StatusCodes = require("../../constants/status.constants");
+const User = require("../../models/userModel");
+const { log10 } = require("chart.js/helpers");
 
 const loadAdminLogin = async (req, res) => {
   try {
@@ -35,9 +37,13 @@ const adminDashboard = async (req, res) => {
     const currentMonth = currentDate.getMonth() + 1;
     const currentYear = currentDate.getFullYear();
 
+    
+
     salesReport.forEach((order) => {
       order.orderedItem.forEach((item) => {
-        if (item.productStatus === "Delivered") {
+        // console.log("product status $$$$$$$$$$$$$$$$$$$$$", item.productStatus);
+        
+        if (item.productStatus === "Delivered" || item.productStatus === "pending") {
           if (order.couponDeduction == 0) {
             totalSalesAmount += item.totalProductAmount;
           } else {
@@ -63,7 +69,7 @@ const adminDashboard = async (req, res) => {
 
     const salesReport2 = await order
       .find({
-        paymentStatus: "Payment Successfull",
+        paymentStatus: "Payment Successful",
         $expr: {
           $eq: [{ $month: "$shippingDate" }, currentMonth],
           $eq: [{ $year: "$shippingDate" }, currentYear],
@@ -76,9 +82,14 @@ const adminDashboard = async (req, res) => {
 
     let monthlyEarning = 0;
 
-    salesReport2.forEach((order) => {
-      monthlyEarning += order.orderAmount;
-    });
+salesReport2.forEach((order) => {
+  order.orderedItem.forEach((item) => {
+    if (item.productStatus !== 'Order Cancelled') {
+      monthlyEarning += item.totalProductAmount;
+    }
+  });
+});
+
 
     console.log("salesReport2", monthlyEarning);
 
@@ -152,9 +163,10 @@ const adminDashboard = async (req, res) => {
       { $limit: 10 },
     ]);
 
-      return res
-      .status(StatusCodes.OK)
-      .render("admin/admindashboard", {
+    // console.log("salesReport ==========>", salesReport.orderAmount);
+    
+
+      return res.render("admin/admindashboard", {
         salesReport,
         totalSalesAmount,
         totalCouponDeduction,
@@ -169,7 +181,6 @@ const adminDashboard = async (req, res) => {
       });
   } catch (error) {
     console.log(error.message);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -509,24 +520,43 @@ const totalSalesReport = async (req, res) => {
     let totalCouponDeduction = 0;
     let overAllOrderAmount = 0;
     let salesCount = 0;
+    let overallRevenue = 0; // 🆕 Add overall revenue field
 
-    salesReport.forEach((order) => {
-      order.orderedItem.forEach((item) => {
-        if (item.productStatus === "Delivered") {
-          if (order.couponDeduction === 0) {
-            totalSalesAmount += item.totalProductAmount;
-          } else {
-            totalSalesAmount += item.totalProductAmount;
-          }
-        }
-      });
-      totalCouponDeduction += order.couponDeduction;
-      overAllOrderAmount += order.orderAmount;
-      salesCount++;
-    });
+   salesReport.forEach((order) => {
+  console.log("=============================");
+  console.log("order", order);
+  console.log("=============================");
+
+  const isValidPayment =
+    order.paymentStatus === "Payment Successful" &&
+    (order.paymentMethod === "RazorPay" || order.paymentMethod === "Wallet");
+
+  let orderTotal = 0;
+
+  order.orderedItem.forEach((item) => {
+    if (item.productStatus !== "Order Cancelled") {
+      orderTotal += item.totalProductAmount;
+      overAllOrderAmount += item.totalProductAmount;
+    }
+  });
+
+  // ✅ Add total of non-cancelled products to totalSalesAmount
+  totalSalesAmount += orderTotal;
+
+  // ✅ Add only if payment is valid
+  if (isValidPayment) {
+    overallRevenue += orderTotal;
+  }
+
+  totalCouponDeduction += order.couponDeduction;
+  // overAllOrderAmount += order.orderAmount;
+  salesCount++;
+});
 
     const totalSalesCount = await order.countDocuments();
     const totalPages = Math.ceil(totalSalesCount / perPage);
+    console.log("overallRevenue==========>", overallRevenue);
+    
 
     res.status(StatusCodes.OK).render("admin/salesreport", {
       salesReport,
@@ -536,6 +566,7 @@ const totalSalesReport = async (req, res) => {
       overAllOrderAmount,
       totalPages,
       currentPage: page,
+      overallRevenue, // 🆕 send revenue to view
     });
   } catch (error) {
     console.error("Error generating sales report:", error.message);
@@ -544,6 +575,7 @@ const totalSalesReport = async (req, res) => {
       .json({ message: "Something went wrong" });
   }
 };
+
 
 const dailySalesReport = async (req, res) => {
   try {
@@ -954,7 +986,7 @@ const graphData = async (req, res) => {
       allData.forEach((item) => {
         const month = item.shippingDate.getMonth();
         salesData[month] += item.orderAmount;
-        if (item.paymentStatus === "Payment Successfull") {
+        if (item.paymentStatus === "Payment Successful") {
           revenueData[month] += item.orderAmount;
         }
       });
@@ -1024,6 +1056,8 @@ const graphData = async (req, res) => {
 };
 
 const approveRetrunRequest = async (req, res) => {
+  console.log("approveRetrunRequest is calling=============>");
+  
   try {
     let {
       text,
@@ -1034,6 +1068,14 @@ const approveRetrunRequest = async (req, res) => {
       totalProductAmount,
       quantity,
     } = req.body;
+
+    console.log("req.body  approveRetrunRequest==========>", req.body);
+    
+
+    // console.log("req.body", req.body);
+    // console.log("decision ==============>", decision);
+    
+    
 
     if (decision === "approve") {
       await order.findOneAndUpdate(
