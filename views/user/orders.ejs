@@ -246,89 +246,6 @@
 </style>
 
 <body>
-    <div class="invoice-box" id="invoiceContent">
-        <table>
-            <tr class="top">
-                <td colspan="2">
-                    <table>
-                        <tr>
-                            <td class="title">
-                                <img src="https://sparksuite.github.io/simple-html-invoice-template/images/logo.png" alt="Company Logo" style="max-width: 200px;" />
-                            </td>
-                            <% orderData.forEach((item) => { %>
-                            <td class="text-end">
-                                Invoice #: <%= item.orderId %><br />
-                                Created: <%= item.shippingDate.toDateString() %><br />
-                                Due: <%= item.shippingDate.toDateString() %>
-                            </td>
-                            <% }) %>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr class="information">
-                <td colspan="2">
-                    <table>
-                        <tr>
-                            <% orderData.forEach((item) => { %>
-                            <td>
-                                <%= item.deliveryAddress.address %><br />
-                                <%= item.deliveryAddress.streetaddress %><br />
-                                <%= item.deliveryAddress.city %>, <%= item.deliveryAddress.state %><br />
-                                <%= item.deliveryAddress.pincode %>
-                            </td>
-                            <td class="text-end">
-                                <%= item.userId.name %><br />
-                                <%= item.userId.mobile %><br />
-                                <%= item.userId.email %>
-                            </td>
-                            <% }) %>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <% orderData.forEach((item) => { %>
-            <tr class="heading">
-                <td>Payment Method</td>
-                <td class="text-end"><%= item.paymentMethod %></td>
-            </tr>
-            <% }) %>
-        </table>
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Product Name</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if(orderData.length > 0) { %>
-                    <% let uid = 1 %>
-                    <% orderData.forEach((item) => { %>
-                        <% item.orderedItem.forEach((product) => { %>
-                            <tr>
-                                <td><%= uid++ %></td>
-                                <td><%= product.productId.productname %></td>
-                                <td>₹<%= product.totalProductAmount %></td>
-                                <td><%= product.quantity %></td>
-                                <td>₹<%= product.quantity * product.totalProductAmount %></td>
-                            </tr>
-                        <% }) %>
-                    <% }) %>
-                <% } %>
-                <% orderData.forEach((item) => { %>
-                    <tr class="total">
-                        <td colspan="4"></td>
-                        <td>Total: ₹<%= item.orderAmount %>/-</td>
-                    </tr>
-                <% }) %>
-            </tbody>
-        </table>
-    </div>
-
     <div class="container-fluid">
         <div class="card card-1">
             <div class="card-header">
@@ -360,7 +277,7 @@
                                 <div class="card-body">
                                     <div class="row align-items-center">
                                         <div class="col-md-2">
-                                            <img class="img-fluid" src="/uploads/<%= product.productId.productimage[0] %>" alt="Product Image" style="max-width: 100px;" />
+                                            <img class="img-fluid" src="/Uploads/<%= product.productId.productimage[0] %>" alt="Product Image" style="max-width: 100px;" />
                                         </div>
                                         <div class="col-md-10">
                                             <div class="row align-items-center">
@@ -415,7 +332,7 @@
                                                             <h6 class="text-info">Will update shortly</h6>
                                                         <% } %>
                                                         <button class="btn btn-sm btn-primary"
-                                                                onclick="downloadInvoice()">
+                                                                onclick="downloadInvoice('<%= item._id %>')">
                                                             <i class="fa fa-download"></i> Invoice
                                                         </button>
                                                     </div>
@@ -444,7 +361,6 @@
                                 <div class="col-auto">₹<%= item.couponDeduction %></div>
                             </div>
                             <div class="row justify-content-between">
-                                <div class="col-auto">GST 18%:</div>
                                 <div class="col-auto">Free</div>
                             </div>
                             <div class="row justify-content-between">
@@ -462,6 +378,66 @@
                         </div>
                     <% }) %>
                 </div>
+
+                <!-- Invoice Content for PDF -->
+                <% orderData.forEach((item) => { %>
+                    <div class="invoice-box" id="invoiceContent_<%= item._id %>">
+                        <h4 style="text-align: center;">Invoice</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Customer Details</h6>
+                                <p><strong>Name:</strong> <%= item.userId.name %></p>
+                                <p><strong>Mobile:</strong> <%= item.deliveryAddress.mobile %></p>
+                                <p><strong>Address:</strong> <%= item.deliveryAddress.address %>, <%= item.deliveryAddress.streetaddress %>, <%= item.deliveryAddress.city %>, <%= item.deliveryAddress.state %> - <%= item.deliveryAddress.pincode %></p>
+                                <p><strong>Landmark:</strong> <%= item.deliveryAddress.landmark %></p>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <p><strong>Invoice Number:</strong> <%= item.orderId %></p>
+                                <p><strong>Invoice Date:</strong> <%= item.shippingDate.toDateString() %></p>
+                                <p><strong>Payment Method:</strong> <%= item.paymentMethod %></p>
+                                <p><strong>Payment Status:</strong> <%= item.paymentStatus %></p>
+                            </div>
+                        </div>
+                        <table>
+                            <tr class="heading">
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                            <% item.orderedItem.forEach((product) => { %>
+                                <tr>
+                                    <td><%= product.productId.productname %></td>
+                                    <td><%= product.productId.categoryId %></td>
+                                    <td><%= product.quantity %></td>
+                                    <td>₹<%= product.totalProductAmount / product.quantity %></td>
+                                    <td>₹<%= product.totalProductAmount %></td>
+                                </tr>
+                            <% }) %>
+                            <tr class="total">
+                                <td colspan="4">Discount:</td>
+                                <td>₹<%= item.couponDeduction %></td>
+                            </tr>
+                            <tr class="total">
+                                <td colspan="4">GST (18%):</td>
+                                <td>Free</td>
+                            </tr>
+                            <tr class="total">
+                                <td colspan="4">Delivery Charges:</td>
+                                <td>Free</td>
+                            </tr>
+                            <tr class="total">
+                                <td colspan="4">Total Amount:</td>
+                                <td>₹<%= item.orderAmount %></td>
+                            </tr>
+                        </table>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <img src="/userpublic/indexassets/assets/images/brand-logo/brand-logo-2.png" alt="Brand Logo" style="max-width: 100px;" />
+                            <p><small>PAN: AA02hDW7E | CIN: UMMC20PTC</small></p>
+                        </div>
+                    </div>
+                <% }) %>
             </div>
             <div class="card-footer">
                 <div class="row align-items-center">
@@ -485,7 +461,7 @@
                     <div class="col-auto ms-auto">
                         <% orderData.forEach(item => { %>
                             <% if(item.paymentStatus === "Payment Successful") { %>
-                                <button id="invoisebutton" onclick="downloadInvoice()">Download Invoice</button>
+                                <button id="invoisebutton" onclick="downloadInvoice('<%= item._id %>')">Download Invoice</button>
                             <% } %>
                         <% }) %>
                     </div>
@@ -567,12 +543,17 @@
             });
         }
 
-        function downloadInvoice() {
-            const invoiceContent = document.getElementById("invoiceContent");
+        function downloadInvoice(orderId) {
+            const invoiceContent = document.getElementById(`invoiceContent_${orderId}`);
+            if (!invoiceContent) {
+                console.error("Invoice content not found for order ID:", orderId);
+                return;
+            }
+            
             invoiceContent.style.display = 'block'; // Temporarily show for PDF generation
             const options = {
                 margin: 10,
-                filename: 'invoice.pdf',
+                filename: `invoice_${orderId}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -582,5 +563,5 @@
             });
         }
     </script>
-`
     <%- include('../partials/mainfooter.ejs') %>
+</body>

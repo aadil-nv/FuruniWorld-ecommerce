@@ -23,56 +23,62 @@ const loadAdminLogin = async (req, res) => {
 
 const adminDashboard = async (req, res) => {
   try {
+    // Fetch all orders
     const salesReport = await order
       .find()
       .populate("orderedItem.productId")
       .populate("deliveryAddress")
       .populate("userId")
       .sort({ _id: 1 });
+
+    // Dashboard counts
     const productCount = await Products.countDocuments();
     const categoryCount = await Category.countDocuments();
+
+    // === Totals (same calculation logic as totalSalesReport) ===
     let totalSalesAmount = 0;
-    let totalSalesAmount2 = 0;
+    let totalCouponDeduction = 0;
+    let overAllOrderAmount = 0;
+    let salesCount = 0;
+    let overallRevenue = 0;
+
+    salesReport.forEach((order) => {
+      const isValidPayment =
+        order.paymentStatus === "Payment Successful" &&
+        (order.paymentMethod === "RazorPay" || order.paymentMethod === "Wallet");
+
+      let orderTotal = 0;
+
+      order.orderedItem.forEach((item) => {
+        if (item.productStatus !== "Order Cancelled") {
+          orderTotal += item.totalProductAmount;
+          overAllOrderAmount += item.totalProductAmount;
+        }
+      });
+
+      totalSalesAmount += orderTotal;
+
+      if (isValidPayment) {
+        overallRevenue += orderTotal;
+      }
+
+      totalCouponDeduction += order.couponDeduction;
+      salesCount++;
+    });
+
+    // === Monthly earnings ===
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth() + 1;
     const currentYear = currentDate.getFullYear();
-
-    
-
-    salesReport.forEach((order) => {
-      order.orderedItem.forEach((item) => {
-        // console.log("product status $$$$$$$$$$$$$$$$$$$$$", item.productStatus);
-        
-        if (item.productStatus === "Delivered" || item.productStatus === "pending") {
-          if (order.couponDeduction == 0) {
-            totalSalesAmount += item.totalProductAmount;
-          } else {
-            totalSalesAmount2 += item.totalProductAmount;
-            totalSalesAmount = totalSalesAmount2 - order.couponDeduction;
-          }
-        }
-      });
-    });
-
-    let totalCouponDeduction = 0;
-    salesReport.forEach((item) => {
-      totalCouponDeduction += item.couponDeduction;
-    });
-    let salesCount = 0;
-    salesReport.forEach((item) => {
-      salesCount++;
-    });
-    let overAllOrderAmount = 0;
-    salesReport.forEach((item) => {
-      overAllOrderAmount += item.orderAmount;
-    });
 
     const salesReport2 = await order
       .find({
         paymentStatus: "Payment Successful",
         $expr: {
-          $eq: [{ $month: "$shippingDate" }, currentMonth],
-          $eq: [{ $year: "$shippingDate" }, currentYear],
+          $and: [
+            { $eq: [{ $month: "$shippingDate" }, currentMonth] },
+            { $eq: [{ $year: "$shippingDate" }, currentYear] },
+          ],
         },
       })
       .populate("orderedItem.productId")
@@ -81,18 +87,15 @@ const adminDashboard = async (req, res) => {
       .sort({ _id: 1 });
 
     let monthlyEarning = 0;
+    salesReport2.forEach((order) => {
+      order.orderedItem.forEach((item) => {
+        if (item.productStatus !== "Order Cancelled") {
+          monthlyEarning += item.totalProductAmount;
+        }
+      });
+    });
 
-salesReport2.forEach((order) => {
-  order.orderedItem.forEach((item) => {
-    if (item.productStatus !== 'Order Cancelled') {
-      monthlyEarning += item.totalProductAmount;
-    }
-  });
-});
-
-
-    console.log("salesReport2", monthlyEarning);
-
+    // === Most bought products ===
     const mostBoughtProducts = await order.aggregate([
       { $unwind: "$orderedItem" },
       {
@@ -121,6 +124,7 @@ salesReport2.forEach((order) => {
       },
     ]);
 
+    // === Most bought categories ===
     const mostBoughtCategories = await order.aggregate([
       { $unwind: "$orderedItem" },
       {
@@ -142,6 +146,7 @@ salesReport2.forEach((order) => {
       { $limit: 10 },
     ]);
 
+    // === Most bought brands ===
     const mostBoughtBrands = await order.aggregate([
       { $unwind: "$orderedItem" },
       {
@@ -163,26 +168,25 @@ salesReport2.forEach((order) => {
       { $limit: 10 },
     ]);
 
-    // console.log("salesReport ==========>", salesReport.orderAmount);
-    
-
-      return res.render("admin/admindashboard", {
-        salesReport,
-        totalSalesAmount,
-        totalCouponDeduction,
-        salesCount,
-        overAllOrderAmount,
-        productCount,
-        categoryCount,
-        monthlyEarning,
-        mostBoughtProducts,
-        mostBoughtCategories,
-        mostBoughtBrands,
-      });
+    return res.render("admin/admindashboard", {
+      salesReport,
+      totalSalesAmount,
+      totalCouponDeduction,
+      salesCount,
+      overAllOrderAmount,
+      productCount,
+      categoryCount,
+      monthlyEarning,
+      mostBoughtProducts,
+      mostBoughtCategories,
+      mostBoughtBrands,
+      overallRevenue,
+    });
   } catch (error) {
     console.log(error.message);
   }
 };
+
 
 const adminOrdersList = async (req, res) => {
   try {
@@ -681,7 +685,8 @@ const totalSalesReport = async (req, res) => {
     const totalSalesCount = await order.countDocuments();
     const totalPages = Math.ceil(totalSalesCount / perPage);
 
-    console.log("Total Sales Count:========>", totalSalesCount);
+    console.log("salesReport", salesReport);
+    
     
     res.status(StatusCodes.OK).render("admin/salesreport", {
       salesReport, // Only paginated data for table

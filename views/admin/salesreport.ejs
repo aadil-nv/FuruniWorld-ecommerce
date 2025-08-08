@@ -37,6 +37,7 @@
     #downloadicon{
         font-size: 25px;
     }
+    
 </style>
 
     <section class="content-main">
@@ -89,47 +90,58 @@
                                 <th>Date</th>
                                 <th scope="col">Order ID</th>
                                 <th scope="col">Billing Name</th>
-                                <th scope="col">Coupon Applied</th>
-                                <th scope="col">PaymentMethod</th>
+                                <th scope="col">Coupon applied</th>
+                                <th scope="col">Payment method</th>
+                                <th scope="col">Payment status</th>
                                 <th scope="col" class="text-end">Total</th>
                             </tr>
                         </thead>
 
-                        <tbody id="tablebody">
-                        <% if(salesReport.length> 0) {%>
-                            <% salesReport.forEach(item=>{ %>
-                                    <tr >
-                                        <td>
-                                            <%= item.shippingDate.toDateString() %>
-                                        </td>
-                                        <td><b>
-                                                <%= item.orderId %>
-                                            </b></td>
-                                        <td>
-                                            <%= item.deliveryAddress.name %>
-                                        </td>
-                                       
-                                        <td>
-                                            <%= item.couponDeduction %>
-                                        </td>
-                                        <td><span class="badge rounded-pill alert-warning">
-                                                <%= item.paymentMethod %>
-                                            </span></td>
+                       <tbody id="tablebody">
+<% if (salesReport.length > 0) { %>
+    <% salesReport.forEach(item => { %>
+        <tr>
+            <td><%= item.shippingDate.toDateString() %></td>
+            <td><b><%= item.orderId %></b></td>
+            <td><%= item.userId.name %></td>
+            <td><%= item.couponDeduction %></td>
+            <td>
+                <span class="badge rounded-pill alert-warning">
+                    <%= item.paymentMethod %>
+                </span>
+            </td>
+            <td>
+                <% if (item.orderedItem.length > 0) { %>
+                    <% item.orderedItem.forEach(product => { %>
+                        <% if (product.productId) { %>
+                            <div>
+                                <span class="badge rounded-pill alert-info">
+                                    <%= product.productId.productname %>
+                                </span>
+                                -
+                                <span class="badge rounded-pill alert-warning">
+                                    <%= product.productStatus %>
+                                </span>
+                                -
+                                <span class="badge rounded-pill alert-warning">
+                                    RS.<%= product.totalProductAmount %>
+                                </span>
+                            </div>
+                        <% } %>
+                    <% }) %>
+                <% } else { %>
+                    <span class="badge rounded-pill alert-secondary">No products</span>
+                <% } %>
+            </td>
+            <td class="text-end">
+                Rs.<%= item.orderAmount %>/-
+            </td>
+        </tr>
+    <% }) %>
+<% } %>
+</tbody>
 
 
-                                        <td class="text-end">
-                                            <!-- <% let totalAmount=0; %> -->
-                                                <!-- <% item.orderedItem.forEach(product=> { %> -->
-                                                    <!-- <% totalAmount +=product.totalProductAmount; %> -->
-                                                        <!-- <% }) %> -->
-                                                            Rs.<%= item.orderAmount %>/-
-                                        </td>
-
-                                    </tr>
-
-                                    <% }) %>
-                                    <% } %>
-                                </tbody>
                     </table>
                 </div>
                 <!-- table-responsive //end -->

@@ -514,6 +514,95 @@
     backdrop-filter: blur(6px);
     background-color: rgba(0, 0, 0, 0.4);
 }
+.wallet-container {
+            background: #E97730;
+            border-radius: 15px;
+            padding: 2rem;
+            color: white;
+            box-shadow: 0 8px 25px rgba(233, 119, 48, 0.3);
+            margin: 1rem 0;
+        }
+
+        .wallet-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .wallet-icon {
+            font-size: 2.5rem;
+            margin-right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.8rem;
+            border-radius: 50%;
+        }
+
+        .wallet-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .balance-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .balance-label {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .wallet-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .wallet-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .wallet-container {
+                padding: 1.5rem;
+            }
+
+            .wallet-header {
+                flex-direction: column;
+            }
+
+            .wallet-icon {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+
+            .balance-amount {
+                font-size: 2rem;
+            }
+        }
+        
 
     
 </style>
