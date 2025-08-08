@@ -169,6 +169,56 @@ const sortByZtoA = async (req, res) => {
   }
 };
 
+const defaultSort = async (req, res) => {
+  try {
+    const categoryData = await Category.find().sort({ id: -1 });
+
+    const productsPerPage = 12;
+    let currentPage = parseInt(req.query.page) || 1;
+
+    const totalProducts = await Products.countDocuments();
+    const totalPages = Math.ceil(totalProducts / productsPerPage);
+
+    if (currentPage < 1) {
+      currentPage = 1;
+    } else if (currentPage > totalPages) {
+      currentPage = totalPages;
+    }
+
+    const startIndex = (currentPage - 1) * productsPerPage;
+
+    // Sort by created time or _id descending (newest first)
+    const productData = await Products.find()
+      .populate("offerId")
+      .sort({ _id: -1 })
+      .skip(startIndex)
+      .limit(productsPerPage);
+
+    const user = req.session.user;
+    const cartData = await Cart.find({ userId: user });
+
+    let productcount = 0;
+    for (const cart of cartData) {
+      productcount += cart.products.length;
+    }
+
+    res.status(StatusCodes.OK).render("user/shop", {
+      productData,
+      categoryData,
+      currentPage,
+      totalPages,
+      productcount,
+    });
+
+  } catch (error) {
+    console.log(error.message);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send("Internal Server Error");
+  }
+};
+
+
 const userSearch = async (req, res) => {
   try {
     const { search } = req.body;
@@ -206,5 +256,6 @@ module.exports={
     sortByAtoZ,
     sortByZtoA,
     searchCategoryName,
-    userSearch
+    userSearch,
+    defaultSort
 }

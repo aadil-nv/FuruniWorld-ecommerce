@@ -145,7 +145,7 @@
                             <div class="shop-sorting-area">
                                 <select id="sortingSelect" class="nice-select nice-select-style-1"
                                     onchange="redirectToSelectedPage()">
-                                    <option>Default Sorting</option>
+                                    <option value="default">Default Sorting</option>
                                     <option value="popularity">Sort -- popularity</option>
                                     <option value="lowToHigh">Price -- Low to High</option>
                                     <option value="highTolow">Price -- High to Low</option>
@@ -156,11 +156,7 @@
 
 
 
-                            <div class="shop-view-mode nav">
-                                <a class="active" href="#shop-1" data-bs-toggle="tab"><i class=" ti-layout-grid3 "></i>
-                                </a>
-                                <a href="#shop-2" data-bs-toggle="tab" class=""><i class=" ti-view-list-alt "></i></a>
-                            </div>
+                           
                         </div>
                     </div>
                     <div class="shop-bottom-area">
@@ -363,15 +359,24 @@
             const selectedValue = selectElement.value;
             console.log("=============================", selectedValue)
             if (selectedValue === 'popularity') {
+                selectElement.value = 'Sort -- popularity';
                 window.location.href = '/query/productspopular';
             } else if (selectedValue === 'lowToHigh') {
                 window.location.href = '/query/productslowtohigh';
+                selectElement.value = 'Price -- Low to Hig';
             } else if (selectedValue === 'highTolow') {
                 window.location.href = '/query/productshightolow';
+                selectElement.value = 'Price -- High to Low';
             } else if (selectedValue === 'ATOZ') {
                 window.location.href = '/query/productsatoz';
+                selectElement.value='Name -- A-Z';
             } else if (selectedValue === 'ZTOA') {
                 window.location.href = '/query/productsztoa';
+                selectElement.value='Name -- Z-A';
+            }else if (selectedValue === 'default') {
+                window.location.href = '/query/default';
+                selectElement.value='Default Sorting';
+
             }
         }
     </script>

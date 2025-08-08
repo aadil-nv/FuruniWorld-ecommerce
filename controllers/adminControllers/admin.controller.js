@@ -214,11 +214,57 @@ const adminOrdersList = async (req, res) => {
 const adminOrderDetiles = async (req, res) => {
   try {
     const orderId = req.params.id;
-    const orderData = await order
+
+    let orderData = await order
       .findById({ _id: orderId })
-      .populate("orderedItem.productId")
+      .populate({
+        path: "orderedItem.productId",
+        populate: { path: "offerId" } // Populate product-wise offer if any
+      })
       .populate("deliveryAddress")
       .populate("userId");
+
+    // Loop through each product to check offers
+    for (let item of orderData.orderedItem) {
+      console.log("item", item);
+      
+      const product = item.productId;
+      let offer = null;
+
+      // 1️⃣ Product-wise offer
+      if (product.offerId) {
+        console.log("product.offerId!!!!!!!!!!!!!!!!!!!!!!!!!", product.offerId);
+        
+        offer = product.offerId;
+      } else {
+        // 2️⃣ Category-wise offer
+        offer = await Offer.findOne({
+          offerType: "category",
+          offerTypeName: product.categoryId,
+          status: "active",
+          expiryDate: { $gte: new Date() }
+        });
+      }
+
+      // 3️⃣ Calculate deduction if offer exists
+      if (offer) {
+        const discount = (product.productprice * offer.percentage) / 100;
+        const offerPrice = product.productprice - discount;
+
+        // Attach extra info to send to view
+        item.offerDetails = {
+          offerName: offer.offerName,
+          percentage: offer.percentage,
+          discountAmount: discount,
+          finalPrice: offerPrice
+        };
+      } else {
+        item.offerDetails = null;
+      }
+    }
+
+    console.log("orderData==================================", orderData);
+    
 
     res.status(StatusCodes.OK).render("admin/orderdetiles", { orderData });
   } catch (error) {
@@ -226,6 +272,7 @@ const adminOrderDetiles = async (req, res) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
+
 
 const adminChangeOrderStatus = async (req, res) => {
   try {
@@ -267,15 +314,90 @@ const adminChangeOrderStatus = async (req, res) => {
   }
 };
 
+const searchCoupon = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Current page
+    const itemsPerPage = parseInt(req.query.items) || 5; // Items per page
+    const { search } = req.query; // Search term from query string
+
+    console.log("Search term:", search);
+
+    // Build search filter
+    const query = search
+      ? {
+          $or: [
+            { couponName: { $regex: search, $options: "i" } }, // Case-insensitive
+            { couponCode: { $regex: search, $options: "i" } }
+          ]
+        }
+      : {};
+
+    const skip = (page - 1) * itemsPerPage;
+
+    // Count total matching coupons
+    const totalCoupons = await Coupon.countDocuments(query);
+    const totalPages = Math.ceil(totalCoupons / itemsPerPage);
+
+    // Fetch coupons with filter and pagination
+    const couponData = await Coupon.find(query)
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(itemsPerPage);
+
+    res.status(StatusCodes.OK).render("admin/couponlist", {
+      couponData,
+      currentPage: page,
+      totalPages,
+      totalCoupons,
+      itemsPerPage,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1,
+      searchQuery: search || ""
+    });
+  } catch (error) {
+    console.log(error.message);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send("Internal Server Error");
+  }
+};
+
 const admincouponlist = async (req, res) => {
   try {
-    const couponData = await Coupon.find().sort({_id:-1});
-    res.status(StatusCodes.OK).render("admin/couponlist", { couponData });
+    const page = parseInt(req.query.page) || 1;
+    const itemsPerPage = parseInt(req.query.items) || 5; // Default to 10 items per page
+    
+    const skip = (page - 1) * itemsPerPage;
+    
+    const totalCoupons = await Coupon.countDocuments();
+    
+    const totalPages = Math.ceil(totalCoupons / itemsPerPage);
+    
+    const couponData = await Coupon.find()
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(itemsPerPage);
+    
+    res.status(StatusCodes.OK).render("admin/couponlist", {
+      couponData,
+      currentPage: page,
+      totalPages,
+      totalCoupons,
+      itemsPerPage,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1
+    });
   } catch (error) {
     console.log(error.message);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
+
+
 
 const admincouponmanagement = async (req, res) => {
   try {
@@ -507,6 +629,7 @@ const totalSalesReport = async (req, res) => {
     const perPage = 10;
     const skip = (page - 1) * perPage;
 
+    // Get paginated data for table display
     const salesReport = await order
       .find()
       .populate("orderedItem.productId")
@@ -516,63 +639,174 @@ const totalSalesReport = async (req, res) => {
       .skip(skip)
       .limit(perPage);
 
+    // Get ALL data for statistics calculation (no pagination)
+    const allSalesData = await order
+      .find()
+      .populate("orderedItem.productId")
+      .populate("deliveryAddress")
+      .populate("userId")
+      .sort({ _id: -1 });
+
     let totalSalesAmount = 0;
     let totalCouponDeduction = 0;
     let overAllOrderAmount = 0;
     let salesCount = 0;
-    let overallRevenue = 0; // 🆕 Add overall revenue field
+    let overallRevenue = 0; 
 
-   salesReport.forEach((order) => {
-  console.log("=============================");
-  console.log("order", order);
-  console.log("=============================");
+    // Calculate statistics from ALL data, not just current page
+    allSalesData.forEach((order) => {
+      const isValidPayment =
+        order.paymentStatus === "Payment Successful" &&
+        (order.paymentMethod === "RazorPay" || order.paymentMethod === "Wallet");
 
-  const isValidPayment =
-    order.paymentStatus === "Payment Successful" &&
-    (order.paymentMethod === "RazorPay" || order.paymentMethod === "Wallet");
+      let orderTotal = 0;
 
-  let orderTotal = 0;
+      order.orderedItem.forEach((item) => {
+        if (item.productStatus !== "Order Cancelled") {
+          orderTotal += item.totalProductAmount;
+          overAllOrderAmount += item.totalProductAmount;
+        }
+      });
 
-  order.orderedItem.forEach((item) => {
-    if (item.productStatus !== "Order Cancelled") {
-      orderTotal += item.totalProductAmount;
-      overAllOrderAmount += item.totalProductAmount;
-    }
-  });
+      totalSalesAmount += orderTotal;
 
-  // ✅ Add total of non-cancelled products to totalSalesAmount
-  totalSalesAmount += orderTotal;
+      if (isValidPayment) {
+        overallRevenue += orderTotal;
+      }
 
-  // ✅ Add only if payment is valid
-  if (isValidPayment) {
-    overallRevenue += orderTotal;
-  }
-
-  totalCouponDeduction += order.couponDeduction;
-  // overAllOrderAmount += order.orderAmount;
-  salesCount++;
-});
+      totalCouponDeduction += order.couponDeduction;
+      salesCount++;
+    });
 
     const totalSalesCount = await order.countDocuments();
     const totalPages = Math.ceil(totalSalesCount / perPage);
-    console.log("overallRevenue==========>", overallRevenue);
-    
 
+    console.log("Total Sales Count:========>", totalSalesCount);
+    
     res.status(StatusCodes.OK).render("admin/salesreport", {
-      salesReport,
-      totalSalesAmount,
-      totalCouponDeduction,
-      salesCount,
-      overAllOrderAmount,
+      salesReport, // Only paginated data for table
+      totalSalesAmount, // Calculated from all data
+      totalCouponDeduction, // Calculated from all data
+      salesCount, // Count of all data
+      overAllOrderAmount, // Calculated from all data
       totalPages,
       currentPage: page,
-      overallRevenue, // 🆕 send revenue to view
+      overallRevenue, // Calculated from all data
+      totalSalesCount // Total count
     });
   } catch (error) {
     console.error("Error generating sales report:", error.message);
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: "Something went wrong" });
+  }
+};
+
+const salesSearch = async (req, res) => {
+  console.log("calling sales search is ===>=====>");
+  
+  try {
+    const { searchQuery } = req.query; // Get search query from request
+    console.log("searchQuery", searchQuery);
+    
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 10;
+    const skip = (page - 1) * perPage;
+
+    // Build search criteria
+    let searchCriteria = {};
+    
+    if (searchQuery) {
+      // Search can be by order ID, billing name, or payment method
+      searchCriteria = {
+        $or: [
+          { orderId: { $regex: searchQuery, $options: 'i' } },
+          { 'deliveryAddress.name': { $regex: searchQuery, $options: 'i' } },
+          { paymentMethod: { $regex: searchQuery, $options: 'i' } }
+        ]
+      };
+    }
+
+    // Get paginated search results for table display
+    const searchResults = await order
+      .find(searchCriteria)
+      .populate("orderedItem.productId")
+      .populate("deliveryAddress")
+      .populate("userId")
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(perPage);
+
+    // Get ALL search results for statistics calculation (no pagination)
+    const allSearchResults = await order
+      .find(searchCriteria)
+      .populate("orderedItem.productId")
+      .populate("deliveryAddress")
+      .populate("userId")
+      .sort({ _id: -1 });
+
+    let totalSalesAmount = 0;
+    let totalCouponDeduction = 0;
+    let overAllOrderAmount = 0;
+    let salesCount = 0;
+    let overallRevenue = 0;
+
+    // Calculate statistics from ALL search results
+    allSearchResults.forEach((order) => {
+      const isValidPayment =
+        order.paymentStatus === "Payment Successful" &&
+        (order.paymentMethod === "RazorPay" || order.paymentMethod === "Wallet");
+
+      let orderTotal = 0;
+
+      order.orderedItem.forEach((item) => {
+        if (item.productStatus !== "Order Cancelled") {
+          orderTotal += item.totalProductAmount;
+          overAllOrderAmount += item.totalProductAmount;
+        }
+      });
+
+      totalSalesAmount += orderTotal;
+
+      if (isValidPayment) {
+        overallRevenue += orderTotal;
+      }
+
+      totalCouponDeduction += order.couponDeduction;
+      salesCount++;
+    });
+
+    // Get total count of search results for pagination
+    const totalSearchCount = await order.countDocuments(searchCriteria);
+    const totalPages = Math.ceil(totalSearchCount / perPage);
+
+    console.log("Search Results Count:========>", totalSearchCount);
+    console.log("=============================================");
+    console.log("=============================================");
+    console.log("Total Sales Count:========>", searchResults);
+    console.log("=============================================");
+    console.log("=============================================");
+    
+    
+
+    res.json( {
+      salesReport: searchResults, // Only paginated search results for table
+      totalSalesAmount, // Calculated from all search results
+      totalCouponDeduction, // Calculated from all search results
+      salesCount, // Count of all search results
+      overAllOrderAmount, // Calculated from all search results
+      totalPages,
+      currentPage: page,
+      overallRevenue, // Calculated from all search results
+      totalSalesCount: totalSearchCount, // Total search results count
+      searchQuery // Pass search query back to view for maintaining search state
+    });
+
+  } catch (error) {
+    console.error("Error in sales search:", error.message);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: "Something went wrong during search" });
   }
 };
 
@@ -583,303 +817,349 @@ const dailySalesReport = async (req, res) => {
     const perPage = 10;
     const skip = (page - 1) * perPage;
 
+    // Date filter for today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
 
+    // Paginated daily orders
     const salesReport = await order
       .find({
         shippingDate: { $gte: today, $lt: tomorrow },
       })
+      .populate("orderedItem.productId")
+      .populate("deliveryAddress")
+      .populate("userId")
       .sort({ _id: -1 })
       .skip(skip)
       .limit(perPage);
 
-    const allTodayOrders = await order.find({
-      shippingDate: { $gte: today, $lt: tomorrow },
-    });
+    // All daily orders (for statistics)
+    const allTodayOrders = await order
+      .find({
+        shippingDate: { $gte: today, $lt: tomorrow },
+      })
+      .populate("orderedItem.productId")
+      .populate("deliveryAddress")
+      .populate("userId")
+      .sort({ _id: -1 });
 
     let totalSalesAmount = 0;
     let totalCouponDeduction = 0;
     let overAllOrderAmount = 0;
+    let salesCount = 0;
+    let overallRevenue = 0;
 
-    salesReport.forEach((order) => {
-      totalCouponDeduction += order.couponDeduction;
-      overAllOrderAmount += order.orderAmount;
+    allTodayOrders.forEach((order) => {
+      const isValidPayment =
+        order.paymentStatus === "Payment Successful" &&
+        (order.paymentMethod === "RazorPay" || order.paymentMethod === "Wallet");
+
+      let orderTotal = 0;
 
       order.orderedItem.forEach((item) => {
-        if (item.productStatus === "Delivered") {
-          if (order.couponDeduction === 0) {
-            totalSalesAmount += item.totalProductAmount;
-          } else {
-            totalSalesAmount += item.totalProductAmount - order.couponDeduction;
-          }
+        if (item.productStatus !== "Order Cancelled") {
+          orderTotal += item.totalProductAmount;
+          overAllOrderAmount += item.totalProductAmount;
         }
       });
+
+      totalSalesAmount += orderTotal;
+
+      if (isValidPayment) {
+        overallRevenue += orderTotal;
+      }
+
+      totalCouponDeduction += order.couponDeduction;
+      salesCount++;
     });
 
     const totalSalesCount = allTodayOrders.length;
     const totalPages = Math.ceil(totalSalesCount / perPage);
 
     res.status(StatusCodes.OK).render("admin/salesreport", {
-      salesReport,
+      salesReport, // Only paginated daily data
       totalSalesAmount,
       totalCouponDeduction,
-      salesCount: salesReport.length,
+      salesCount,
       overAllOrderAmount,
       totalPages,
       currentPage: page,
+      overallRevenue,
+      totalSalesCount
     });
   } catch (error) {
-    console.log(error.message);
+    console.error("Error generating daily sales report:", error.message);
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .send("Error generating report");
+      .json({ message: "Something went wrong" });
   }
 };
+
 const weeklySalesReport = async (req, res) => {
   try {
-    const page = req.query.page || 1;
+    const page = parseInt(req.query.page) || 1;
     const perPage = 10;
     const skip = (page - 1) * perPage;
+
+    // Calculate start and end of current week (Monday to Sunday)
     const currentDate = new Date();
-
     const startOfWeek = new Date(currentDate);
-    startOfWeek.setDate(
-      startOfWeek.getDate() -
-        startOfWeek.getDay() +
-        (startOfWeek.getDay() === 0 ? -6 : 1)
-    );
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + (startOfWeek.getDay() === 0 ? -6 : 1));
+    startOfWeek.setHours(0, 0, 0, 0);
 
-    const endOfWeek = new Date(currentDate);
-    endOfWeek.setDate(endOfWeek.getDate() - endOfWeek.getDay() + 7);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 7);
+    endOfWeek.setHours(0, 0, 0, 0);
 
+    // Paginated weekly orders
     const salesReport = await order
       .find({
-        shippingDate: { $gte: startOfWeek, $lte: endOfWeek },
+        shippingDate: { $gte: startOfWeek, $lt: endOfWeek },
       })
+      .populate("orderedItem.productId")
+      .populate("deliveryAddress")
+      .populate("userId")
       .sort({ _id: -1 })
       .skip(skip)
       .limit(perPage);
 
-    let sc = await order.find({
-      shippingDate: { $gte: startOfWeek, $lte: endOfWeek },
-    });
+    // All weekly orders (for statistics)
+    const allWeekOrders = await order
+      .find({
+        shippingDate: { $gte: startOfWeek, $lt: endOfWeek },
+      })
+      .populate("orderedItem.productId")
+      .populate("deliveryAddress")
+      .populate("userId")
+      .sort({ _id: -1 });
 
     let totalSalesAmount = 0;
-    let totalSalesAmount2 = 0;
+    let totalCouponDeduction = 0;
+    let overAllOrderAmount = 0;
+    let salesCount = 0;
+    let overallRevenue = 0;
 
-    salesReport.forEach((order) => {
+    allWeekOrders.forEach((order) => {
+      const isValidPayment =
+        order.paymentStatus === "Payment Successful" &&
+        (order.paymentMethod === "RazorPay" || order.paymentMethod === "Wallet");
+
+      let orderTotal = 0;
+
       order.orderedItem.forEach((item) => {
-        if (item.productStatus === "Delivered") {
-          console.log("order.couponDeduction ::::", order.couponDeduction);
-          if (order.couponDeduction == 0) {
-            totalSalesAmount += item.totalProductAmount;
-          } else {
-            totalSalesAmount2 += item.totalProductAmount;
-            totalSalesAmount = totalSalesAmount2 - order.couponDeduction;
-          }
+        if (item.productStatus !== "Order Cancelled") {
+          orderTotal += item.totalProductAmount;
+          overAllOrderAmount += item.totalProductAmount;
         }
       });
-    });
 
-    let totalCouponDeduction = 0;
-    salesReport.forEach((item) => {
-      totalCouponDeduction += item.couponDeduction;
-    });
-    let salesCount = 0;
-    salesReport.forEach((item) => {
+      totalSalesAmount += orderTotal;
+
+      if (isValidPayment) {
+        overallRevenue += orderTotal;
+      }
+
+      totalCouponDeduction += order.couponDeduction;
       salesCount++;
     });
-    let overAllOrderAmount = 0;
-    salesReport.forEach((item) => {
-      overAllOrderAmount += item.orderAmount;
-    });
 
-    let totalSalesCount = sc.length;
+    const totalSalesCount = allWeekOrders.length;
     const totalPages = Math.ceil(totalSalesCount / perPage);
 
-    res
-      .status(StatusCodes.OK)
-      .render("admin/salesreport", {
-        salesReport,
-        totalSalesAmount,
-        totalCouponDeduction,
-        salesCount,
-        overAllOrderAmount,
-        totalPages,
-        currentPage: page,
-      });
+    res.status(StatusCodes.OK).render("admin/salesreport", {
+      salesReport, // Paginated weekly data
+      totalSalesAmount,
+      totalCouponDeduction,
+      salesCount,
+      overAllOrderAmount,
+      totalPages,
+      currentPage: page,
+      overallRevenue,
+      totalSalesCount
+    });
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    console.error("Error generating weekly sales report:", error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Something went wrong" });
   }
 };
 
 const monthlySalesReport = async (req, res) => {
   try {
-    const page = req.query.page || 1;
+    const page = parseInt(req.query.page) || 1;
     const perPage = 10;
     const skip = (page - 1) * perPage;
 
     const currentDate = new Date();
 
-    const startOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      1
-    );
+    // First and last day of the current month
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    startOfMonth.setHours(0, 0, 0, 0);
 
-    const endOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1,
-      0
-    );
+    const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    endOfMonth.setHours(23, 59, 59, 999);
 
+    // Paginated monthly orders
     const salesReport = await order
       .find({
         shippingDate: { $gte: startOfMonth, $lte: endOfMonth },
       })
+      .populate("orderedItem.productId")
+      .populate("deliveryAddress")
+      .populate("userId")
       .sort({ _id: -1 })
       .skip(skip)
       .limit(perPage);
 
-    let sc = await order
+    // All monthly orders for stats
+    const allMonthOrders = await order
       .find({
         shippingDate: { $gte: startOfMonth, $lte: endOfMonth },
       })
+      .populate("orderedItem.productId")
+      .populate("deliveryAddress")
+      .populate("userId")
       .sort({ _id: -1 });
 
     let totalSalesAmount = 0;
-    let totalSalesAmount2 = 0;
+    let totalCouponDeduction = 0;
+    let overAllOrderAmount = 0;
+    let salesCount = 0;
+    let overallRevenue = 0;
 
-    salesReport.forEach((order) => {
+    allMonthOrders.forEach((order) => {
+      const isValidPayment =
+        order.paymentStatus === "Payment Successful" &&
+        (order.paymentMethod === "RazorPay" || order.paymentMethod === "Wallet");
+
+      let orderTotal = 0;
+
       order.orderedItem.forEach((item) => {
-        if (item.productStatus === "Delivered") {
-          console.log("order.couponDeduction ::::", order.couponDeduction);
-          if (order.couponDeduction == 0) {
-            totalSalesAmount += item.totalProductAmount;
-          } else {
-            totalSalesAmount2 += item.totalProductAmount;
-            totalSalesAmount = totalSalesAmount2 - order.couponDeduction;
-          }
+        if (item.productStatus !== "Order Cancelled") {
+          orderTotal += item.totalProductAmount;
+          overAllOrderAmount += item.totalProductAmount;
         }
       });
-    });
 
-    let totalCouponDeduction = 0;
-    salesReport.forEach((item) => {
-      totalCouponDeduction += item.couponDeduction;
-    });
-    let salesCount = 0;
-    salesReport.forEach((item) => {
+      totalSalesAmount += orderTotal;
+
+      if (isValidPayment) {
+        overallRevenue += orderTotal;
+      }
+
+      totalCouponDeduction += order.couponDeduction;
       salesCount++;
     });
-    let overAllOrderAmount = 0;
-    salesReport.forEach((item) => {
-      overAllOrderAmount += item.orderAmount;
+
+    const totalSalesCount = allMonthOrders.length;
+    const totalPages = Math.ceil(totalSalesCount / perPage);
+
+    res.status(StatusCodes.OK).render("admin/salesreport", {
+      salesReport, // Paginated monthly data
+      totalSalesAmount,
+      totalCouponDeduction,
+      salesCount,
+      overAllOrderAmount,
+      totalPages,
+      currentPage: page,
+      overallRevenue,
+      totalSalesCount
     });
-
-    let totalSalesCount = sc.length;
-    let totalPages = Math.ceil(totalSalesCount / perPage);
-
-    res
-      .status(StatusCodes.OK)
-      .render("admin/salesreport", {
-        salesReport,
-        totalSalesAmount,
-        totalCouponDeduction,
-        salesCount,
-        overAllOrderAmount,
-        totalPages,
-        currentPage: page,
-      });
   } catch (error) {
-    console.log(error.message);
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .send("Internal Server Error");
+    console.error("Error generating monthly sales report:", error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Something went wrong" });
   }
 };
+
 
 const yearlySalesReport = async (req, res) => {
   try {
-    const page = req.query.page || 1;
+    const page = parseInt(req.query.page) || 1;
     const perPage = 10;
     const skip = (page - 1) * perPage;
 
     const currentDate = new Date();
 
+    // First and last day of the current year
     const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
+    startOfYear.setHours(0, 0, 0, 0);
 
     const endOfYear = new Date(currentDate.getFullYear(), 11, 31);
+    endOfYear.setHours(23, 59, 59, 999);
 
+    // Paginated yearly orders
     const salesReport = await order
       .find({
         shippingDate: { $gte: startOfYear, $lte: endOfYear },
       })
+      .populate("orderedItem.productId")
+      .populate("deliveryAddress")
+      .populate("userId")
       .sort({ _id: -1 })
       .skip(skip)
       .limit(perPage);
 
-    let sc = await order
+    // All yearly orders for stats
+    const allYearOrders = await order
       .find({
         shippingDate: { $gte: startOfYear, $lte: endOfYear },
       })
+      .populate("orderedItem.productId")
+      .populate("deliveryAddress")
+      .populate("userId")
       .sort({ _id: -1 });
 
     let totalSalesAmount = 0;
-    let totalSalesAmount2 = 0;
+    let totalCouponDeduction = 0;
+    let overAllOrderAmount = 0;
+    let salesCount = 0;
+    let overallRevenue = 0;
 
-    salesReport.forEach((order) => {
+    allYearOrders.forEach((order) => {
+      const isValidPayment =
+        order.paymentStatus === "Payment Successful" &&
+        (order.paymentMethod === "RazorPay" || order.paymentMethod === "Wallet");
+
+      let orderTotal = 0;
+
       order.orderedItem.forEach((item) => {
-        if (item.productStatus === "Delivered") {
-          console.log("order.couponDeduction ::::", order.couponDeduction);
-          if (order.couponDeduction == 0) {
-            totalSalesAmount += item.totalProductAmount;
-          } else {
-            totalSalesAmount2 += item.totalProductAmount;
-            totalSalesAmount = totalSalesAmount2 - order.couponDeduction;
-          }
+        if (item.productStatus !== "Order Cancelled") {
+          orderTotal += item.totalProductAmount;
+          overAllOrderAmount += item.totalProductAmount;
         }
       });
-    });
 
-    let totalCouponDeduction = 0;
-    salesReport.forEach((item) => {
-      totalCouponDeduction += item.couponDeduction;
-    });
-    let salesCount = 0;
-    salesReport.forEach((item) => {
+      totalSalesAmount += orderTotal;
+
+      if (isValidPayment) {
+        overallRevenue += orderTotal;
+      }
+
+      totalCouponDeduction += order.couponDeduction;
       salesCount++;
     });
-    let overAllOrderAmount = 0;
-    salesReport.forEach((item) => {
-      overAllOrderAmount += item.orderAmount;
-    });
 
-    let totalSalesCount = sc.length;
+    const totalSalesCount = allYearOrders.length;
     const totalPages = Math.ceil(totalSalesCount / perPage);
 
-    res
-      .status(StatusCodes.OK)
-      .render("admin/salesreport", {
-        salesReport,
-        totalSalesAmount,
-        totalCouponDeduction,
-        salesCount,
-        overAllOrderAmount,
-        totalPages,
-        currentPage: page,
-      });
+    res.status(StatusCodes.OK).render("admin/salesreport", {
+      salesReport, // Paginated yearly data
+      totalSalesAmount,
+      totalCouponDeduction,
+      salesCount,
+      overAllOrderAmount,
+      totalPages,
+      currentPage: page,
+      overallRevenue,
+      totalSalesCount
+    });
   } catch (error) {
-    console.log(error.message);
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .send("Internal Server Error");
+    console.error("Error generating yearly sales report:", error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Something went wrong" });
   }
 };
+
 
 const filterCustomDate = async (req, res) => {
   try {
@@ -901,7 +1181,11 @@ const filterCustomDate = async (req, res) => {
       );
     });
 
-    res.status(StatusCodes.OK).json({ filteredSalesReport });
+    console.log("filteredSalesReport", filteredSalesReport);
+    let totalPages = 1
+    
+
+    res.status(StatusCodes.OK).json({ filteredSalesReport ,totalPages , currentPage:1}); 
   } catch (error) {
     console.log(error.message);
     return res
@@ -1056,7 +1340,6 @@ const graphData = async (req, res) => {
 };
 
 const approveRetrunRequest = async (req, res) => {
-  console.log("approveRetrunRequest is calling=============>");
   
   try {
     let {
@@ -1068,12 +1351,6 @@ const approveRetrunRequest = async (req, res) => {
       totalProductAmount,
       quantity,
     } = req.body;
-
-    console.log("req.body  approveRetrunRequest==========>", req.body);
-    
-
-    // console.log("req.body", req.body);
-    // console.log("decision ==============>", decision);
     
     
 
@@ -1175,4 +1452,6 @@ module.exports = {
   graphData,
   approveRetrunRequest,
   deleteOffer,
+  searchCoupon,
+  salesSearch
 };

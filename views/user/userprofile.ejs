@@ -510,6 +510,11 @@
     .textorderstatus {
         color: black;
     }
+    .modal-backdrop.show {
+    backdrop-filter: blur(6px);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
     
 </style>
 
@@ -862,58 +867,56 @@
 <!-- Wallet History Modal -->
 <!-- Wallet History Modal -->
 <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Wallet History</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="myaccount-table table-responsive text-center">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Reason</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="wallet-history-container">
-                        <% userData.walletHistory.forEach((item, index) => { %>
-                            <tr class="wallet-history-item" data-index="<%= index %>">
-                                <td><%= item.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></td>
-                                <td><%= item.description %></td>
-                                
-                                        <td class="<%= item.status.toLowerCase() === 'credit' ? 'green' : 'text-danger' %>">
-                                                <%= item.status.toLowerCase() === 'credit' ? '+' : '-' %>₹<%= Number(item.amount).toFixed(2) %>
-                                            </td>
-
-                                <td>
-                                    <span class="status <%= item.status.toLowerCase() === 'credit' ? 'active' : 'expired' %>">
-                                        <%= item.status %>
-                                    </span>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            </div>
-            <div class="pagination-container m-3">
-                <div class="pagination-info">
-                    <span id="wallet-showing-info">Showing 1-<%= Math.min(10, userData.walletHistory.length) %> of <%= userData.walletHistory.length %> entries</span>
-                </div>
-                <div class="pagination-controls">
-                    <button id="wallet-prev-btn" class="pagination-btn" onclick="changeWalletPage(-1)">
-                        <i class="fas fa-chevron-left"></i> Previous
-                    </button>
-                    <div id="wallet-page-numbers" class="page-numbers"></div>
-                    <button id="wallet-next-btn" class="pagination-btn" onclick="changeWalletPage(1)">
-                        Next <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
+  <div class="modal-dialog modal-lg modal-dialog-centered"> <!-- Added modal-dialog-centered -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Wallet History</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="myaccount-table table-responsive text-center">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Reason</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="wallet-history-container">
+            <% userData.walletHistory.forEach((item, index) => { %>
+              <tr class="wallet-history-item" data-index="<%= index %>">
+                <td><%= item.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></td>
+                <td><%= item.description %></td>
+                <td class="<%= item.status.toLowerCase() === 'credit' ? 'green' : 'text-danger' %>">
+                  <%= item.status.toLowerCase() === 'credit' ? '+' : '-' %>₹<%= Number(item.amount).toFixed(2) %>
+                </td>
+                <td>
+                  <span class="status <%= item.status.toLowerCase() === 'credit' ? 'active' : 'expired' %>">
+                    <%= item.status %>
+                  </span>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-container m-3">
+        <div class="pagination-info">
+          <span id="wallet-showing-info">Showing 1-<%= Math.min(10, userData.walletHistory.length) %> of <%= userData.walletHistory.length %> entries</span>
         </div>
+        <div class="pagination-controls">
+          <button id="wallet-prev-btn" class="pagination-btn" onclick="changeWalletPage(-1)">
+            <i class="fas fa-chevron-left"></i> Previous
+          </button>
+          <div id="wallet-page-numbers" class="page-numbers"></div>
+          <button id="wallet-next-btn" class="pagination-btn" onclick="changeWalletPage(1)">
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 <script>
     // Error message auto-hide
@@ -1235,8 +1238,7 @@
                                     text: 'Sorry, the payment failed. Please try again.',
                                     icon: 'error',
                                     showCancelButton: true,
-                                    confirmButtonText: 'Retry Payment',
-                                    cancelButtonText: 'View Order'
+                                   
                                 }).then((result) => {
                                     if (result.isConfirmed) {
                                         handlePayNow(orderId, orderIdStr, productId);

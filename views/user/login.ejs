@@ -275,10 +275,12 @@
                                         <div id="errorContainer"></div>
                                         
                                         <% if(typeof message!=='undefined' ){ %>
-                                            <div id="errorMessage" class="error-message">
-                                                <i class="fas fa-exclamation-circle"></i>
-                                                <%= message %>
-                                            </div>
+                                            <div id="errorMessage" 
+     class="error-message <%= message === 'Successfull Registerd Now Login' ? 'success-message' : '' %>">
+    <i class="fas fa-exclamation-circle"></i>
+    <%= message %>
+</div>
+
                                         <% } %>
 
                                         <!-- Email Input -->

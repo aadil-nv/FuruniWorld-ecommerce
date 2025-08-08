@@ -9,6 +9,7 @@ query_route.get("/productslowtohigh",userAuth.isLogin,userAuth.isUserBlock, quer
 query_route.get("/productshightolow",userAuth.isLogin,userAuth.isUserBlock, queryController.sortByPriceHighToLow);
 query_route.get("/productsatoz",userAuth.isLogin,userAuth.isUserBlock, queryController.sortByAtoZ);
 query_route.get("/productsztoa",userAuth.isLogin,userAuth.isUserBlock, queryController.sortByZtoA);
+query_route.get("/default",userAuth.isLogin,userAuth.isUserBlock, queryController.defaultSort);
 query_route.post("/search",userAuth.isLogin,userAuth.isUserBlock,queryController.userSearch)
 query_route.post("/sendcategoryname",userAuth.isLogin,userAuth.isUserBlock,queryController.searchCategoryName)
 

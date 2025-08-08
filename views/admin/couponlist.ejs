@@ -23,7 +23,15 @@
     <div class="card mb-4">
         <header class="card-header">
             <div class="row gx-3">
-               
+                <div class="col-lg-4 col-md-6 me-auto">
+                        <input 
+                            type="text" 
+                            placeholder="Search by name, email, or mobile..." 
+                            class="form-control" 
+                            id="userSearchInput"
+                            onkeyup="searcCoupon()"
+                        />
+                    </div>
                 <div class="col-lg-2 col-6 col-md-3">
                     <select class="form-select">
                         <option>Status</option>
@@ -33,10 +41,11 @@
                     </select>
                 </div>
                 <div class="col-lg-2 col-6 col-md-3">
-                    <select class="form-select">
-                        <option>Show 20</option>
-                        <option>Show 30</option>
-                        <option>Show 40</option>
+                    <select class="form-select" id="itemsPerPage" onchange="changeItemsPerPage()">
+                        <option value="5" <%= itemsPerPage == 5 ? 'selected' : '' %>>Show 5</option>
+                        <option value="10" <%= itemsPerPage == 10 ? 'selected' : '' %>>Show 10</option>
+                        <option value="20" <%= itemsPerPage == 20 ? 'selected' : '' %>>Show 20</option>
+                        <option value="30" <%= itemsPerPage == 30 ? 'selected' : '' %>>Show 30</option>
                     </select>
                 </div>
             </div>
@@ -47,7 +56,7 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                           
+                            <th scope="col">Serial No.</th>
                             <th scope="col">Name</th>
                             <th scope="col">Coupon Code</th>
                             <th scope="col">Discount Amount</th>
@@ -57,28 +66,31 @@
                             <th scope="col" class="text-end">Action</th>
                         </tr>
                     </thead>
-                    <% if (couponData.length > 0) {%>
-                        <% couponData.forEach(item=>{ %>
                     <tbody>
-                        <tr>
-                           
-                            <td><b><%= item.couponName %></b></td>
-                            <td><%= item.couponCode %></td>
-                            <td><%= item.discountAmount %></td>
-                            <td><%= item.minAmount %></td>
-                            <td><span class="badge rounded-pill alert-warning"><%= item.status %></span></td>
-                            <td><%= item.expiryDate.toDateString() %></td>
-                            <td class="text-end">
-                                <button id="delete" onclick="confirmDelete('<%= item._id %>')">Delete</button>
-                                
-                                <!-- dropdown //end -->
-                            </td>
-                        </tr>
-                        
-
+                        <% if (couponData.length > 0) {%>
+                            <% let serialNumber = (currentPage - 1) * itemsPerPage + 1; %>
+                            <% couponData.forEach(item => { %>
+                                <tr>
+                                    <td><%= serialNumber++ %></td>
+                                    <td><b><%= item.couponName %></b></td>
+                                    <td><%= item.couponCode %></td>
+                                    <td><%= item.discountAmount %></td>
+                                    <td><%= item.minAmount %></td>
+                                    <td><span class="badge rounded-pill alert-warning"><%= item.status %></span></td>
+                                    <td><%= item.expiryDate.toDateString() %></td>
+                                    <td class="text-end">
+                                        <button id="delete" onclick="confirmDelete('<%= item._id %>')">Delete</button>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="8" class="text-center">
+                                    <p class="mt-3">No coupons available</p>
+                                </td>
+                            </tr>
+                        <% } %>
                     </tbody>
-                    <% }) %>
-                    <% } %>
                 </table>
             </div>
             <!-- table-responsive //end -->
@@ -86,20 +98,79 @@
         <!-- card-body end// -->
     </div>
     <!-- card end// -->
-    <div class="pagination-area mt-15 mb-50">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-start">
-                <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                <li class="page-item"><a class="page-link" href="#">02</a></li>
-                <li class="page-item"><a class="page-link" href="#">03</a></li>
-                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                <li class="page-item"><a class="page-link" href="#">16</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a>
-                </li>
-            </ul>
-        </nav>
-    </div>
+    
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+        <div class="pagination-area mt-15 mb-50">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <!-- Previous button -->
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentPage - 1 %>&items=<%= itemsPerPage %>" aria-label="Previous">
+                                <i class="material-icons md-chevron_left"></i>
+                            </a>
+                        </li>
+                    <% } %>
+
+                    <!-- Page numbers -->
+                    <% 
+                        let startPage = Math.max(1, currentPage - 2);
+                        let endPage = Math.min(totalPages, currentPage + 2);
+                        
+                        // Show first page if we're not close to it
+                        if (startPage > 1) {
+                    %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1&items=<%= itemsPerPage %>">1</a>
+                        </li>
+                        <% if (startPage > 2) { %>
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        <% } %>
+                    <% } %>
+
+                    <!-- Current page range -->
+                    <% for(let i = startPage; i <= endPage; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>&items=<%= itemsPerPage %>"><%= i %></a>
+                        </li>
+                    <% } %>
+
+                    <!-- Show last page if we're not close to it -->
+                    <% if (endPage < totalPages) { %>
+                        <% if (endPage < totalPages - 1) { %>
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        <% } %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= totalPages %>&items=<%= itemsPerPage %>"><%= totalPages %></a>
+                        </li>
+                    <% } %>
+
+                    <!-- Next button -->
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentPage + 1 %>&items=<%= itemsPerPage %>" aria-label="Next">
+                                <i class="material-icons md-chevron_right"></i>
+                            </a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+            
+            <!-- Pagination Info -->
+            <div class="text-center mt-3">
+                <small class="text-muted">
+                    Showing <%= (currentPage - 1) * itemsPerPage + 1 %> to 
+                    <%= Math.min(currentPage * itemsPerPage, totalCoupons) %> 
+                    of <%= totalCoupons %> coupons
+                </small>
+            </div>
+        </div>
+    <% } %>
 </section>
 
 <script src="/adminpublic/adminlogin/js/vendors/jquery-3.6.0.min.js"></script>
@@ -107,14 +178,22 @@
 <script src="/adminpublic/adminlogin/js/vendors/select2.min.js"></script>
 <script src="/adminpublic/adminlogin/js/vendors/perfect-scrollbar.js"></script>
 <script src="/adminpublic/adminlogin/js/vendors/jquery.fullscreen.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- Main Script -->
 <script src="/adminpublic/adminlogin/js/main.js?v=1.1" type="text/javascript"></script>
 
-
 <script>
+// Function to change items per page
+function changeItemsPerPage() {
+    const itemsPerPage = document.getElementById('itemsPerPage').value;
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('items', itemsPerPage);
+    currentUrl.searchParams.set('page', 1); // Reset to first page
+    window.location.href = currentUrl.toString();
+}
 
 function confirmDelete(couponId) {
-    swal.fire({
+    Swal.fire({
         title: "Are you sure?",
         text: "Once deleted, you will not be able to recover this coupon!",
         icon: "warning",
@@ -134,13 +213,14 @@ function confirmDelete(couponId) {
             deleteCoupon(couponId);
         } else {
             // Inform the user that the action was canceled
-            swal.fire("Your coupon is safe!", {
+            Swal.fire({
+                title: "Cancelled",
+                text: "Your coupon is safe!",
                 icon: "info",
             });
         }
     });
 }
- 
 
 function deleteCoupon(couponId) {
     console.log(couponId)
@@ -154,24 +234,27 @@ function deleteCoupon(couponId) {
     })
     .then(response => {
         if (response.ok) {
-            swal.fire({
+            Swal.fire({
                 title: "Coupon deleted successfully!",
                 icon: "success",
-                button: "OK",
+                confirmButtonText: "OK",
             })
             .then(() => {
                 location.reload();
             });
         } else {
-            swal.fire("Failed to delete coupon!", {
+            Swal.fire({
+                title: "Error!",
+                text: "Failed to delete coupon!",
                 icon: "error",
             });
-            
         }
     })
     .catch(error => {
         console.error("Error:", error);
-        swal("Failed to delete coupon!", {
+        Swal.fire({
+            title: "Error!",
+            text: "Failed to delete coupon!",
             icon: "error",
         });
     });

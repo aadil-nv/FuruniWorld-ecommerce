@@ -16,5 +16,6 @@ adminProduct_route.post('/addproduct',adminAuth.isLogin,adminProductController.a
 adminProduct_route.post('/editproductdetilesfetch/:id',adminAuth.isLogin,upload.array('photos'),adminProductController.updateProductsFetch)
 adminProduct_route.get('/listProduct',adminAuth.isLogin,adminProductController.listProduct) 
 adminProduct_route.get('/editproductdetilesfetch/:id',adminAuth.isLogin,adminProductController.deleteProductImage)
+adminProduct_route.post('/productsearch',adminAuth.isLogin,adminProductController.productSearch)
 
 module.exports =adminProduct_route

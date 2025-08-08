@@ -25,6 +25,8 @@
     admin_route.get('/admin/createcoupon',adminAuth.isLogin,admincontroller.admincouponmanagement)
     admin_route.post('/admin/createcoupon',adminAuth.isLogin,admincontroller.addNewCoupon)
     admin_route.post('/admin/deletecoupon',admincontroller.deleteCoupon)
+    admin_route.post('/admin/searchcoupon',admincontroller.searchCoupon)
+
 
 
 
@@ -37,6 +39,8 @@
 
 
     admin_route.get('/admin/salesreports',adminAuth.isLogin,admincontroller.totalSalesReport)
+    admin_route.post('/admin/salessearch',adminAuth.isLogin,admincontroller.salesSearch)
+    
     admin_route.get('/admin/dailysalesreport',adminAuth.isLogin,admincontroller.dailySalesReport)
     admin_route.get('/admin/weeklysalesreport',adminAuth.isLogin,admincontroller.weeklySalesReport)
     admin_route.get('/admin/monthlysalesreport',adminAuth.isLogin,admincontroller.monthlySalesReport)

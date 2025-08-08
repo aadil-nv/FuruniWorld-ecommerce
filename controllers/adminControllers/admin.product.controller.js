@@ -262,6 +262,58 @@ const deleteProductImage = async (req, res) => {
   }
 };
 
+
+const productSearch = async (req, res) => {
+  try {
+    const perPage = 10;
+    const page = req.query.page || 1;
+    const { search } = req.body;
+
+    console.log('search term:', search);
+
+    // Build the query object for searching by productname, categoryId, or brand
+    const query = search
+      ? {
+          $or: [
+            { productname: { $regex: search, $options: 'i' } }, // Case-insensitive search
+            { categoryId: { $regex: search, $options: 'i' } },
+            { brand: { $regex: search, $options: 'i' } },
+          ],
+        }
+      : {};
+
+    // Fetch products with pagination and search filter
+    const products = await Products.find(query)
+      .sort({ _id: -1 })
+      .skip(perPage * page - perPage)
+      .limit(perPage);
+
+    // Count total products matching the search query
+    const count = await Products.countDocuments(query);
+
+    console.log('products:', products);
+    console.log('count:', count);
+    console.log('perPage:', perPage);
+    console.log('currentPage:', page);
+    console.log('searchQuery:', search || '');
+
+    // Return JSON response
+    res.status(StatusCodes.OK).json({
+      success: true,
+      products,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(count / perPage),
+      searchQuery: search || '',
+    });
+  } catch (error) {
+    console.error('Error in productSearch:', error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Internal Server Error',
+    });
+  }
+};
+
 module.exports = {
   addProduct,
   productList,
@@ -270,4 +322,6 @@ module.exports = {
   listProduct,
   deleteProductImage,
   addNewProduct,
+   productSearch
+
 };

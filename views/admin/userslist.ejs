@@ -131,135 +131,181 @@
 </style>
 
 <script>
-// Function to handle user search
-function searchUsers() {
-    const input = document.getElementById('userSearchInput').value.toLowerCase();
-    const table = document.getElementById('usersTable');
-    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+// Function to handle user search with fetch API
+// Function to handle user search with fetch API
+async function searchUsers(page = 1) {
+  const input = document.getElementById('userSearchInput').value;
+  const tbody = document.querySelector('#usersTable tbody');
+  const pagination = document.querySelector('.pagination');
 
-    for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const name = row.cells[1].textContent.toLowerCase();
-        const email = row.cells[2].textContent.toLowerCase();
-        const mobile = row.cells[3].textContent.toLowerCase();
+  try {
+    const response = await fetch('/admin-user/usersearch', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ search: input, page }),
+    });
+    console.log("response", response);
+    
 
-        if (name.includes(input) || email.includes(input) || mobile.includes(input)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    console.log("data==========>", data);
+    
+    // Remove the success check since your backend doesn't send a success field
+    // if (!data.success) {
+    //   throw new Error(data.message || 'Failed to fetch users');
+    // }
+
+    // Clear the existing table body
+    tbody.innerHTML = '';
+
+    console.log("data.user", data.user); // Changed from data.users to data.user
+    
+    // Fixed: Check for data.user instead of data.users
+    if (data.user && data.user.length > 0) {
+        console.log("Users found, displaying data");
+        
+      let uid = (data.currentPage - 1) * 5 + 1; // Adjust UID based on page
+      data.user.forEach(user => { // Changed from data.users to data.user
+        const row = document.createElement('tr');
+        row.id = `user-row-${user._id}`;
+        row.innerHTML = `
+          <td>${uid++}</td>
+          <td><b>${user.name}</b></td>
+          <td>${user.email}</td>
+          <td>${user.mobile}</td>
+          <td class="text-end" style="align-items: center; justify-content: center; display: flex;">
+            <button 
+              type="button"
+              onclick="confirmAction('${user._id}')"
+              class="btn btn-md rounded font-sm user-action-btn ${user.is_blocked ? 'btn-unblock' : 'btn-block'}" 
+              id="btn-${user._id}"
+              data-blocked="${user.is_blocked}"
+            >
+              ${user.is_blocked ? 'Unblock' : 'Block'}
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    } else {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center">
+            <p class="mt-3">No users found</p>
+          </td>
+        </tr>
+      `;
+    }
+
+    // Update pagination
+    pagination.innerHTML = '';
+    if (data.totalPages > 1) {
+      for (let i = 1; i <= data.totalPages; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === data.currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#" onclick="searchUsers(${i}); return false;">${i}</a>`;
+        pagination.appendChild(li);
+      }
+    }
+  } catch (error) {
+    console.error('Error searching users:', error);
+    Swal.fire({
+      title: 'Error!',
+      text: 'Failed to search users. Please try again.',
+      icon: 'error',
+      confirmButtonColor: '#d33',
+    });
+  }
 }
+
+// Trigger search on input change (with debounce to avoid excessive requests)
+let searchTimeout;
+document.getElementById('userSearchInput').addEventListener('input', () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => searchUsers(1), 300); // Debounce for 300ms
+});
 
 // Function to handle user blocking/unblocking with fetch API
 async function blockUser(userId) {
-    const button = document.getElementById(`btn-${userId}`);
-    const originalText = button.textContent;
-    const originalColor = button.style.backgroundColor;
+  const button = document.getElementById(`btn-${userId}`);
+  const originalText = button.textContent;
+  const originalClass = button.className;
 
-    try {
-        button.disabled = true;
-        button.textContent = 'Processing...';
+  try {
+    button.disabled = true;
+    button.textContent = 'Processing...';
 
-        console.log('Making request to:', `/admin-user/blockuser`);
-        console.log('Request body:', { userId });
+    const response = await fetch(`/admin-user/blockuser`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId }),
+    });
 
-        const response = await fetch(`/admin-user/blockuser`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ userId })
-        });
-
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-
-        // Check if response is actually JSON before parsing
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            // Try to get the response as text to see what's being returned
-            const responseText = await response.text();
-            console.error('Non-JSON response received:', responseText);
-            throw new Error('Server returned non-JSON response. Check server logs.');
-        }
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('Response data:', result);
-
-        if (result.success) {
-            // Update button text and classes based on new status
-            button.textContent = result.is_blocked ? 'Unblock' : 'Block';
-            
-            // Remove old classes and add new ones
-            button.classList.remove('btn-block', 'btn-unblock');
-            button.classList.add(result.is_blocked ? 'btn-unblock' : 'btn-block');
-            
-            // Update the data attribute to reflect new status
-            button.setAttribute('data-blocked', result.is_blocked.toString());
-
-            Swal.fire({
-                title: 'Success!',
-                text: result.is_blocked ? 'User has been blocked successfully.' : 'User has been unblocked successfully.',
-                icon: 'success',
-                confirmButtonColor: '#3BB77E',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        } else {
-            throw new Error(result.message || 'Operation failed');
-        }
-    } catch (error) {
-        console.error('Error details:', error);
-        button.textContent = originalText;
-        button.style.backgroundColor = originalColor;
-
-        let errorMessage = 'Failed to update user status. Please try again.';
-        
-        // Provide more specific error messages
-        if (error.message.includes('Non-JSON response')) {
-            errorMessage = 'Server error occurred. Please check if the endpoint exists and is working properly.';
-        } else if (error.message.includes('Failed to fetch')) {
-            errorMessage = 'Network error. Please check your connection and try again.';
-        }
-
-        Swal.fire({
-            title: 'Error!',
-            text: errorMessage,
-            icon: 'error',
-            confirmButtonColor: '#d33'
-        });
-    } finally {
-        button.disabled = false;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const result = await response.json();
+
+    if (result.success) {
+      button.textContent = result.is_blocked ? 'Unblock' : 'Block';
+      button.className = `btn btn-md rounded font-sm user-action-btn ${result.is_blocked ? 'btn-unblock' : 'btn-block'}`;
+      button.setAttribute('data-blocked', result.is_blocked);
+
+      Swal.fire({
+        title: 'Success!',
+        text: result.is_blocked ? 'User has been blocked successfully.' : 'User has been unblocked successfully.',
+        icon: 'success',
+        confirmButtonColor: '#3BB77E',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } else {
+      throw new Error(result.message || 'Operation failed');
+    }
+  } catch (error) {
+    console.error('Error blocking/unblocking user:', error);
+    button.textContent = originalText;
+    button.className = originalClass;
+    Swal.fire({
+      title: 'Error!',
+      text: 'Failed to update user status. Please try again.',
+      icon: 'error',
+      confirmButtonColor: '#d33',
+    });
+  } finally {
+    button.disabled = false;
+  }
 }
 
 // Confirmation function for blocking/unblocking user
 function confirmAction(userId) {
-    event.preventDefault();
-    
-    const button = document.getElementById(`btn-${userId}`);
-    const isBlocked = button.getAttribute('data-blocked') === 'true';
-    
-    Swal.fire({
-        title: 'Are you sure?',
-        text: `You are about to ${isBlocked ? 'unblock' : 'block'} this user!`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: isBlocked ? '#3BB77E' : '#db0b2e',
-        cancelButtonColor: isBlocked ? '#d33' : '#3BB77E',
-        confirmButtonText: `Yes, ${isBlocked ? 'unblock' : 'block'} it!`,
-        allowOutsideClick: false,
-        allowEscapeKey: false
-    }).then((result) => {
-        if (result.isConfirmed) {
-            blockUser(userId);
-        }
-    });
+  event.preventDefault();
+  const button = document.getElementById(`btn-${userId}`);
+  const isBlocked = button.getAttribute('data-blocked') === 'true';
+
+  Swal.fire({
+    title: 'Are you sure?',
+    text: `You are about to ${isBlocked ? 'unblock' : 'block'} this user!`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: isBlocked ? '#3BB77E' : '#db0b2e',
+    cancelButtonColor: isBlocked ? '#d33' : '#3BB77E',
+    confirmButtonText: `Yes, ${isBlocked ? 'unblock' : 'block'} it!`,
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      blockUser(userId);
+    }
+  });
 }
 </script>

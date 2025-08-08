@@ -63,114 +63,101 @@
     </section>
 
     <script>
-        function saveCoupon() {
+function saveCoupon() {
+    const couponName = document.getElementById('CouponName').value.trim();
+    const couponCode = document.getElementById('CouponCode').value.trim();
+    const couponDescription = document.getElementById('CouponDescription').value.trim();
+    const couponExpire = document.getElementById('CouponExpire').value.trim();
+    const couponDiscount = document.getElementById('CouponDicount').value.trim();
+    const couponMinAmount = document.getElementById('CouponMinAmount').value.trim();
 
-            const couponName = document.getElementById('CouponName').value.trim()
-            const couponCode = document.getElementById('CouponCode').value.trim()
-            const couponDescription = document.getElementById('CouponDescription').value.trim()
-            const couponExpire = document.getElementById('CouponExpire').value.trim()
-            const couponDiscount = document.getElementById('CouponDicount').value.trim()
-            const couponMinAmount = document.getElementById('CouponMinAmount').value.trim()
+    if (!couponName.trim()) {
+        document.getElementById('couponNameError').innerHTML = 'Invalid Coupon Name !';
+        return;
+    }
 
-            if (!couponName.trim()) {
-                document.getElementById('couponNameError').innerHTML = 'Invalid Coupon Name !';
-                return;
-            }
+    if (!couponCode.trim()) {
+        document.getElementById('couponCodeError').innerHTML = 'Invalid Coupon Code !';
+        return;
+    }
 
-            if (!couponCode.trim()) {
-                document.getElementById('couponCodeError').innerHTML = 'Invlid Coupon Code !';
-                return;
-            }
+    if (!couponDescription.trim()) {
+        document.getElementById('couponDescriptionError').innerHTML = 'Invalid Coupon Description !';
+        return;
+    }
 
-            if (!couponDescription.trim()) {
-                document.getElementById('couponDescriptionError').innerHTML = 'Invalid Coupon Description !';
-                return;
-            }
+    if (!couponExpire) {
+        document.getElementById('couponExpireError').innerHTML = 'Please select a date !';
+        return;
+    }
 
-            if (!couponExpire) {
-                document.getElementById('couponExpireError').innerHTML = 'Please select a date !';
-                return;
-            }
+    if (!couponDiscount.trim() || isNaN(couponDiscount.trim())) {
+        document.getElementById('couponDiscountError').innerHTML = 'Invalid entry!';
+        return;
+    }
 
-            if (!couponDiscount.trim() || isNaN(couponDiscount.trim())) {
-                document.getElementById('couponDiscountError').innerHTML = 'Invalid entry!';
-                return;
-            } else if (parseFloat(couponDiscount.trim()) > 4000) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid Coupon Discount',
-                    text: 'Coupon Discount amount should be less than or equal to 4000.'
-                });
-                return;
-            }
+    if (!couponMinAmount.trim() || isNaN(couponMinAmount.trim())) {
+        document.getElementById('couponMinAmountError').innerHTML = 'Invalid entry!';
+        return;
+    }
 
-            if (!couponMinAmount.trim() || isNaN(couponMinAmount.trim())) {
-                document.getElementById('couponMinAmountError').innerHTML = 'Invalid entry!';
-                return;
-            } else if (parseFloat(couponMinAmount.trim()) > 4000) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid Coupon Minimum Amount',
-                    text: 'Coupon Minimum Amount should be less than or equal to 4000.'
-                });
-                return;
-            }
+    // NEW: Check if discount < min amount
+    if (parseFloat(couponDiscount) >= parseFloat(couponMinAmount)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Coupon Discount',
+            text: 'Discount amount should be lesser than the minimum amount.'
+        });
+        return;
+    }
 
+    const data = {
+        couponName: couponName,
+        couponCode: couponCode,
+        couponDescription: couponDescription,
+        couponExpire: couponExpire,
+        couponDiscount: couponDiscount,
+        couponMinAmount: couponMinAmount
+    };
 
-            const data = {
-                couponName: couponName,
-                couponCode: couponCode,
-                couponDescription: couponDescription,
-                couponExpire: couponExpire,
-                couponDiscount: couponDiscount,
-                couponMinAmount: couponMinAmount
-            };
-            console.log(data)
-
-            fetch('/admin/createcoupon', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ data })
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                        console.log("data", data.success);
-                        
-                    if (data.success ===true) {
-
-                        swal.fire({
-                            title: "Success",
-                            text: "Coupon added successfully",
-                            icon: "success",
-                        });
-                        setTimeout(() => {
-                            window.location.href = '/admin/couponlist';
-                        }, 1500);
-
-                    } else {
-
-                        swal.fire({
-                            title: "Error",
-                            text: `${data.message}`,
-                            icon: "error",
-                        });
-                    }
-
-                })
-                .catch(error => {
-                    console.error('Error saving coupon:', error);
-                    swal({
-                        title: "Error",
-                        text: "An error occurred while saving the coupon",
-                        icon: "error",
-                    });
-                });
+    fetch('/admin/createcoupon', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
-    </script>
+        return response.json();
+    })
+    .then(data => {
+        if (data.success === true) {
+            Swal.fire({
+                title: "Success",
+                text: "Coupon added successfully",
+                icon: "success",
+            });
+            setTimeout(() => {
+                window.location.href = '/admin/couponlist';
+            }, 1500);
+        } else {
+            Swal.fire({
+                title: "Error",
+                text: `${data.message}`,
+                icon: "error",
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error saving coupon:', error);
+        Swal.fire({
+            title: "Error",
+            text: "An error occurred while saving the coupon",
+            icon: "error",
+        });
+    });
+}
+</script>

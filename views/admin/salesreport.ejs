@@ -142,8 +142,7 @@
                 <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h6>OverAll SalesCount : <%= salesCount %>
-                            </h6>
+                            <h6 id="totalSalesCount">OverAll SalesCount : <%= totalSalesCount %></h6>
 
                         </div>
                     </div>
@@ -151,7 +150,7 @@
                 <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h6>OverAll Order Amount :Rs.<%= overAllOrderAmount %>/-</h6>
+                            <h6 id="overAllOrderAmount">OverAll Order Amount :Rs.<%= overAllOrderAmount %>/-</h6>
 
                         </div>
                     </div>
@@ -159,7 +158,7 @@
                 <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h6>Total Overallsales :Rs.<%= overallRevenue %>/-</h6>
+                            <h6 id="overallRevenue">Total Overallsales :Rs.<%= overallRevenue %>/-</h6>
                         </div>
                     </div>
                 </div>
@@ -170,7 +169,7 @@
                 <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h6>Total Sales : Rs.<%= totalSalesAmount %>/- </h6>
+                            <h6  id="totalSalesAmount">Total Sales : Rs.<%= totalSalesAmount %>/- </h6>
 
                         </div>
                     </div>
@@ -179,7 +178,7 @@
                 <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h6>Coupon Dedeuction:Rs.<%= totalCouponDeduction %>/-</h6>
+                            <h6 id="totalCouponDeduction">Coupon Dedeuction:Rs.<%= totalCouponDeduction %>/-</h6>
                         </div>
                     </div>
                 </div>
@@ -288,7 +287,6 @@
 function redirectToSelectedPage() {
         const selectElement = document.getElementById('sortingSelect');
         const selectedValue = selectElement.value;
-            console.log("=============================",selectedValue)
         if (selectedValue === 'all') {
             window.location.href = '/admin/salesreports';
         } else if (selectedValue === 'daily') {
@@ -348,7 +346,6 @@ function redirectToSelectedPage() {
 
 
         function filterTable(customData) {
-    console.log(":::::::customData::::::::::>>", customData.filteredSalesReport)
 
     
 
@@ -361,6 +358,12 @@ function redirectToSelectedPage() {
         table.style.display = 'none';
     
         noDataMessage.style.display = 'block';
+              document.getElementById('totalSalesCount').innerText = 'Overall sales count : 0/-';
+              document.getElementById('overAllOrderAmount').innerText = 'OverAll order amount : Rs.0/-';
+             document.getElementById('overallRevenue').innerText = 'Overall revenue : Rs.0/-';
+             document.getElementById('overAllOrderAmount').innerText = 'OverAll order amount : Rs.0/-';
+             document.getElementById('totalSalesAmount').innerText = 'Total sales amount : Rs.0/-';
+             document.getElementById('totalCouponDeduction').innerText = 'Total coupon deduction : Rs.0/-';
     } else {
         // Show the table
         table.style.display = 'table';
@@ -402,6 +405,7 @@ function redirectToSelectedPage() {
         const row = document.createElement('tr');
         row.innerHTML = `<td colspan="7" class="text-center">No data available</td>`;
         tableBody.appendChild(row);
+        document.getElementById('totalSalesCount').innerText = '0';
     }
 }
 

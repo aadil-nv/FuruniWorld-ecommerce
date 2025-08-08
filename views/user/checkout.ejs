@@ -951,7 +951,7 @@
                                         } else {
                                             Swal.fire({
                                                 title: 'Payment Failed',
-                                                text: 'Sorry, the payment failed. Please try again or choose a different payment method.',
+                                                text: 'Sorry, the payment failed. Please try again or choose a different payment method',
                                                 icon: 'error',
                                                 showCancelButton: true,
                                                 confirmButtonText: 'Retry Payment',
@@ -999,11 +999,11 @@
                                 .then(data => {
                                     Swal.fire({
                                         title: 'Payment Failed',
-                                        text: 'Sorry, the payment failed. Please try again or choose a different payment method.',
+                                        text: 'Sorry, the payment failed. Please try again or choose a different payment method',
                                         icon: 'error',
-                                        showCancelButton: true,
+                                        showCancelButton: false,
                                         // confirmButtonText: 'Retry Payment',
-                                        cancelButtonText: 'View Order'
+                                        // cancelButtonText: 'View Order'
                                     }).then((result) => {
                                         if (result.isConfirmed) {
                                             handleRetryPayment(data.orderId);
@@ -1139,7 +1139,7 @@
                                 .then(data => {
                                     Swal.fire({
                                         title: 'Payment Failed',
-                                        text: 'Sorry, the payment failed. Please try again or choose a different payment method.',
+                                        text: 'Sorry, the payment failed. Please try again or choose a different payment method11111111111111111.',
                                         icon: 'error',
                                         showCancelButton: true,
                                         confirmButtonText: 'Retry Payment',

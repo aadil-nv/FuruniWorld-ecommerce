@@ -11,6 +11,7 @@ require("dotenv").config();
 var {validatePaymentVerification,} = require("razorpay/dist/utils/razorpay-utils");
 const StatusCodes = require("../../constants/status.constants");
 const { log } = require("console");
+const { default: mongoose } = require("mongoose");
 
 const placeOrder = async (req, res) => {
   try {
@@ -57,17 +58,25 @@ const placeOrder = async (req, res) => {
 
       // Check for product-wise offer
       if (product.offerId) {
-        const offer = await Offer.findOne({
-          _id: product.offerId,
-          status: "active",
-          expiryDate: { $gte: new Date() }
-        });
+
+        console.log("product.offerId", product.offerId);
+        
+       const offer = await Offer.findOne({
+  _id: new mongoose.Types.ObjectId(product.offerId),
+  status: "active",
+  expiryDate: { $gte: new Date() }
+});
+
+        console.log("=======offer===========", offer);
+        
         if (offer) {
           offerPercentage = offer.percentage;
         }
       }
 
       // If no product-wise offer, check for category-wise offer
+      console.log("offerPercentage", offerPercentage);
+      
       if (offerPercentage === 0) {
         const categoryOffer = await Offer.findOne({
           offerType: "category",
@@ -75,12 +84,26 @@ const placeOrder = async (req, res) => {
           status: "active",
           expiryDate: { $gte: new Date() }
         });
+
+        console.log("categoryOffer11111111111111111", categoryOffer  );
+        
         if (categoryOffer) {
+
           offerPercentage = categoryOffer.percentage;
+          console.log("offerPercentage", offerPercentage);
+          
         }
       }
 
-      // Apply discount if available
+      console.log(`====================================================`.bgMagenta.bold);
+      console.log(`====================================================`.bgMagenta.bold);
+      console.log(`====================================================`.bgMagenta.bold);
+      console.log(`productPrice`, productPrice);
+      console.log(`offerPercentage`, offerPercentage);
+      console.log(``);
+      
+      console.log(`====================================================`.bgMagenta.bold);
+      console.log(`====================================================`.bgMagenta.bold);
       if (offerPercentage > 0) {
         productPrice = Math.round(productPrice - (productPrice * offerPercentage) / 100);
       }
@@ -223,7 +246,7 @@ const placeOrder = async (req, res) => {
         $push: {
           walletHistory: {
             amount: totalDiscount,
-            description: `Payment for ORDERID:${walletNewOrder._id}`,
+            description: `Payment for ORDERID:${walletNewOrder.orderId}`,
             date: new Date(),
             status: "Debit"
           }
@@ -376,7 +399,7 @@ const orderCancel = async (req, res) => {
           $push: {
             walletHistory: {
               amount: refundAmount,
-              description: `Refund of ORDERID:${orderId}`,
+              description: `Refund of ORDERID:${orderData.orderId}`,
               date: new Date(),
               status: "credit"
             }
