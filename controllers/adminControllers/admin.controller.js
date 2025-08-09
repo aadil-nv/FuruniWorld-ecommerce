@@ -237,7 +237,6 @@ const adminOrderDetiles = async (req, res) => {
 
       // 1️⃣ Product-wise offer
       if (product.offerId) {
-        console.log("product.offerId!!!!!!!!!!!!!!!!!!!!!!!!!", product.offerId);
         
         offer = product.offerId;
       } else {
@@ -267,7 +266,6 @@ const adminOrderDetiles = async (req, res) => {
       }
     }
 
-    console.log("orderData==================================", orderData);
     
 
     res.status(StatusCodes.OK).render("admin/orderdetiles", { orderData });
@@ -280,43 +278,82 @@ const adminOrderDetiles = async (req, res) => {
 
 const adminChangeOrderStatus = async (req, res) => {
   try {
-    const { selectedStatus, productId, orderId } = req.body;
+    const { selectedStatus, productId, orderId, userId } = req.body;
 
-    const orderData = await order
-      .find({ _id: orderId })
-      .populate("orderedItem.productId")
-      .populate("deliveryAddress")
-      .populate("userId");
+    console.log("req.body-----------------adminChangeOrderStatus---------------", req.body);
 
     if (selectedStatus === "null") {
       return res.status(400).json({ message: "selectedStatus is null" });
     }
 
-    const updatedOrder = await order
-      .findOneAndUpdate(
-        { _id: orderId, "orderedItem.productId": productId },
-        { $set: { "orderedItem.$.productStatus": selectedStatus } },
-        { new: true }
-      )
+    // Get the order and find the matching product amount
+    const orderData = await order.findById(orderId)
       .populate("orderedItem.productId")
       .populate("deliveryAddress")
       .populate("userId");
 
-    if (!updatedOrder) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: "Order not found" });
+    if (!orderData) {
+      return res.status(StatusCodes.NOT_FOUND).json({ message: "Order not found" });
     }
 
-    console.log("Updated order:", updatedOrder);
-    res
-      .status(StatusCodes.OK)
-      .json({ message: "Order status updated successfully", updatedOrder });
+    const productItem = orderData.orderedItem.find(
+      item => item.productId._id.toString() === productId
+    );
+    console.log("productItem", productItem);
+    
+
+    if (!productItem) {
+      return res.status(StatusCodes.NOT_FOUND).json({ message: "Product not found in order" });
+    }
+
+    const totalProductAmount = productItem.totalProductAmount; // 🔹 Use DB value
+
+    // Update product status and reduce amount if cancelled
+    const updatedOrder = await order.findOneAndUpdate(
+      { _id: orderId, "orderedItem.productId": productId },
+      {
+        $set: { "orderedItem.$.productStatus": selectedStatus },
+        ...(selectedStatus.toLowerCase() === "order cancelled" && {
+          $inc: { orderAmount: -totalProductAmount }
+        })
+      },
+      { new: true }
+    )
+    .populate("orderedItem.productId")
+    .populate("deliveryAddress")
+    .populate("userId");
+
+    // Refund if cancelled
+    if (selectedStatus.toLowerCase() === "order cancelled" && updatedOrder.paymentMethod !== "Cash On Delivery") {
+      await User.findByIdAndUpdate(
+        userId,
+        {
+          $inc: { wallet: totalProductAmount },
+          $push: {
+            walletHistory: {
+              amount: totalProductAmount,
+              description: `Refund of ORDERID:${updatedOrder.orderId}`,
+              date: new Date(),
+              status: "credit",
+            }
+          }
+        },
+        { new: true }
+      );
+    }
+
+    res.status(StatusCodes.OK).json({
+      message: "Order status updated successfully",
+      updatedOrder
+    });
+
   } catch (error) {
     console.log(error.message);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
+
+
 
 const searchCoupon = async (req, res) => {
   try {
@@ -685,7 +722,6 @@ const totalSalesReport = async (req, res) => {
     const totalSalesCount = await order.countDocuments();
     const totalPages = Math.ceil(totalSalesCount / perPage);
 
-    console.log("salesReport", salesReport);
     
     
     res.status(StatusCodes.OK).render("admin/salesreport", {
@@ -1168,6 +1204,24 @@ const yearlySalesReport = async (req, res) => {
 
 const filterCustomDate = async (req, res) => {
   try {
+    let { startDate, endDate } = req.body;
+
+    // Handle combined date string like "2025-08-09 2025-08-09"
+    if (typeof startDate === "string" && startDate.includes(" ")) {
+      const parts = startDate.trim().split(" ");
+      startDate = parts[0];
+      endDate = parts[1] || parts[0];
+    }
+
+    if (!startDate || !endDate) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: "Start date and end date are required",
+      });
+    }
+
+    console.log("Filtering from", startDate, "to", endDate);
+
+    // Fetch all orders
     const salesReport = await order
       .find()
       .populate("orderedItem.productId")
@@ -1175,25 +1229,65 @@ const filterCustomDate = async (req, res) => {
       .populate("userId")
       .sort({ _id: -1 });
 
-    const { startDate, endDate } = req.body;
-    const adjustedEndDate = new Date(endDate);
-    adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
+    // Adjust start and end for comparison
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
 
+    // Filter by date
     const filteredSalesReport = salesReport.filter((item) => {
       const shippingDate = new Date(item.shippingDate);
-      return (
-        shippingDate >= new Date(startDate) && shippingDate < adjustedEndDate
-      );
+      return shippingDate >= start && shippingDate <= end;
     });
 
-    console.log("filteredSalesReport", filteredSalesReport);
-    let totalPages = 1
-    
+    // Stats calculation (same as monthlySalesReport)
+    let totalSalesAmount = 0;
+    let totalCouponDeduction = 0;
+    let overAllOrderAmount = 0;
+    let salesCount = 0;
+    let overallRevenue = 0;
 
-    res.status(StatusCodes.OK).json({ filteredSalesReport ,totalPages , currentPage:1}); 
+    filteredSalesReport.forEach((order) => {
+      const isValidPayment =
+        order.paymentStatus === "Payment Successful" &&
+        (order.paymentMethod === "RazorPay" || order.paymentMethod === "Wallet");
+
+      let orderTotal = 0;
+      order.orderedItem.forEach((item) => {
+        if (item.productStatus !== "Order Cancelled") {
+          orderTotal += item.totalProductAmount;
+          overAllOrderAmount += item.totalProductAmount;
+        }
+      });
+
+      totalSalesAmount += orderTotal;
+
+      if (isValidPayment) {
+        overallRevenue += orderTotal;
+      }
+
+      totalCouponDeduction += order.couponDeduction;
+      salesCount++;
+    });
+
+    const totalSalesCount = filteredSalesReport.length;
+    const totalPages = 1; // You can add pagination if needed
+
+    res.status(StatusCodes.OK).json({
+      filteredSalesReport,
+      totalSalesAmount,
+      totalCouponDeduction,
+      salesCount,
+      overAllOrderAmount,
+      totalPages,
+      currentPage: 1,
+      overallRevenue,
+      totalSalesCount
+    });
   } catch (error) {
-    console.log(error.message);
-    return res
+    console.error(error.message);
+    res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .send("Internal Server Error");
   }
@@ -1345,7 +1439,6 @@ const graphData = async (req, res) => {
 };
 
 const approveRetrunRequest = async (req, res) => {
-  
   try {
     let {
       text,
@@ -1356,10 +1449,11 @@ const approveRetrunRequest = async (req, res) => {
       totalProductAmount,
       quantity,
     } = req.body;
-    
+    console.log("req.body--------------------------------",req.body);
     
 
     if (decision === "approve") {
+      // Mark product as returned, remove return request, and reduce order amount
       await order.findOneAndUpdate(
         { _id: orderId, "orderedItem.productId": productId },
         {
@@ -1367,10 +1461,12 @@ const approveRetrunRequest = async (req, res) => {
             "orderedItem.$.productStatus": "Returned",
             "orderedItem.$.returnRequest": false,
           },
+          $inc: { orderAmount: -totalProductAmount } // 🔹 Minus from order total
         },
         { new: true }
       );
 
+      // Refund to wallet
       await User.findByIdAndUpdate(
         userId,
         {
@@ -1387,11 +1483,14 @@ const approveRetrunRequest = async (req, res) => {
         { new: true }
       );
 
+      // Restore stock
       await Products.findOneAndUpdate(
         { _id: productId },
         { $inc: { productquadity: +quantity } }
       );
+
     } else if (decision === "reject") {
+      // Just update status & remove return request
       await order.findOneAndUpdate(
         { _id: orderId, "orderedItem.productId": productId },
         {
@@ -1404,14 +1503,16 @@ const approveRetrunRequest = async (req, res) => {
       );
     }
 
-    res.status(StatusCodes.OK).json({ message: "updated successsfully" });
+    res.status(StatusCodes.OK).json({ message: "updated successfully" });
+
   } catch (error) {
     console.log(error.message);
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ error: "Failed to generate sales report." });
+      .json({ error: "Failed to approve/reject return request." });
   }
 };
+
 
 const deleteOffer = async (req, res) => {
   try {

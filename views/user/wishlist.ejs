@@ -285,60 +285,74 @@
                                 </thead>
                                 <tbody id="wishlist-container">
                                     <% if (wishlistData.length > 0) { %>
-                                        <% let productIndex = 0; %>
-                                        <% wishlistData.forEach((item) => { %>
-                                            <% item.products.forEach((data) => { %>
-                                                <tr class="wishlist-item" data-index="<%= productIndex++ %>">
-                                                    <td class="product-remove">
-                                                        <button onclick="removewishlistProduct('<%= data.productId._id %>')">
-                                                            <i class="fa-solid fa-xmark"></i>
-                                                        </button>
-                                                    </td>
-                                                    <td class="product-thumbnail">
-                                                        <a href="/product-details/<%= data.productId._id %>">
-                                                            <img src="/uploads/<%= data.productId.productimage[0] %>" alt="" />
-                                                        </a>
-                                                    </td>
-                                                    <td class="product-name">
-                                                        <h5><a href="/product-details/<%= data.productId._id %>">
-                                                            <%= data.productId.productname %>
-                                                        </a></h5>
-                                                    </td>
-                                                    <td class="product-wishlist-price">
-                                                        <span class="amount">₹<%= data.productId.productprice %></span>
-                                                    </td>
-                                                    <td class="stock-status">
-                                                        <% if (data.productId.productquadity > 100) { %>
-                                                            <p id="stock5">Stock Available</p>
-                                                        <% } else if (data.productId.productquadity < 100 && data.productId.productquadity >= 50) { %>
-                                                            <p id="stock4">Limited Stock Only</p>
-                                                        <% } else if (data.productId.productquadity < 50 && data.productId.productquadity >= 10) { %>
-                                                            <p id="stock3">Hurry, Few Left</p>
-                                                        <% } else if (data.productId.productquadity < 10 && data.productId.productquadity >= 1) { %>
-                                                            <p id="stock2">Only <%= data.productId.productquadity %> Available</p>
-                                                        <% } else { %>
-                                                            <p id="stock1">Out of Stock</p>
-                                                        <% } %>
-                                                    </td>
-                                                    <td class="wishlist-cart btn-hover">
-                                                        <button onclick="addItemInCart('<%= data.productId._id %>')">Add to Cart</button>
-                                                    </td>
-                                                </tr>
-                                            <% }) %>
-                                        <% }) %>
-                                    <% } else { %>
-                                        <tr>
-                                            <td colspan="6">
-                                                <div class="no-wishlist">
-                                                    <div class="no-wishlist-icon">
-                                                        <i class="fas fa-heart"></i>
-                                                    </div>
-                                                    <h4>No Items in Wishlist</h4>
-                                                    <p>Add some products to your wishlist!</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <% } %>
+    <% let productIndex = 0; %>
+    <% wishlistData.forEach((item) => { %>
+        <% item.products.forEach((data) => { %>
+            <% if (data.productId && data.productId._id) { %>
+                <tr class="wishlist-item" data-index="<%= productIndex++ %>">
+                    <td class="product-remove">
+                        <button onclick="removewishlistProduct('<%= data.productId._id %>')">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </td>
+                    <td class="product-thumbnail">
+                        <a href="/product-details/<%= data.productId._id %>">
+                            <img src="/Uploads/<%= data.productId.productimage[0] %>" alt="" />
+                        </a>
+                    </td>
+                    <td class="product-name">
+                        <h5><a href="/product-details/<%= data.productId._id %>">
+                            <%= data.productId.productname %>
+                        </a></h5>
+                    </td>
+                    <td class="product-wishlist-price">
+                        <span class="amount">₹<%= data.productId.productprice %></span>
+                    </td>
+                    <td class="stock-status">
+                        <% if (data.productId.productquadity > 100) { %>
+                            <p id="stock5">Stock Available</p>
+                        <% } else if (data.productId.productquadity < 100 && data.productId.productquadity >= 50) { %>
+                            <p id="stock4">Limited Stock Only</p>
+                        <% } else if (data.productId.productquadity < 50 && data.productId.productquadity >= 10) { %>
+                            <p id="stock3">Hurry, Few Left</p>
+                        <% } else if (data.productId.productquadity < 10 && data.productId.productquadity >= 1) { %>
+                            <p id="stock2">Only <%= data.productId.productquadity %> Available</p>
+                        <% } else { %>
+                            <p id="stock1">Out of Stock</p>
+                        <% } %>
+                    </td>
+                    <td class="wishlist-cart btn-hover">
+                        <button onclick="addItemInCart('<%= data.productId._id %>')">Add to Cart</button>
+                    </td>
+                </tr>
+            <% } else { %>
+                <tr>
+                    <td colspan="6">
+                        <div class="no-wishlist">
+                            <div class="no-wishlist-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h4>Invalid Product</h4>
+                            <p>This product is missing or invalid.</p>
+                        </div>
+                    </td>
+                </tr>
+            <% } %>
+        <% }) %>
+    <% }) %>
+<% } else { %>
+    <tr>
+        <td colspan="6">
+            <div class="no-wishlist">
+                <div class="no-wishlist-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h4>No Items in Wishlist</h4>
+                <p>Add some products to your wishlist!</p>
+            </div>
+        </td>
+    </tr>
+<% } %>
                                 </tbody>
                             </table>
                         </div>
@@ -505,11 +519,11 @@
             .catch((error) => {
                 console.error('Error:', error);
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: error.message,
+                    icon: 'warning',
+                    title: 'Product already in cart',
+                    text: "Product already in cart",
                     position: 'top-end',
-                    timer: 1500,
+                    timer: 2500,
                     showConfirmButton: false
                 });
             });

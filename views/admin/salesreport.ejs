@@ -357,71 +357,75 @@ function redirectToSelectedPage() {
         }
 
 
-        function filterTable(customData) {
-
-    
-
+       function filterTable(customData) {
     const table = document.querySelector('.table');
     const noDataMessage = document.getElementById('noDataMessage');
     const tableBody = document.getElementById('tablebody');
 
-    if (customData.filteredSalesReport.length === 0) {
-   
+    if (!customData.filteredSalesReport || customData.filteredSalesReport.length === 0) {
         table.style.display = 'none';
-    
         noDataMessage.style.display = 'block';
-              document.getElementById('totalSalesCount').innerText = 'Overall sales count : 0/-';
-              document.getElementById('overAllOrderAmount').innerText = 'OverAll order amount : Rs.0/-';
-             document.getElementById('overallRevenue').innerText = 'Overall revenue : Rs.0/-';
-             document.getElementById('overAllOrderAmount').innerText = 'OverAll order amount : Rs.0/-';
-             document.getElementById('totalSalesAmount').innerText = 'Total sales amount : Rs.0/-';
-             document.getElementById('totalCouponDeduction').innerText = 'Total coupon deduction : Rs.0/-';
-    } else {
-        // Show the table
-        table.style.display = 'table';
-    
-        noDataMessage.style.display = 'none';
 
-        // Clear existing table rows
-        tableBody.innerHTML = '';
-        console.log("table body cleared");
-
-    // Add table headers
-    const headerRow = document.getElementById('thead');
-    headerRow.innerHTML = `
-        <th>Date</th>
-        <th scope="col">Order ID</th>
-        <th scope="col">Billing Name</th>
-        <th scope="col">Offer Applied</th>
-        <th scope="col">Coupon Applied</th>
-        <th scope="col">Payment Method</th>
-        <th scope="col" class="text-end">Total</th>
-    `;
-    // tableHead.appendChild(headerRow);
-        console.log("CUSTOM : ",customData.filteredSalesReport);
-    // Populate table with data
-    if (customData.filteredSalesReport.length > 0) {
-        customData.filteredSalesReport.forEach(item => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${item.shippingDate ? new Date(item.shippingDate).toDateString() : ''}</td>
-                <td><b>${item.orderId}</b></td>
-                <td>${item.deliveryAddress ? item.deliveryAddress.name : ''}</td>
-                <td>0.00</td>
-                <td>${item.couponDeduction}</td>
-                <td><span class="badge rounded-pill alert-warning">${item.paymentMethod}</span></td>
-                <td class="text-end">Rs.${calculateTotalAmount(item.orderedItem)}/-</td>`;
-            tableBody.appendChild(row);
-        });
-    } else {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td colspan="7" class="text-center">No data available</td>`;
-        tableBody.appendChild(row);
-        document.getElementById('totalSalesCount').innerText = '0';
+        document.getElementById('totalSalesCount').innerText = 'Overall sales count : 0/-';
+        document.getElementById('overAllOrderAmount').innerText = 'OverAll order amount : Rs.0/-';
+        document.getElementById('overallRevenue').innerText = 'Overall revenue : Rs.0/-';
+        document.getElementById('totalSalesAmount').innerText = 'Total sales amount : Rs.0/-';
+        document.getElementById('totalCouponDeduction').innerText = 'Total coupon deduction : Rs.0/-';
+        return;
     }
-}
 
-        }
+    // Show table and hide "no data"
+    table.style.display = 'table';
+    noDataMessage.style.display = 'none';
+
+    // Clear table body
+    tableBody.innerHTML = '';
+
+    // Populate table
+    customData.filteredSalesReport.forEach(item => {
+        const productDetailsHTML = item.orderedItem && item.orderedItem.length > 0
+            ? item.orderedItem.map(product => {
+                if (product.productId) {
+                    return `
+                        <div>
+                            <span class="badge rounded-pill alert-info">
+                                ${product.productId.productname}
+                            </span>
+                            -
+                            <span class="badge rounded-pill alert-warning">
+                                ${product.productStatus}
+                            </span>
+                            -
+                            <span class="badge rounded-pill alert-warning">
+                                Rs.${product.totalProductAmount}
+                            </span>
+                        </div>
+                    `;
+                }
+                return '';
+            }).join('')
+            : `<span class="badge rounded-pill alert-secondary">No products</span>`;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.shippingDate ? new Date(item.shippingDate).toDateString() : ''}</td>
+            <td><b>${item.orderId}</b></td>
+            <td>${item.userId ? item.userId.name : ''}</td>
+            <td>${item.couponDeduction}</td>
+            <td><span class="badge rounded-pill alert-warning">${item.paymentMethod}</span></td>
+            <td>${productDetailsHTML}</td>
+            <td class="text-end">Rs.${item.orderAmount}/-</td>
+        `;
+        tableBody.appendChild(row);
+    });
+
+    // Update totals
+    document.getElementById('totalSalesCount').innerText = `Overall sales count : ${customData.totalSalesCount}/-`;
+    document.getElementById('overAllOrderAmount').innerText = `OverAll order amount : Rs.${customData.overAllOrderAmount}/-`;
+    document.getElementById('overallRevenue').innerText = `Overall revenue : Rs.${customData.overallRevenue}/-`;
+    document.getElementById('totalSalesAmount').innerText = `Total sales amount : Rs.${customData.totalSalesAmount}/-`;
+    document.getElementById('totalCouponDeduction').innerText = `Total coupon deduction : Rs.${customData.totalCouponDeduction}/-`;
+}
 
         function calculateTotalAmount(orderedItems) {
             let totalAmount = 0;

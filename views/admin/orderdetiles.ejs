@@ -141,7 +141,8 @@
                                             <td>
                                                 <%=item.quantity%>
                                             </td>
-                                            <td>
+                                            <!-- <input type="hidden" value="<%=item.totalProductAmount%>" id="totalProductAmount"> -->
+                                            <td >
                                                 ₹<%=item.totalProductAmount%>
                                             </td>
                                             <td>
@@ -293,13 +294,16 @@
             const statusSelect = document.getElementById(`statusSelect_${productId}`);
             const selectedStatus = statusSelect.value;
             const orderId = document.getElementById('orderId').value;
+            const userId = document.getElementById('userid').value;
+            
+
 
             fetch(`/orderdetiles/${productId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ selectedStatus, productId, orderId })
+                body: JSON.stringify({ selectedStatus, productId, orderId ,userId  })
             })
                 .then(response => {
                     if (!response.ok) {
@@ -346,6 +350,8 @@
         console.log("productId", productId);
         const orderId = document.getElementById('orderid').value;
         const userId = document.getElementById('userid').value;
+        console.log("userrId===========", userId);
+        
         const totalProductAmount = document.getElementById('totalProductAmount').value;
         const quantity = document.getElementById('quantity').value;
 

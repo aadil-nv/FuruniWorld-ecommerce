@@ -19,6 +19,8 @@ passport.use(
         let user = await User.findOne({ email });
 
         if (!user) {
+          console.log("new user",name,email,googleId);
+          
        
           const user = new User({
             name, 

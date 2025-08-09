@@ -37,7 +37,7 @@ const addProductInWishlist = async (req, res) => {
     });
 
     if (existingProduct) {
-      return res.status(StatusCodes.OK).json({ message: "exists" });
+      return res.json({ message: "exists" });
     }
     const wishlists = await Wishlist.findOneAndUpdate(
       { userId: req.session.user },
@@ -51,7 +51,7 @@ const addProductInWishlist = async (req, res) => {
       { new: true, upsert: true }
     );
 
-    res.status(StatusCodes.OK).json({ message: "success" });
+    res.json({ message: "success" });
   } catch (error) {
     console.log(error.message);
     res
