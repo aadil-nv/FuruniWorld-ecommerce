@@ -280,7 +280,6 @@ const adminChangeOrderStatus = async (req, res) => {
   try {
     const { selectedStatus, productId, orderId, userId } = req.body;
 
-    console.log("req.body-----------------adminChangeOrderStatus---------------", req.body);
 
     if (selectedStatus === "null") {
       return res.status(400).json({ message: "selectedStatus is null" });
@@ -306,41 +305,49 @@ const adminChangeOrderStatus = async (req, res) => {
       return res.status(StatusCodes.NOT_FOUND).json({ message: "Product not found in order" });
     }
 
-    const totalProductAmount = productItem.totalProductAmount; // 🔹 Use DB value
+   const totalProductAmount = productItem.totalProductAmount; // DB value
+const couponDeduction = orderData?.couponDeduction || 0; // default 0
+console.log("couponDeduction1111111111111111111111111111111", couponDeduction);
 
-    // Update product status and reduce amount if cancelled
-    const updatedOrder = await order.findOneAndUpdate(
-      { _id: orderId, "orderedItem.productId": productId },
-      {
-        $set: { "orderedItem.$.productStatus": selectedStatus },
-        ...(selectedStatus.toLowerCase() === "order cancelled" && {
-          $inc: { orderAmount: -totalProductAmount }
-        })
-      },
-      { new: true }
-    )
-    .populate("orderedItem.productId")
-    .populate("deliveryAddress")
-    .populate("userId");
 
-    // Refund if cancelled
-    if (selectedStatus.toLowerCase() === "order cancelled" && updatedOrder.paymentMethod !== "Cash On Delivery") {
-      await User.findByIdAndUpdate(
-        userId,
-        {
-          $inc: { wallet: totalProductAmount },
-          $push: {
-            walletHistory: {
-              amount: totalProductAmount,
-              description: `Refund of ORDERID:${updatedOrder.orderId}`,
-              date: new Date(),
-              status: "credit",
-            }
-          }
-        },
-        { new: true }
-      );
-    }
+// Update product status and reduce amount if cancelled
+const updatedOrder = await order.findOneAndUpdate(
+  { _id: orderId, "orderedItem.productId": productId },
+  {
+    $set: { "orderedItem.$.productStatus": selectedStatus },
+    ...(selectedStatus.toLowerCase() === "order cancelled" && {
+      $inc: { orderAmount: -totalProductAmount }
+    })
+  },
+  { new: true }
+)
+.populate("orderedItem.productId")
+.populate("deliveryAddress")
+.populate("userId");
+
+// Refund if cancelled
+if (
+  selectedStatus.toLowerCase() === "order cancelled" &&
+  updatedOrder.paymentMethod !== "Cash On Delivery"
+) {
+  const refundAmount = totalProductAmount - couponDeduction;
+
+  await User.findByIdAndUpdate(
+    userId,
+    {
+      $inc: { wallet: refundAmount },
+      $push: {
+        walletHistory: {
+          amount: refundAmount,
+          description: `Refund of ORDERID:${updatedOrder.orderId}`,
+          date: new Date(),
+          status: "credit",
+        }
+      }
+    },
+    { new: true }
+  );
+}
 
     res.status(StatusCodes.OK).json({
       message: "Order status updated successfully",
@@ -1452,7 +1459,6 @@ const approveRetrunRequest = async (req, res) => {
       totalProductAmount,
       quantity,
     } = req.body;
-    console.log("req.body--------------------------------",req.body);
     
 
     if (decision === "approve") {

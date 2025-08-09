@@ -869,6 +869,8 @@
 
             const totalDiscount = document.getElementById("totalvalue1").innerText;
             const couponCode = document.getElementById("couponCodeInput").value;
+            console.log("coupon code is =======>", couponCode);
+            
 
             fetch('/order/orderpage', {
                 method: "post",

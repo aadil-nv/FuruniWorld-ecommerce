@@ -421,9 +421,12 @@ const orderCancel = async (req, res) => {
 const verifyOrder = async (req, res) => {
   try {
     const { razorpay_signature, order_id, paymentId, couponCode } = req.body;
+    console.log(`coupon deduction from verifyOrder ${couponCode}`.bgRed.bold);
+    
     let key_secret = process.env.RAZORPAY_SECRET_ID;
     const userId = req.session.user;
     const cartData = await Cart.findOne({ userId }).populate("products.productId");
+    const couponData = await Coupon.findOne({ couponCode: couponCode });
 
     const orderedItems = cartData.products.map((product) => {
       const totalProductAmount = product.quantity * (product.productId?.price || 0);
@@ -441,6 +444,7 @@ const verifyOrder = async (req, res) => {
       userId: newOrder.userId,
       cartId: newOrder.cartId,
       orderId: newOrder.orderId,
+      
       orderedItem: newOrder.orderedItem,
       orderAmount: newOrder.orderAmount,
       deliveryAddress: newOrder.deliveryAddress,
@@ -628,6 +632,10 @@ const retryPaymentVerification = async (req, res) => {
   
   try {
     const { razorpay_signature, order_id, paymentId, couponCode,initial_ID } = req.body;
+
+    console.log(`coupon deduction ${couponCode}`.bgRed);
+    console.log(`coupon deduction ${couponCode}`);
+    
 
 
     let key_secret = process.env.RAZORPAY_SECRET_ID;
