@@ -1274,6 +1274,9 @@ const filterCustomDate = async (req, res) => {
     const totalSalesCount = filteredSalesReport.length;
     const totalPages = 1; // You can add pagination if needed
 
+    console.log("Filtered Sales Report:", filteredSalesReport);
+    
+
     res.status(StatusCodes.OK).json({
       filteredSalesReport,
       totalSalesAmount,
