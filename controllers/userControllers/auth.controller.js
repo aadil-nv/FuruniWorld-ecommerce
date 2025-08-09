@@ -244,11 +244,19 @@ const resendOtp = async (req, res) => {
 };
 
 const loadGoogleAuth = async (req, res) => {
+  console.log("loadGoogleAuth is calling=================");
+  
   try {
     const gUser = req.user;
+    console.log("gUser1111111111111111111111", gUser);
+    
     if (gUser) {
+      console.log("inside g user111111111111111111111");
+      
+      console.log("inside g user222222222222222222",gUser._id);
       req.session.user = gUser._id;
-      return res.status(StatusCodes.OK).redirect("/");
+      
+      return res.status(StatusCodes.OK).redirect("/userhome");
     }
   } catch (error) {
     console.log(error.message);
