@@ -43,7 +43,9 @@ passport.use(
           });
           await user.save();
         }
-        return cb(null, user ,{ successRedirect: "",});
+        console.log("created new user is ===>====>",user);
+        
+        return cb(null, user ,{ successRedirect: "/userhome",});
       } catch (error) {
         console.log(error.message);
       }
