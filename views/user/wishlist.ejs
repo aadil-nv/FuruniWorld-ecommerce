@@ -489,6 +489,8 @@
             headers: { 'Content-Type': 'application/json' },
         })
             .then((response) => {
+                console.log("response is =====================>", response);
+                
                 if (response.ok) {
                     return response.json();
                 } else {
@@ -496,6 +498,8 @@
                 }
             })
             .then((data) => {
+                console.log("data is =====================>", data);
+                
                 if (data.message === 'Product already in cart') {
                     Swal.fire({
                         icon: 'warning',

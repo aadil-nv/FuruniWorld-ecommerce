@@ -53,15 +53,11 @@ const addProductInCart = async (req, res) => {
     const productData2 = await Products.findById(productId).populate("offerId");
 
     if (productData2.productquadity === 0) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "Product is out of stock" });
+      return res.json({ message: "Product is out of stock" });
     }
 
     if (existingProduct) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "Product already in cart" });
+      return res.json({ message: "Product already in cart" });
     }
 
     const productData = await Products.findById(productId).populate("offerId");
@@ -88,12 +84,10 @@ const addProductInCart = async (req, res) => {
     );
 
     res
-      .status(StatusCodes.OK)
-      .json({ message: "Product added to cart successfully" });
+      .json({ message: 'Product added to cart successfully' });
   } catch (error) {
     console.error(error.message);
     res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: "Internal server error" });
   }
 };
