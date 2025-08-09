@@ -15,43 +15,40 @@ passport.use(
     },
     async function (request, accessToken, refreshToken, profile, cb) {
       try {
-        
-        const { id: googleId, email, _json: { name } } = profile; 
+        const { id: googleId, email, _json: { name } } = profile;
         let user = await User.findOne({ email });
-         const referalId = generateReferralCode(7);
+        const referalId = generateReferralCode(7);
 
-        console.log("user",user);
-        console.log("datas ==============>",name,email,googleId);
-        
-        
+        console.log("user", user);
+        console.log("datas ==============>", name, email, googleId);
 
         if (!user) {
-          console.log("new user",name,email,googleId);
-          
-       
-          const user = new User({
-            name, 
+          console.log("new user", name, email, googleId);
+
+          user = new User({
+            name,
             email,
             mobile: googleId,
-            password:googleId,
+            password: googleId,
             is_admin: 0,
             is_verified: 1,
             is_blocked: false,
-             wallet: 0,
-             referalId: referalId,
+            wallet: 0,
+            referalId: referalId,
             walletHistory: [],
           });
           await user.save();
         }
-        console.log("created new user is ===>====>",user);
-        
-        return cb(null, user ,{ successRedirect: "/userhome",});
+
+        console.log("created new user is ===>====>", user);
+        return cb(null, user, { successRedirect: "/userhome" });
       } catch (error) {
         console.log(error.message);
       }
     }
   )
 );
+
 
 passport.serializeUser(function (user, cb) {
   cb(null, user);
