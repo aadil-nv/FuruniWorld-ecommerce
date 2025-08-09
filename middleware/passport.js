@@ -18,6 +18,11 @@ passport.use(
         const { id: googleId, email, _json: { name } } = profile; 
         let user = await User.findOne({ email });
 
+        console.log("user",user);
+        console.log("datas ==============>",name,email,googleId);
+        
+        
+
         if (!user) {
           console.log("new user",name,email,googleId);
           
