@@ -1,6 +1,7 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
 const User = require("../models/userModel");
+const generateReferralCode = require("../utils/generateReferralCode");
 require("dotenv").config();
 
 
@@ -17,6 +18,7 @@ passport.use(
         
         const { id: googleId, email, _json: { name } } = profile; 
         let user = await User.findOne({ email });
+         const referalId = generateReferralCode(7);
 
         console.log("user",user);
         console.log("datas ==============>",name,email,googleId);
@@ -35,6 +37,9 @@ passport.use(
             is_admin: 0,
             is_verified: 1,
             is_blocked: false,
+             wallet: 0,
+             referalId: referalId,
+            walletHistory: [],
           });
           await user.save();
         }
