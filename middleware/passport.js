@@ -28,7 +28,7 @@ passport.use(
           user = new User({
             name,
             email,
-            mobile: googleId,
+            mobile: 1234567890,
             password: googleId,
             is_admin: 0,
             is_verified: 1,

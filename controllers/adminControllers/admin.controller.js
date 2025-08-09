@@ -305,9 +305,9 @@ const adminChangeOrderStatus = async (req, res) => {
       return res.status(StatusCodes.NOT_FOUND).json({ message: "Product not found in order" });
     }
 
-   const totalProductAmount = productItem.totalProductAmount; // DB value
-const couponDeduction = orderData?.couponDeduction || 0; // default 0
-console.log("couponDeduction1111111111111111111111111111111", couponDeduction);
+    const couponDeduction = orderData?.couponDeduction || 0; // default 0
+    console.log("couponDeduction1111111111111111111111111111111", couponDeduction);
+    const totalProductAmount = productItem.totalProductAmount-couponDeduction; // DB value
 
 
 // Update product status and reduce amount if cancelled
