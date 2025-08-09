@@ -18,7 +18,7 @@ userAuth_route.get('/logout',userAuthController.logout)
 
 userAuth_route.get("/google",passport.authenticate("google", { scope: ["profile", "email"] }));
 
-userAuth_route.get("/google/callback",passport.authenticate("google", { failureRedirect: "/userhome" }),userAuthController.loadGoogleAuth);
+userAuth_route.get("/google/callback",passport.authenticate("google", { failureRedirect: "/failed" }),userAuthController.loadGoogleAuth);
 
 
 
